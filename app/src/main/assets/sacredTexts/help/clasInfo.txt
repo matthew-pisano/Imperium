@@ -1,0 +1,1 @@
+Classic Mode|Similar to the classic domination board game.  Attack provinces, build armies, and conquer continents.  The classic gamemode also features and 'Imperium' mechanic instead of cards.  This mechanic affects the strength of your armies compared to others.

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OptionsActivity">
+
+    <ImageView
+        android:id="@+id/optionRound"
+        android:scaleType="fitXY"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/optionround" />
+
+    <ImageButton
+        android:id="@+id/optionsQuit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent=".35"
+        app:layout_constraintHeight_percent=".09"
+        app:layout_constraintVertical_bias=".999"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/speed"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Ai Turn Speed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/music"
+        app:layout_constraintHorizontal_bias=".2"
+        app:layout_constraintStart_toStartOf="@+id/music"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias=".4"
+        app:layout_constraintWidth_percent=".16"/>
+
+    <ImageButton
+        android:id="@+id/spedCheck"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/speed"
+        app:layout_constraintEnd_toStartOf="@+id/speed"
+        app:layout_constraintHorizontal_bias=".9"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/speed"
+        app:layout_constraintWidth_percent=".1"
+        app:layout_constraintHeight_percent=".06" />
+    <SeekBar
+        android:id="@+id/spedScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:thumb="@drawable/blank"
+        app:layout_constraintBottom_toBottomOf="@+id/speed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent=".02"
+        app:layout_constraintHorizontal_bias=".73"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/speed"
+        app:layout_constraintWidth_percent=".5" />
+
+    <ImageView
+        android:id="@+id/spedCover"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/spedScroll"
+        app:layout_constraintEnd_toEndOf="@+id/spedScroll"
+        app:layout_constraintHeight_percent=".03"
+        app:layout_constraintStart_toStartOf="@+id/spedScroll"
+        app:layout_constraintTop_toTopOf="@+id/spedScroll"
+        app:layout_constraintWidth_percent=".5"
+        app:srcCompat="@drawable/progresscover" />
+
+    <LinearLayout
+        android:id="@+id/spedHolder"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:weightSum="1"
+        app:layout_constraintBottom_toBottomOf="@+id/spedScroll"
+        app:layout_constraintEnd_toEndOf="@+id/spedScroll"
+        app:layout_constraintHeight_percent=".06"
+        app:layout_constraintStart_toStartOf="@+id/spedScroll"
+        app:layout_constraintTop_toTopOf="@+id/spedScroll"
+        app:layout_constraintVertical_bias=".9"
+        app:layout_constraintWidth_percent=".47">
+
+        <TextView
+            android:id="@+id/spedAt"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight=".45" />
+
+        <ImageView
+            android:id="@+id/spedBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".58"
+            android:scaleType="fitXY" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/attack"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Ai Attack Speed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/speed"
+        app:layout_constraintHorizontal_bias=".2"
+        app:layout_constraintStart_toStartOf="@+id/speed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias=".5"
+        app:layout_constraintWidth_percent=".16" />
+
+    <ImageButton
+        android:id="@+id/attCheck"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/attack"
+        app:layout_constraintEnd_toStartOf="@+id/attack"
+        app:layout_constraintHorizontal_bias=".9"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/attack"
+        app:layout_constraintWidth_percent=".1"
+        app:layout_constraintHeight_percent=".06"/>
+    <SeekBar
+        android:id="@+id/attScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:thumb="@drawable/blank"
+        app:layout_constraintBottom_toBottomOf="@+id/attack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent=".02"
+        app:layout_constraintHorizontal_bias=".73"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/attack"
+        app:layout_constraintWidth_percent=".5" />
+
+    <ImageView
+        android:id="@+id/attCover"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/attScroll"
+        app:layout_constraintEnd_toEndOf="@+id/attScroll"
+        app:layout_constraintHeight_percent=".03"
+        app:layout_constraintStart_toStartOf="@+id/attScroll"
+        app:layout_constraintTop_toTopOf="@+id/attScroll"
+        app:layout_constraintWidth_percent=".5"
+        app:srcCompat="@drawable/progresscover" />
+
+    <LinearLayout
+        android:id="@+id/attHolder"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:weightSum="1"
+        app:layout_constraintBottom_toBottomOf="@+id/attScroll"
+        app:layout_constraintEnd_toEndOf="@+id/attScroll"
+        app:layout_constraintHeight_percent=".06"
+        app:layout_constraintStart_toStartOf="@+id/attScroll"
+        app:layout_constraintTop_toTopOf="@+id/attScroll"
+        app:layout_constraintVertical_bias=".9"
+        app:layout_constraintWidth_percent=".47">
+
+        <TextView
+            android:id="@+id/attAt"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight=".45" />
+
+        <ImageView
+            android:id="@+id/attBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".58"
+            android:scaleType="fitXY" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/music"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Music Volume"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias=".23"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias=".264"
+        app:layout_constraintWidth_percent=".16" />
+
+    <ImageButton
+        android:id="@+id/volCheck"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/music"
+        app:layout_constraintEnd_toStartOf="@+id/music"
+        app:layout_constraintHorizontal_bias=".9"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/music"
+        app:layout_constraintWidth_percent=".1"
+        app:layout_constraintHeight_percent=".06"/>
+
+    <SeekBar
+        android:id="@+id/volScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:thumb="@drawable/blank"
+        app:layout_constraintBottom_toBottomOf="@+id/music"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent=".02"
+        app:layout_constraintHorizontal_bias=".73"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/music"
+        app:layout_constraintWidth_percent=".5" />
+
+    <ImageView
+        android:id="@+id/volCover"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/volScroll"
+        app:layout_constraintEnd_toEndOf="@+id/volScroll"
+        app:layout_constraintHeight_percent=".03"
+        app:layout_constraintStart_toStartOf="@+id/volScroll"
+        app:layout_constraintTop_toTopOf="@+id/volScroll"
+        app:layout_constraintWidth_percent=".5"
+        app:srcCompat="@drawable/progresscover" />
+
+    <LinearLayout
+        android:id="@+id/volHolder"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:weightSum="1"
+        app:layout_constraintBottom_toBottomOf="@+id/volScroll"
+        app:layout_constraintEnd_toEndOf="@+id/volScroll"
+        app:layout_constraintHeight_percent=".06"
+        app:layout_constraintStart_toStartOf="@+id/volScroll"
+        app:layout_constraintTop_toTopOf="@+id/volScroll"
+        app:layout_constraintVertical_bias=".9"
+        app:layout_constraintWidth_percent=".47">
+
+        <TextView
+            android:id="@+id/volAt"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight=".45" />
+
+        <ImageView
+            android:id="@+id/volBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".58"
+            android:scaleType="fitXY" />
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/smol"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent=".2"
+        app:layout_constraintHeight_percent=".11"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.86"
+        app:srcCompat="@drawable/gear" />
+
+    <ImageView
+        android:id="@+id/smolShine"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent=".2"
+        app:layout_constraintHeight_percent=".11"
+        app:layout_constraintBottom_toBottomOf="@+id/smol"
+        app:layout_constraintEnd_toEndOf="@+id/smol"
+        app:layout_constraintStart_toStartOf="@+id/smol"
+        app:layout_constraintTop_toTopOf="@+id/smol"
+        app:srcCompat="@drawable/gearshine" />
+    <ImageView
+        android:id="@+id/big"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent=".35"
+        app:layout_constraintHeight_percent=".19"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.761"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.835"
+        app:srcCompat="@drawable/gear" />
+
+    <ImageView
+        android:id="@+id/bigShine"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent=".4"
+        app:layout_constraintHeight_percent=".19"
+        app:layout_constraintBottom_toBottomOf="@+id/big"
+        app:layout_constraintEnd_toEndOf="@+id/big"
+        app:layout_constraintStart_toStartOf="@+id/big"
+        app:layout_constraintTop_toTopOf="@+id/big"
+        app:srcCompat="@drawable/gearshine" />
+
+
+
+</android.support.constraint.ConstraintLayout>

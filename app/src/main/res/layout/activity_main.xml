@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/mainRound"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent=".999"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent=".999"
+        app:srcCompat="@drawable/start" />
+    <ImageView
+        android:id="@+id/welcome"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent=".6"
+        app:layout_constraintHeight_percent=".15"
+        app:layout_constraintVertical_bias=".05"
+        android:background="@drawable/welcome"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <ImageButton
+        android:id="@+id/updateBanner"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent=".6"
+        app:layout_constraintHeight_percent=".1"
+        app:layout_constraintVertical_bias=".3"
+        android:background="@drawable/conequibanner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <TextView
+        android:id="@+id/version"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        app:layout_constraintHeight_percent=".04"
+        app:layout_constraintWidth_percent=".7"
+        app:layout_constraintVertical_bias="0.95"
+        app:layout_constraintBottom_toTopOf="@+id/newGame"
+        app:layout_constraintEnd_toEndOf="@+id/newGame"
+        app:layout_constraintStart_toStartOf="@+id/newGame"
+        app:layout_constraintTop_toTopOf="@+id/mainRound" />
+    <ImageButton
+        android:id="@+id/newGame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/newgame"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.06"
+        app:layout_constraintHorizontal_bias=".5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/mainRound"
+        app:layout_constraintVertical_bias=".48"
+        app:layout_constraintWidth_percent="0.45" />
+
+    <ImageButton
+        android:id="@+id/loadGame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/loadgame"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/newGame"
+        app:layout_constraintHeight_percent="0.06"
+        app:layout_constraintStart_toStartOf="@+id/newGame"
+        app:layout_constraintTop_toBottomOf="@+id/newGame"
+        app:layout_constraintVertical_bias=".06"
+        app:layout_constraintWidth_percent="0.45"
+        tools:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/tutorial"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/tutorial"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/newGame"
+        app:layout_constraintHeight_percent="0.06"
+        app:layout_constraintStart_toStartOf="@+id/newGame"
+        app:layout_constraintTop_toBottomOf="@+id/loadGame"
+        app:layout_constraintVertical_bias=".1"
+        app:layout_constraintWidth_percent="0.45"
+        tools:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/achivemnts"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/achivements"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/newGame"
+        app:layout_constraintHeight_percent="0.06"
+        app:layout_constraintStart_toStartOf="@+id/newGame"
+        app:layout_constraintTop_toBottomOf="@+id/tutorial"
+        app:layout_constraintVertical_bias=".1"
+        app:layout_constraintWidth_percent="0.45"
+        tools:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/about"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/about"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/achivemnts"
+        app:layout_constraintHeight_percent="0.06"
+        app:layout_constraintStart_toStartOf="@id/achivemnts"
+        app:layout_constraintTop_toBottomOf="@id/achivemnts"
+        app:layout_constraintVertical_bias=".18"
+        app:layout_constraintWidth_percent="0.45"
+        tools:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/quit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/quit"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/mainRound"
+        app:layout_constraintEnd_toEndOf="@id/about"
+        app:layout_constraintHeight_percent="0.06"
+        app:layout_constraintStart_toStartOf="@id/about"
+        app:layout_constraintTop_toBottomOf="@id/about"
+        app:layout_constraintVertical_bias=".30"
+        app:layout_constraintWidth_percent="0.45" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/releaseLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent=".3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent=".8">
+
+        <ImageView
+            android:id="@+id/releaseCover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/canvas"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/releaseText"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scrollbars="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent=".7"
+            app:layout_constraintVertical_bias=".62"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent=".85" />
+
+        <ImageButton
+            android:id="@+id/closeNotes"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent=".2"
+            app:layout_constraintWidth_percent=".15"
+            app:layout_constraintVertical_bias=".001"
+            app:layout_constraintHorizontal_bias=".999"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/closemodes" />
+    </android.support.constraint.ConstraintLayout>
+
+
+</android.support.constraint.ConstraintLayout>

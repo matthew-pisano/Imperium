@@ -1,0 +1,74 @@
+Current Version-
+	Save Encoding-
+
+
+Renovare Artibus
+Version 1.1.0 ()
+	-Added diplomacy mechanics (Historical Mode)
+	  *Can ally, subjugate, and declare war on others
+	  *Can only fight players when at war
+	  *Improved Ai strategy, better legion placement etc
+	  *Stacks - you can now station your legions in an allies province to aid them in war
+	-More text fixes
+	-Options menu now has TWO GEARS
+	-Lots of lag fixed, the game is now a lot smoother
+	-Achivements (slightly) less buggy 
+	-Over 30 new provinces for some added detail
+	  *Slighlty more acurate naming too
+	-Removed Kebab
+	-Re-added Kebab
+Renovare Consequi
+Version 1.0.0 (3/19/20)
+	-Finilization before release
+	-Many minor bug fixes
+	-Many spelling errors fixed (althouh there's probably a lot more)
+	-Hopefully all goes well!
+
+Renovare Consequi Beta
+Version 0.11.0 Beta (3/13/20)
+	-Historical mode
+	  *3 new alternate realities to explore
+	  *Over 5 new semi-historical countries to play
+	-Text size fixes
+        	-40 achievements to test your imperial aptitude
+	-A music player!
+         	 *Skipping, pausing,  and playing music
+       	 -A few much-needed tweaks to music stability
+	-More Tweaks to province alignment
+
+Version 0.10.0 Beta (2/23/20)
+	-Player names now appear on map
+	-Historical mode
+	  *17 timelines
+	  *Over 210 new historical countries to play with (mostly) historically acurate flags and borders
+	-Text size fixes
+	-Tags now used to store players
+	-Tweaks to province alignment
+	-Provinces lightly outlined for better visibility
+
+Version 0.9.1 Beta (1/29/20)
+	-Added Europe map
+	-Timing of Ai works properly
+	-Exit buttons added to optiona and help screen
+	-Hopefully the Help screen is more, like, actually helpful
+	-Ai will now strategize to attack in clumps
+	-Made End Placement button invisible for steup stage (it did nothing there)
+	-Save encoding changed
+
+Version 0.9.0 Beta (1/16/20)
+	-Imperium more balanced
+	-Much work on Imperium type map
+	   *Monetae to Units relanced
+	   *Colonization of unowned provinves
+	   *Attrition rebalanced
+	-Improved Ai intelegence
+	-(Hopefully) More intuitive interfaces
+
+Version: 0.9.0 Pre release(11/14/19)
+	-Basic game mechanics
+	-Rough blanacing of 'Infamy', attacking
+	-Basic Ai intelegence
+	-Finalization of mechanics before release
+	-Saving and loading games
+	-4 player games
+	-Imperium and Classic maps

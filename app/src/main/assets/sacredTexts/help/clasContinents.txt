@@ -1,0 +1,1 @@
+Continents|In this game mode, the land of the map is divided into many continents, huge tracts of land containing even more provinces.  Owning all the land inside of a continent results in bonus troops to deploy at the begining of each turn.

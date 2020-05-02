@@ -1,0 +1,15 @@
+Imperium
+
+
+Version-
+
+Author: Matthew Pisano
+
+Language used: Java-8
+
+Project started: 7/26/19
+
+"Sweep it under the rug, it'll be alright" -Tanis
+
+Moding: The music of Imperium is fully modable.  All of the game's music is stored in the System/Imperium/Music directory.  To add or delete music, simply add it to or remove it from the folder.
+

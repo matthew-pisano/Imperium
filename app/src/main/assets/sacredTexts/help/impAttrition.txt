@@ -1,0 +1,1 @@
+Attrition|Each province has an attrition value.  This value represents how hostile a province is to all armies stationed on it.  Weather it be the frigid tundra, dense jungle, scorching derert, or impenitrable mountains, the land may take a toll on all those who inhabit it.  The higher the attrition value, the more inhospitable it is.

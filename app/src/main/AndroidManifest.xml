@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.reactordevelopment.Imperium">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <supports-screens
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
+        android:label="Imperium"
+        android:largeHeap="true"
+        android:roundIcon="@drawable/icon"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name="com.reactordevelopment.Imperium.TutorialActivity"
+            android:screenOrientation="sensorPortrait" ></activity>
+        <activity
+            android:name="com.reactordevelopment.Imperium.OptionsActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name="com.reactordevelopment.Imperium.HelpActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name="com.reactordevelopment.Imperium.AboutActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name="com.reactordevelopment.Imperium.OpenSaveActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name="com.reactordevelopment.Imperium.StatsActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name="com.reactordevelopment.Imperium.BuildActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name="com.reactordevelopment.Imperium.AchivementActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name="com.reactordevelopment.Imperium.GameActivity"
+            android:screenOrientation="sensorLandscape" />
+        <activity
+            android:name="com.reactordevelopment.Imperium.MainActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
