@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.reactordevelopment.Imperium">
+    package="com.reactordevelopment.ImperiumLite">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -19,34 +19,34 @@
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name="com.reactordevelopment.Imperium.TutorialActivity"
+        <activity android:name="com.reactordevelopment.ImperiumLite.TutorialActivity"
             android:screenOrientation="sensorPortrait" ></activity>
         <activity
-            android:name="com.reactordevelopment.Imperium.OptionsActivity"
+            android:name="com.reactordevelopment.ImperiumLite.OptionsActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.reactordevelopment.Imperium.HelpActivity"
+            android:name="com.reactordevelopment.ImperiumLite.HelpActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.reactordevelopment.Imperium.AboutActivity"
+            android:name="com.reactordevelopment.ImperiumLite.AboutActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.reactordevelopment.Imperium.OpenSaveActivity"
+            android:name="com.reactordevelopment.ImperiumLite.OpenSaveActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.reactordevelopment.Imperium.StatsActivity"
+            android:name="com.reactordevelopment.ImperiumLite.StatsActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.reactordevelopment.Imperium.BuildActivity"
+            android:name="com.reactordevelopment.ImperiumLite.BuildActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.reactordevelopment.Imperium.AchivementActivity"
+            android:name="com.reactordevelopment.ImperiumLite.AchivementActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.reactordevelopment.Imperium.GameActivity"
+            android:name="com.reactordevelopment.ImperiumLite.GameActivity"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.reactordevelopment.Imperium.MainActivity"
+            android:name="com.reactordevelopment.ImperiumLite.MainActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

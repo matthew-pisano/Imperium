@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.reactordevelopment.Imperium.BuildActivity">
+    tools:context="com.reactordevelopment.ImperiumLite.BuildActivity">
 
     <ImageView
         android:id="@+id/buildRound"
@@ -329,6 +329,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@drawable/contline"
+            android:visibility="invisible"
             app:layout_constraintHeight_percent=".15"
             app:layout_constraintWidth_percent=".8"
             app:layout_constraintVertical_bias=".01"

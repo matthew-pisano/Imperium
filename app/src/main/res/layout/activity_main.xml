@@ -32,6 +32,32 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/backSplash"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        app:layout_constraintHeight_percent=".07"
+        app:layout_constraintWidth_percent=".7"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintBottom_toTopOf="@+id/newGame"
+        app:layout_constraintEnd_toEndOf="@+id/newGame"
+        app:layout_constraintStart_toStartOf="@+id/newGame"
+        app:layout_constraintTop_toTopOf="@+id/mainRound" />
+    <TextView
+        android:id="@+id/splash"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        app:layout_constraintHeight_percent=".07"
+        app:layout_constraintWidth_percent=".7"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintBottom_toTopOf="@+id/newGame"
+        app:layout_constraintEnd_toEndOf="@+id/newGame"
+        app:layout_constraintStart_toStartOf="@+id/newGame"
+        app:layout_constraintTop_toTopOf="@+id/mainRound" />
+
     <ImageButton
         android:id="@+id/updateBanner"
         android:layout_width="0dp"
@@ -39,7 +65,7 @@
         app:layout_constraintWidth_percent=".6"
         app:layout_constraintHeight_percent=".1"
         app:layout_constraintVertical_bias=".3"
-        android:background="@drawable/conequibanner"
+        android:background="@drawable/artubusbanner"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

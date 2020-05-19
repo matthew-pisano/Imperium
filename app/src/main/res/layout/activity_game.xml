@@ -16,7 +16,70 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/backround" />
+        android:background="@drawable/backgears" />
+    <ImageView
+        android:id="@+id/gameGear1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent=".3"
+        app:layout_constraintWidth_percent=".15"
+        app:layout_constraintHorizontal_bias=".5"
+        app:layout_constraintVertical_bias=".55"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/gear"/>
+    <ImageView
+        android:id="@+id/gameGear2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent=".45"
+        app:layout_constraintWidth_percent=".22"
+        app:layout_constraintVertical_bias=".65"
+        app:layout_constraintHorizontal_bias=".3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/gear"/>
+    <ImageView
+        android:id="@+id/gameGear3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent=".5"
+        app:layout_constraintWidth_percent=".25"
+        app:layout_constraintVertical_bias=".4"
+        app:layout_constraintHorizontal_bias=".72"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/gear" />
+    <ImageView
+        android:id="@+id/gameGearCover"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="visible"
+        app:layout_constraintHeight_percent=".999"
+        app:layout_constraintWidth_percent=".999"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/backgearcover"/>
+    <ImageView
+        android:id="@+id/gameGearBrace"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent=".999"
+        app:layout_constraintWidth_percent=".999"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/backgearbrace"/>
+
 
     <RelativeLayout
         android:id="@+id/map"
@@ -41,7 +104,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/statusbar"/>
 
     <ImageView
         android:id="@+id/showNation"
@@ -248,10 +312,11 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:text=""
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="@+id/statusCover"
         app:layout_constraintEnd_toEndOf="@+id/statusCover"
-        app:layout_constraintHeight_percent=".12"
-        app:layout_constraintVertical_bias=".39"
+        app:layout_constraintHeight_percent=".1"
+        app:layout_constraintVertical_bias=".56"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/statusCover"
         app:layout_constraintWidth_percent=".33" />
@@ -522,7 +587,6 @@
         android:id="@+id/defenderTroops"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="TextView"
         android:textAllCaps="true"
         app:layout_constraintBottom_toBottomOf="@+id/defenderBackround"
         app:layout_constraintEnd_toEndOf="@+id/slideCover"
@@ -536,7 +600,6 @@
         android:id="@+id/attackerTroops"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="TextView"
         app:layout_constraintBottom_toBottomOf="@+id/attackerBackround"
         app:layout_constraintEnd_toEndOf="@+id/attackerBackround"
         app:layout_constraintHeight_percent=".06"
@@ -587,18 +650,6 @@
         app:layout_constraintVertical_bias=".7"
         app:layout_constraintWidth_percent=".2" />
 
-    <ImageButton
-        android:id="@+id/undo"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="invisible"
-        app:layout_constraintHeight_percent=".12"
-        app:layout_constraintWidth_percent=".15"
-        app:layout_constraintHorizontal_bias=".95"
-        app:layout_constraintBottom_toBottomOf="@+id/change"
-        app:layout_constraintEnd_toStartOf="@+id/change"
-        app:layout_constraintStart_toEndOf="@+id/status"
-        app:layout_constraintTop_toTopOf="@+id/change" />
 
     <ImageButton
         android:id="@+id/again"
@@ -655,6 +706,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:text="TextView"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="@+id/dDie1"
         app:layout_constraintEnd_toStartOf="@+id/dDie1"
         app:layout_constraintHeight_percent=".05"
@@ -668,9 +720,10 @@
         android:text="TextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:gravity="center"
         app:layout_constraintHeight_percent=".05"
         app:layout_constraintWidth_percent=".04"
-        app:layout_constraintVertical_bias=".3"
+        app:layout_constraintVertical_bias=".4"
         app:layout_constraintHorizontal_bias=".8"
         app:layout_constraintBottom_toBottomOf="@+id/rollsCover"
         app:layout_constraintEnd_toEndOf="@+id/rollsCover"
@@ -682,6 +735,7 @@
         android:text="TextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:gravity="center"
         app:layout_constraintHeight_percent=".05"
         app:layout_constraintWidth_percent=".04"
         app:layout_constraintBottom_toBottomOf="@+id/dDie2"
@@ -696,6 +750,7 @@
         android:text="TextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:gravity="center"
         app:layout_constraintHeight_percent=".05"
         app:layout_constraintWidth_percent=".04"
         app:layout_constraintEnd_toEndOf="@+id/aDie2"
@@ -707,6 +762,7 @@
         android:text="TextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:gravity="center"
         app:layout_constraintHeight_percent=".05"
         app:layout_constraintWidth_percent=".04"
         app:layout_constraintEnd_toEndOf="@+id/dDie1"
@@ -742,6 +798,7 @@
         android:id="@+id/slideCover"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/annihilate"
         app:layout_constraintEnd_toEndOf="@+id/retreat"
         app:layout_constraintHeight_percent=".4"
@@ -800,16 +857,6 @@
         app:layout_constraintTop_toTopOf="@+id/slideCover"
         app:layout_constraintWidth_percent=".17" />
 
-    <ImageView
-        android:id="@+id/winCover"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintHeight_percent=".999"
-        app:layout_constraintWidth_percent=".999"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
 
 
     <android.support.constraint.ConstraintLayout
@@ -1226,7 +1273,6 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
     </LinearLayout>
-
     <android.support.constraint.ConstraintLayout
         android:id="@+id/savePopup"
         android:layout_width="0dp"
@@ -1780,7 +1826,64 @@
         </FrameLayout>
 
     </android.support.constraint.ConstraintLayout>
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/winLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        app:layout_constraintWidth_percent=".999"
+        app:layout_constraintHeight_percent=".999"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
+        <ImageView
+            android:id="@+id/winCover"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/winnerFlag"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent=".26"
+            app:layout_constraintHeight_percent=".2"
+            app:layout_constraintVertical_bias=".47"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/loadTextCover"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:background="@drawable/canvas"
+            app:layout_constraintWidth_percent=".6"
+            app:layout_constraintHeight_percent=".3"
+            app:layout_constraintVertical_bias=".97"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/loadText"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            app:layout_constraintWidth_percent=".5"
+            app:layout_constraintHeight_percent=".23"
+            app:layout_constraintVertical_bias=".93"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
     <android.support.constraint.ConstraintLayout
         android:id="@+id/unlockPop"
         android:layout_width="0dp"

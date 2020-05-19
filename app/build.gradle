@@ -3,10 +3,10 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId 'com.reactordevelopment.Imperium'
+        applicationId 'com.reactordevelopment.ImperiumLite'
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 1
+        versionCode 7
         versionName 'Renovare Artibus - 1.1.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
