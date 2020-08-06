@@ -1,7 +1,14 @@
 Current Version-
 	Save Encoding-
 
-
+Version 1.1.1 (8/5/20)
+	-Additions to Kaiser Gloria Timeline
+	-Events to show results of diplomatic actions
+	-Several more bug fixes
+	-Imperium Lite decommisioned
+	-More polish(ed) history mode UI
+	-Optimized download size
+---------------
 Renovare Artibus
 Version 1.1.0 (5/17/20)
 	-Added diplomacy mechanics (Historical Mode)

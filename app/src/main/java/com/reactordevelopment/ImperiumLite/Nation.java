@@ -15,6 +15,7 @@ public class Nation implements Serializable {
     private double warChance;
 
     private static final int ALPHA = 200;
+    private static final double WAR_PROB_MOD = .1;
     /*public static final int PLAYER_BLUE = Color.argb(ALPHA, 36, 177, 201);
     public static final int PLAYER_RED = Color.argb(ALPHA, 255, 0, 0);
     public static final int PLAYER_GREEN = Color.argb(ALPHA, 0, 255, 0);
@@ -254,7 +255,7 @@ public class Nation implements Serializable {
         if(type.equals("SPa")) return makeTraits("Spain", R.drawable.spa3, Color.argb(ALPHA, 224, 202, 0), 1.1, 1.2, 0.3);
         if(type.equals("rei")) return makeTraits("Third Reich", R.drawable.rei, Color.argb(ALPHA, 84, 84, 84), 1.3, 1.4, 0.5);
 
-        if(type.equals("ITa")) return makeTraits("Italy", R.drawable.ita3, Color.argb(ALPHA, 96, 235, 115), 1.0, 1.0, 0.3);
+        if(type.equals("ITa")) return makeTraits("Italian Republic", R.drawable.ita3, Color.argb(ALPHA, 96, 235, 115), 1.0, 1.0, 0.3);
         if(type.equals("wgr")) return makeTraits("West Germany", R.drawable.wgr, Color.argb(ALPHA, 126, 206, 190), 1.0, 1.0, 0.3);
         if(type.equals("egr")) return makeTraits("East Germany", R.drawable.egr, Color.argb(ALPHA, 206, 126, 126), .9, 1.0, 0.3);
         if(type.equals("alg")) return makeTraits("Algeria", R.drawable.alg, Color.argb(ALPHA, 26, 213, 114), 1.0, 1.0, 0.3);
@@ -295,10 +296,13 @@ public class Nation implements Serializable {
 
         if(type.equals("Nov")) return makeTraits("Novgorod", R.drawable.nov2, Color.argb(ALPHA, 84, 148, 81), 1.0, 1.2, 0.4);
 
+        if(type.equals("bal")) return makeTraits("Baltic States", R.drawable.bal, Color.argb(ALPHA, 199, 102, 149), 1.0, 1.0, 0.4);
+        if(type.equals("fsu")) return makeTraits("French Socialist Union", R.drawable.fra2, Color.argb(ALPHA, 184, 0, 15), .75, 1.2, 0.3);
+
         return makeTraits("[Not Found]", R.drawable.noflag, Color.argb(ALPHA, 0, 0, 0), 1.0, 1.0, 0.4);
     }
     private Object[] makeTraits(String name, int flag, int color, double opsEff, double harden, double war){
-        return new Object[]{name, flag, color, opsEff, harden, war};
+        return new Object[]{name, flag, color, opsEff, harden, war*WAR_PROB_MOD};
     }
     private Object[] byPeriod(String tag, String timeline, int year){
         if(timeline.equals("alp")) {

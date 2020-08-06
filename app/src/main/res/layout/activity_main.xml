@@ -215,5 +215,43 @@
             android:background="@drawable/closemodes" />
     </android.support.constraint.ConstraintLayout>
 
+    <Button
+        android:id="@+id/devToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Dev"
+        app:layout_constraintHorizontal_bias=".99"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:id="@+id/devIdScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/devToggle"
+        app:layout_constraintStart_toStartOf="@+id/devToggle"
+        app:layout_constraintTop_toBottomOf="@+id/debugId">
+
+        <LinearLayout
+            android:id="@+id/devIdLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <Button
+        android:id="@+id/debugId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="alp17"
+        app:layout_constraintVertical_bias=".01"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/mainRound"
+        app:layout_constraintStart_toStartOf="@+id/devToggle"
+        app:layout_constraintTop_toBottomOf="@+id/devToggle" />
+
 
 </android.support.constraint.ConstraintLayout>

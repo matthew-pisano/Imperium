@@ -119,6 +119,15 @@ public class Map extends Game implements Serializable {
     }
     protected double vary(){return Math.random()*.2-.1;}
 
+    public Province provFromId(int id){
+        for(Province p : getList())
+            if(p.getId() == id)
+                return p;
+        return null;
+    }
+    public Province provFromId(String id){
+        return provFromId(Integer.parseInt(id));
+    }
     public void logContinents(){
         for(Continent cont : getContinents()) {
             Log.i("ContCheck", "Continent:"+cont.getName());

@@ -183,6 +183,18 @@
         app:layout_constraintVertical_bias=".06"
         app:layout_constraintHorizontal_bias=".8"
         app:layout_constraintWidth_percent=".13" />
+    <ImageView
+        android:id="@+id/timelineIcon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/flagCanvas"
+        app:layout_constraintHeight_percent=".035"
+        app:layout_constraintStart_toStartOf="@+id/flagCanvas"
+        app:layout_constraintTop_toBottomOf="@+id/flagCanvas"
+        app:layout_constraintVertical_bias=".03"
+        app:layout_constraintHorizontal_bias=".83"
+        app:layout_constraintWidth_percent=".05" />
 
     <ImageView
         android:id="@+id/hist1"
@@ -248,7 +260,6 @@
         android:layout_height="0dp"
         app:layout_constraintHeight_percent=".5"
         app:layout_constraintWidth_percent=".7"
-        android:layout_marginLeft="1000dp"
         app:layout_constraintBottom_toBottomOf="@+id/buildRound"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -295,6 +306,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+        <ImageButton
+            android:id="@+id/alpCheck"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/checkmark"
+            app:layout_constraintHeight_percent=".07"
+            app:layout_constraintWidth_percent=".09"
+            app:layout_constraintHorizontal_bias=".99"
+            app:layout_constraintVertical_bias=".47"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
         android:id="@+id/rom"
@@ -309,6 +333,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+        <ImageButton
+            android:id="@+id/romCheck"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="invisible"
+            android:background="@drawable/checkmark"
+            app:layout_constraintHeight_percent=".07"
+            app:layout_constraintWidth_percent=".09"
+            app:layout_constraintHorizontal_bias=".99"
+            app:layout_constraintVertical_bias=".31"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/kai"
@@ -319,6 +357,20 @@
             app:layout_constraintWidth_percent=".8"
             app:layout_constraintVertical_bias=".17"
             app:layout_constraintHorizontal_bias=".99"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <ImageButton
+            android:id="@+id/kaiCheck"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="invisible"
+            android:background="@drawable/checkmark"
+            app:layout_constraintHeight_percent=".07"
+            app:layout_constraintWidth_percent=".09"
+            app:layout_constraintHorizontal_bias=".99"
+            app:layout_constraintVertical_bias=".14"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

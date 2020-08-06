@@ -50,7 +50,7 @@ public class Game extends GameActivity implements java.io.Serializable {
     private static RelativeLayout mapLayout;
     private static ConstraintLayout winLayout;
     private static int year;
-    private boolean[] ais;
+    private int[] playerTypes;
     private static int numPlayers;
     private static ArrayList<ArrayList<ArrayList>> allStats;
     private transient Context context;
@@ -79,8 +79,11 @@ public class Game extends GameActivity implements java.io.Serializable {
     private double pulseCount = 0.2;
     private double pulseChange = .05;
     private static int[] pulseProvs = new int[]{0};
-    public boolean inSetup;
+    public static boolean inSetup;
     private int lastPlayerId;
+    protected boolean host;
+    protected ArrayList<String> outgoing;
+    protected ArrayList<String> incoming;
 
     public Game(){}
     public Game(Context context, int numPlayers, int imperium, Object[] history){ //loadGame
@@ -88,6 +91,10 @@ public class Game extends GameActivity implements java.io.Serializable {
         this.imperium = imperium==1;
         Log.i("initilize", ""+imperium);
         this.context = context;
+        gameplayPlase = true;
+        outgoing = new ArrayList<>(0);
+        flushOutgoing();
+        incoming = new ArrayList<>(0);
         gameId = (int)(Math.random()*10000);
         gameAt = gameId;
         Log.i("GameId", ""+gameId+", gameAt: "+gameAt);
@@ -102,19 +109,20 @@ public class Game extends GameActivity implements java.io.Serializable {
         slideValue = 0;
         mapMode = 1;
         deusMedia = new MediaPlayer();
-        this.debug = DEBUG;
+        this.debug = debugingOn;
         players = new Player[numPlayers];
         lastPlayerId = -1;
         assignCtrls();
     }
-    public Game(Context context, boolean[] ais, int imperium, Object[] history){ //newGame
-        this(context, ais.length, imperium, history);
-        this.ais = ais; //overwritten ais
+    public Game(Context context, int[] playerTypes, int imperium, Object[] history, boolean host){ //newGame
+        this(context, playerTypes.length, imperium, history);
+        this.playerTypes = playerTypes; //overwritten ais
+        this.host = host;
     }
     public Game(Context context, boolean debug, Object[] history){ //debugGame
         this(context, 2, 1, history); //debug players length
         this.debug = debug;
-        this.ais = new boolean[numPlayers]; //overwritten ais
+        this.playerTypes = new int[numPlayers]; //overwritten ais
     }
     public void postNew(){ //called after new game
         touched();
@@ -127,7 +135,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         else players = debugPlayers;
         //players[0].turn();
         //if(debug) ownerFromTag();
-        changeProvEnabled(players[0].isHuman());
+        changeProvEnabled(players[0].isHuman() && !players[0].isPuppet());
         setPlayerInfo(getCurrentPlayer().getName());
         changeNationAt();
         if(!debug) change.setVisibility(View.INVISIBLE);
@@ -137,9 +145,10 @@ public class Game extends GameActivity implements java.io.Serializable {
         getCurrentPlayer().turn(false);
         winStuff();
         inSetup = false;
+        Log.i("OutSetup", "out1");
     }
     public void postLoad(){ //called after loaded game
-        this.ais = reverseAis();
+        this.playerTypes = arrFromPlayerType();
         touched();
         initRolls();
         slide();
@@ -147,14 +156,14 @@ public class Game extends GameActivity implements java.io.Serializable {
         endAttack();
         endTransport();
         updateMaxDev();
-        if(debug && NEW_DEBUG_SAVE) overwritePlayers();
+        if(debug && newDebugSave) overwritePlayers();
         loadOwnerFromTag();
         playerTitles();
         statusCover.setBackgroundResource(R.drawable.statusbar);
         //players[0].turn();
-        if(getCurrentPlayer().getStage() == -1 && !DEBUG) change.setVisibility(View.INVISIBLE);
+        if(getCurrentPlayer().getStage() == -1 && !debugingOn) change.setVisibility(View.INVISIBLE);
         setPlayerInfo(getCurrentPlayer().getName());
-        changeProvEnabled(getCurrentPlayer().isHuman());
+        changeProvEnabled(getCurrentPlayer().isHuman() && !getCurrentPlayer().isPuppet());
         changeNationAt();
         updateAllOwners(); //friend or foe
         if(getCurrentPlayer().getStage() == 1) change.setBackgroundResource(R.drawable.endattack);
@@ -166,6 +175,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         getCurrentPlayer().turn(false);
         winStuff();
         inSetup = false;
+        Log.i("OutSetup", "out2");
     }
     //public
     public static boolean isHistorical(){return year != 0;}
@@ -194,7 +204,10 @@ public class Game extends GameActivity implements java.io.Serializable {
         return allStats;
     }
     public void setLastPlayerId(int id){Log.i("LastAi", "Now: "+id+", was: "+ lastPlayerId); lastPlayerId = id;}
-    public static void setFocusPlayer(Player p){focusPlayer = p;}
+    public static void setFocusPlayer(Player p){
+        focusPlayer = p;
+        getGame().updateAllOwners(focusPlayer);
+    }
     public void setMap(Map set){map = set; if(map == null) Log.i("map", "nulllllll");}
     public void updateMapMode(int set){ Log.i("InSetup", ""+inSetup);mapMode = set; updateAllOverlays(); }
     public void setTurnNum(int set){turnNum = set;}
@@ -280,9 +293,10 @@ public class Game extends GameActivity implements java.io.Serializable {
         Log.i("Player Remove", "Yeeted: "+id);
     }
     public void addPlayers(){
-        for(int i=0; i<ais.length; i++) {
-            Log.i("addPlayers", "Ai: "+ais[i]);
-            if(ais[i]) players[i] = new Ai(context, i, AI_STYLE, imperium, "#0"+i);
+        for(int i = 0; i< playerTypes.length; i++) {
+            Log.i("addPlayers", "Ai: "+ playerTypes[i]);
+            if(playerTypes[i] == 1) players[i] = new Ai(context, i, AI_STYLE, imperium, "#0"+i);
+            else if(playerTypes[i] == 2) players[i] = new Puppet(context, i, imperium, "#0"+i);
             else players[i] = new Player(context, i, imperium, "#0"+i);
             Log.i("addPlayers", "added player"+i+", "+players[i].isHuman());
         }
@@ -293,7 +307,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         getCurrentPlayer().printDiplo();
         String prevTag = getCurrentPlayer().getTag();
         Log.i("inchangeplayer", "in, "+turnNum+", "+currentPlayer);
-        if(getCurrentPlayer().isHuman() && getCurrentPlayer().getAllOwned().length > 0 && !DEBUG && year != 1)Achivements.scanCriteria();
+        if(getCurrentPlayer().isHuman() && getCurrentPlayer().getAllOwned().length > 0 && !debugingOn && year != 1)Achivements.scanCriteria();
         players[currentPlayer].calcAllOwned(false);
         if(players[currentPlayer].getAllOwned().length == 0 && turnNum > players.length){
             getCurrentPlayer().peaceOutAll();
@@ -373,9 +387,8 @@ public class Game extends GameActivity implements java.io.Serializable {
         }
         return mostId;
     }
-    public void updateAllOwners(){
-        for(Province p : map.getList()) p.updateOwner();
-    }
+    public void updateAllOwners(){ for(Province p : map.getList()) p.updateOwner(); }
+    public void updateAllOwners(Player focus){ for(Province p : map.getList()) p.updateOwner(focus); }
     public void enablePulse(int[] ids){
         stopPulse();
         pulseProvs = ids;
@@ -565,7 +578,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         retreat.setVisibility(View.INVISIBLE);
         slideCover.setVisibility(View.INVISIBLE);
         if(getCurrentPlayer() != null)
-            if(getCurrentPlayer().isHuman())changeProvEnabled(true);
+            if(getCurrentPlayer().isHuman() && !getCurrentPlayer().isPuppet())changeProvEnabled(true);
         sliderImage.setVisibility(View.INVISIBLE);
         aDie1.setVisibility(View.INVISIBLE);
         aDie2.setVisibility(View.INVISIBLE);
@@ -631,7 +644,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         annihilate.setVisibility(View.INVISIBLE);
         slideTroops.setText("");
         if(getCurrentPlayer() != null)
-            if(getCurrentPlayer().isHuman())changeProvEnabled(true);
+            if(getCurrentPlayer().isHuman() && !getCurrentPlayer().isPuppet())changeProvEnabled(true);
         attackerBackround.setVisibility(View.INVISIBLE);
         defenderBackround.setVisibility(View.INVISIBLE);
         attacker.setVisibility(View.INVISIBLE);
@@ -652,6 +665,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         attacking = false;
     }
     public void changer() {
+        addOutgoing(getCurrentPlayer().getTag(), "cng", "#nn", "nnnn");
         Log.i("jumpText", getJumpText());
         if(!getJumpText().equals("") && debug){
             jumpToPlayer(getJumpText());
@@ -686,6 +700,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         }
     }
     public void changerRev() {
+        addOutgoing(getCurrentPlayer().getTag(), "crv", "#nn", "nnnn");
         Log.i("jumpText", getJumpText());
         if(!getJumpText().equals("") && debug){
             jumpToPlayer(getJumpText());
@@ -698,33 +713,17 @@ public class Game extends GameActivity implements java.io.Serializable {
         }
         changeAllSelection(false);
         Log.i("Changer", "press"+getCurrentPlayer().getStage()+"id:"+currentPlayer);
-        /*if (!imperium && getCurrentPlayer().getStage() == 0 && getCurrentPlayer().getTroops() == 0) {
-            getCurrentPlayer().setStage(1); Log.i("changeStage", "place-1");
-            change.setBackgroundResource(R.drawable.endattack);
-            undo.setVisibility(View.INVISIBLE);
-        } else if (imperium && getCurrentPlayer().getStage() == 0) {
-            getCurrentPlayer().setStage(1); Log.i("changeStage", "place0");
-            change.setBackgroundResource(R.drawable.endattackdown);
-            change.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    change.setBackgroundResource(R.drawable.endattack);
-                }
-            }, 300);
-            undo.setVisibility(View.INVISIBLE);
-        }*/if (getCurrentPlayer().getStage() == 1) {
+        if (getCurrentPlayer().getStage() == 1) {
             getCurrentPlayer().setStage(0); Log.i("changerevStage", "place1");
-            //change.setBackgroundResource(R.drawable.endtransport);
             changeAllUISelection(false);
         } else if (getCurrentPlayer().getStage() == 2) {
-            //change.setBackgroundResource(R.drawable.endplacement);
             changeAllUISelection(false);
             getCurrentPlayer().setStage(1);
-            //toStageZero();
         }
     }
 
     public void again() {
+        addOutgoing(getCurrentPlayer().getTag(), "agn", "#nn", "nnnn");
         Log.i("again", "presses");
         rollOut(new int[6]);
 
@@ -756,6 +755,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         }
     }
     public void retreat() {
+        addOutgoing(getCurrentPlayer().getTag(), "ret", "#nn", "nnnn");
         try {
             if(getCurrentPlayer().attackSelected[1] != null && getCurrentPlayer().attackSelected[0] != null)
                 if (getCurrentPlayer().attackSelected[1].getTroops() / (getCurrentPlayer().attackSelected[0].getTroops() + 1) > 3)
@@ -768,32 +768,43 @@ public class Game extends GameActivity implements java.io.Serializable {
         else if (getCurrentPlayer().getStage() == 1) endAttack();
     }
     public void annihilate() {
+        addOutgoing(getCurrentPlayer().getTag(), "ani", "#nn", "nnnn");
         annihilate.setBackgroundResource(R.drawable.annihilatedown);
         try {
             while (getCurrentPlayer().getAttackSelected()[0].getTroops() > 1 && getCurrentPlayer().getAttackSelected()[1].getTroops() > 1)
                 rollOut(getCurrentPlayer().attack());
         }catch(NullPointerException e){e.printStackTrace();}
     }
-    public void undo() {
-        Province temp = getCurrentPlayer().getTempProvince();
-        if (!imperium && temp.getLastUndoable().equals("t")) {
-            if (temp.getTroops() > temp.getSavedTroops()) {
-                temp.modTroops(-1);
-                getCurrentPlayer().modTroops(1);
+    public void flushOutgoing(){
+        int id = (int)(Math.random()*999);
+        outgoing = new ArrayList<>(0);
+        if(outgoing.size() == 0) outgoing.add("");
+        outgoing.set(0, ""+formatInt(id, 3));
+    }
+    public void addOutgoing(String playerTag, String actionType, String onPlayer, String onProvince){
+        if(!getCurrentPlayer().isPuppet() && outgoing != null) outgoing.add(playerTag+actionType+onPlayer+onProvince);
+        lastUnconfirmed = outgoing;
+    }
+    public void parseIncoming(){
+        for(String s : incoming){
+            if(s.length() < 3) continue;
+            Log.i("IncomingParse", s);
+            if(getCurrentPlayer().isPuppet() && s.substring(0, 3).equals(getCurrentPlayer().getTag())){
+                Log.i("IncomingParse", "MatchesPlayer");
+                if(s.substring(3, 6).equals("cng"))((Puppet)getCurrentPlayer()).pressChange();
+                if(s.substring(3, 6).equals("crv"))((Puppet)getCurrentPlayer()).pressRevChange();
+                if(s.substring(3, 6).equals("agn"))((Puppet)getCurrentPlayer()).pressAgain();
+                if(s.substring(3, 6).equals("ani"))((Puppet)getCurrentPlayer()).pressAnnihilate();
+                if(s.substring(3, 6).equals("ret"))((Puppet)getCurrentPlayer()).pressRetreat();
+                if(s.substring(3, 6).equals("dev"))((Puppet)getCurrentPlayer()).pressDeveloper(map.provFromId(s.substring(9, 13)));
+                if(s.substring(3, 6).equals("frt"))((Puppet)getCurrentPlayer()).pressFortifier(map.provFromId(s.substring(9, 13)));
+                if(s.substring(3, 6).equals("war"))((Puppet)getCurrentPlayer()).pressWar(s.substring(6, 9));
+                if(s.substring(3, 6).equals("sub"))((Puppet)getCurrentPlayer()).pressSubject(s.substring(6, 9));
+                if(s.substring(3, 6).equals("aly"))((Puppet)getCurrentPlayer()).pressAlly(s.substring(6, 9));
+                if(s.substring(3, 6).equals("prv"))((Puppet)getCurrentPlayer()).pressProvince(s.substring(9, 13));
             }
         }
-        if (imperium && temp.getLastUndoable().equals("t")) {
-            if (temp.getTroops() > temp.getSavedTroops()) {
-                temp.modTroops(-1);
-                getCurrentPlayer().modMonetae(1*MONETAE_TO_TROOPS);
-            }
-        }
-        if (temp.getLastUndoable().equals("d")) {
-            if (temp.modDevelopment(0) > temp.getSavedDevelopment()) {
-                temp.modDevelopment(temp.getSavedDevelopment() - temp.modDevelopment(0));
-                getCurrentPlayer().modMonetae(10 * temp.getLastDevelops());
-            }
-        }
+        incoming = new ArrayList<>(0);
     }
     //private
     private void assignCtrls(){
@@ -818,7 +829,6 @@ public class Game extends GameActivity implements java.io.Serializable {
         status = getStatus();
         statusCover = getStatusCover();
         statusCover.setBackgroundResource(R.drawable.statusbar);
-        //status.setTextSize(TypedValue.COMPLEX_UNIT_IN,.1f*screenWidth/480f);
         Thread lookingThread = new Thread() {
 
             @Override
@@ -835,9 +845,7 @@ public class Game extends GameActivity implements java.io.Serializable {
                                 if (getCurrentPlayer() != null && wiener == null) {
                                     final boolean transportScan = getCurrentPlayer().transportScan();
                                     final boolean attackScan = getCurrentPlayer().attackScan();
-                                    //if(!transportScan) {
-                                    //if(getCurrentPlayer().isHuman()) Achivements.scanCriteria();
-                                    if (DEBUG)
+                                    if (debugingOn)
                                         getCurrentPlayer().setMonetae(getCurrentPlayer().totalIncome());
 
                                     runOnUiThread(new Runnable() {
@@ -867,13 +875,12 @@ public class Game extends GameActivity implements java.io.Serializable {
                                                     e.printStackTrace();
                                                 }
                                             }
-                                            if (attacking)
-                                                again.setBackgroundResource(R.drawable.attack);
-                                            String statusText = "Stage: " + getCurrentPlayer().getStage();
-                                            if (!imperium)
-                                                statusText += ", Reinforcements: " + (int) getCurrentPlayer().getTroops();
+                                            if (attacking) again.setBackgroundResource(R.drawable.attack);
+                                            changeStageIcon(getCurrentPlayer().getStage());
+                                            String statusText = /*"Stage: " + getCurrentPlayer().getStage();*/ "";
+                                            if (!imperium) statusText += ", Reinforcements: " + (int) getCurrentPlayer().getTroops();
                                             else
-                                                statusText += ", Monetae: " + getCurrentPlayer().modMonetae(0)
+                                                statusText += "Monetae: " + getCurrentPlayer().modMonetae(0)
                                                         + ", Development: " + getCurrentPlayer().totalIncome();
                                             statusText += ", Infamy: " + (int) (getCurrentPlayer().getInfamy() * 100) / 100.0;
                                             status.setText(statusText);
@@ -886,30 +893,20 @@ public class Game extends GameActivity implements java.io.Serializable {
                                                 highlight();
                                             }
                                             updateProvinces();
-                                            //slider.bringToFront();
-
                                             deusVult();
                                         }
                                     });
                                 }
                             }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        } catch (Exception e) { e.printStackTrace(); }
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                } catch (InterruptedException e) { e.printStackTrace(); }
             }
         };lookingThread.start();
-
     }
     private void deusVult(){
         float x = getMapLayout().getX();
         float y = getMapLayout().getY();
-        //Log.i("mapdeus", x+", "+y);
-        //Log.i("bools", (x < -1850)+", "+(x > -1975)+", "+(y < -1255)+", "+(y > -1355)+", "+(scaling > 9.6)+", "+(map.getId() == 2));
         if(x < -1850 && x > -1975 && y < -1255 && y > -1355 && scaling > 9.6 && map.getId() == 2){
             if(!deusPlaying) {
                 deusMedia = MediaPlayer.create(context, R.raw.deus);
@@ -940,31 +937,6 @@ public class Game extends GameActivity implements java.io.Serializable {
             if(winner.isHuman() && turnNum <= 30 && year == 17 && timeline.equals("alp"))
                 Achivements.getAchive("steamroll");
         }
-        /*if(map.allOwned(players[0])) {
-            wiener = players[0];
-            winCover.setBackgroundResource(R.drawable.winnerblue);
-        }
-        else if(map.allOwned(players[1])) {
-            wiener = players[1];
-            winCover.setBackgroundResource(R.drawable.winnerred);
-        }
-        if(players.length >= 3){
-            if(map.allOwned(players[2])) {
-                wiener = players[2];
-                winCover.setBackgroundResource(R.drawable.winnergreen);
-            }
-        }
-        if(players.length >= 4){
-            if(map.allOwned(players[3])) {
-                wiener = players[3];
-                winCover.setBackgroundResource(R.drawable.winnerpurple);
-            }
-        }
-        if(wiener != null) {
-            changeAllSelection(false);
-            getCurrentPlayer().setStage(42);
-            winCover.setVisibility(View.VISIBLE);
-        }*/
     }
     private void overwritePlayers(){
         ArrayList<Player> decimate = new ArrayList<>(0);
@@ -1150,16 +1122,16 @@ public class Game extends GameActivity implements java.io.Serializable {
     }
     private String aisToString(){
         String list = "";
-        for(int i=0; i<ais.length; i++){
-            if(ais[i]) list += "1";
-            else list += "0";
+        for(int i = 0; i< playerTypes.length; i++){
+            list += playerTypes[i];
         }return list;
     }
-    private boolean[] reverseAis(){
-        boolean[] ais = new boolean[players.length];
-        for(int i=0; i<ais.length; i++){
-            if(players[i].isHuman()) ais[i] = false;
-            else ais[i] = true;
-        }return ais;
+    private int[] arrFromPlayerType(){
+        int[] types = new int[players.length];
+        for(int i=0; i<types.length; i++){
+            if(players[i].isHuman()) types[i] = 0;
+            if(!players[i].isPuppet()) types[i] = 1;
+            else types[i] = 2;
+        }return types;
     }
 }

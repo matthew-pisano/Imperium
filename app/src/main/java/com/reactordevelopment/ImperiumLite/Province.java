@@ -349,19 +349,24 @@ public class Province extends Continent implements Serializable {
             setGuestText("");
         }
     }*/
-
-    public void updateOwner() {
+    public void updateOwner(){ updateOwner(getCurrentPlayer()); }
+    public void updateOwner(Player focus) {
         //Log.i("ownerid", ""+ownerId);
         //updateStatus();
         if (getOwner() != null) {
-            //Log.i("update", "" + ownerId + ", " + getCurrentPlayer().getId());
+            //Log.i("update", "" + ownerId + ", " + focus.getId());
             double secondTroops = 0;
-            if (ownerId == getCurrentPlayer().getId()) {
+            boolean friendlyBool = focus.isFriendly(getOwner().getTag());
+            if(getOwner().hasOverlord())
+                friendlyBool = friendlyBool || focus.isFriendly(getOwner().getOverlord());
+            if(focus.hasOverlord())
+                    friendlyBool = friendlyBool || playerFromTag(focus.getOverlord()).isFriendly(getOwner().getTag());
+            if (ownerId == focus.getId()) {
                 owner.setBackgroundResource(R.drawable.friendtroops);
                 if (hasGuestStack()) {
                     boolean hasFriend = false;
                     for(TroopStack ts : troopStacks)
-                        if(getCurrentPlayer().isFriendly(ts.getOwnerTag())){
+                        if(focus.isFriendly(ts.getOwnerTag())){
                             hasFriend = true;
                             secondTroops = ts.getTroops();
                             break;
@@ -376,19 +381,19 @@ public class Province extends Continent implements Serializable {
                     guestTroops.setVisibility(View.INVISIBLE);
                     guestStatus.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 0);
                 }
-            } else if (getCurrentPlayer().isHostile(getOwner().getTag())) {
+            } else if (focus.isHostile(getOwner().getTag())) {
                 owner.setBackgroundResource(R.drawable.foetroops);
                 guestTroops.setVisibility(View.INVISIBLE);
                 guestStatus.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 0);
             }
-            else if (getCurrentPlayer().isFriendly(getOwner().getTag())) {
+            else if (friendlyBool) {
                 owner.setBackgroundResource(R.drawable.allytroops);
                 if (hasGuestStack()) {
                     boolean hasMine = false;
                     for(TroopStack ts : troopStacks)
-                        if(ts.getOwnerTag().equals(getCurrentPlayer().getTag())){
+                        if(ts.getOwnerTag().equals(focus.getTag())){
                             hasMine = true;
-                            secondTroops = getTroopsFrom(getCurrentPlayer().getTag());
+                            secondTroops = getTroopsFrom(focus.getTag());
                             break;
                         }
                     guestTroops.setVisibility(View.VISIBLE);
@@ -678,6 +683,7 @@ public class Province extends Continent implements Serializable {
                 updateOwner(); }});
     }
     public void doClick() {
+        getGame().addOutgoing(getCurrentPlayer().getTag(), "prv", "#nn", ""+formatInt(getId(), 4));
         long startClick = System.currentTimeMillis();
         if(focusPlayer != null) Log.i("Focus", "Mode: "+mapMode+", flus: "+focusPlayer.getId());
         stopPulse();

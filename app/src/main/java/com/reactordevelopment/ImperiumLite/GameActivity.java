@@ -10,14 +10,15 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -36,10 +37,23 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.SkuDetails;
+import com.android.billingclient.api.SkuDetailsParams;
+import com.android.billingclient.api.SkuDetailsResponseListener;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +61,7 @@ import java.util.List;
 
 import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements PurchasesUpdatedListener {
     //savePopup
     private static ImageButton saveOK;
     private static ImageButton saveCancel;
@@ -104,6 +118,7 @@ public class GameActivity extends AppCompatActivity {
     private static TextView slideTroops;
     //status
     private static ImageView statusCover;
+    private static ImageView stageCover;
     private static TextView status;
     //time view
     protected static boolean firstLoaded; //true if initial map has been loaded
@@ -135,6 +150,7 @@ public class GameActivity extends AppCompatActivity {
     private ConstraintLayout unlockPop;
     private ImageButton unlockClose;
     private ImageView locked;
+    private static ArrayList<String> unlockedYears;
     //music
     private boolean musicOpen;
     private static TextView musicTitle;
@@ -185,6 +201,10 @@ public class GameActivity extends AppCompatActivity {
     private float dXGear = 0;
     private float initX = 0;
     //vars
+    public static BillingClient billingClient;
+    public static ArrayList<String> skuDetails;
+    //public static final String[] SKU_ARRAY = new String[]{"unlock_alp396", "unlock_alp477", "unlock_alp642", "unlock_alp802", "unlock_alp1066", "unlock_alp1248", "unlock_alp1445", "unlock_alp1532", "unlock_alp1618", "unlock_alp1756", "unlock_alp1811", "unlock_alp1823", "unlock_alp1914", "unlock_alp1931", "unlock_alp1939", "unlock_alp1966", "unlock_alp2020", "unlock_kai1917", "unlock_rom414", "unlock_rom631", "unlock_rom794"};
+    public static final String[] SKU_ARRAY = new String[]{"unlock_modern", "unlock_althist"};
     private int yearAt = 0;
     private Integer[] years;
     private String[] titles;
@@ -196,6 +216,16 @@ public class GameActivity extends AppCompatActivity {
     public static final float MAX_SCALE = 10f;
     public static float scaling = 1/*(float)(screenWidth/480)*/;
     protected static Game game;
+    public static Server server;
+    public static String lastPingId;
+    private static boolean switchServerPhase;
+    private static boolean needConfirm;
+    protected static boolean connectPhase;
+    protected static boolean gameplayPlase;
+    private static boolean breakServerThread;
+    protected static ArrayList<String> lastUnconfirmed;
+    private static ArrayList<Client> playerClients;
+    private static int resendCycles;
     private static boolean forceClosed = false;
     protected static boolean provEnabled;
     private static boolean openNav;
@@ -225,7 +255,7 @@ public class GameActivity extends AppCompatActivity {
     //*802*/ public static final String[] DEBUG_NATIONS = {"atr", "cba", "fnk", "isd", "tah", "pap", "mer", "num", "len", "cnn", "uls", "mns", "wha", "wes", "pic", "pol", "ava", "pom", "blt", "dan", "slv", "kha", "bul", "bne", "bzn", "bri", "asd"};
     //*1066*/ public static final String[] DEBUG_NATIONS = {"cba", "fra", "leo", "pam", "sra", "eng", "wha", "sct", "len", "cnn", "mns", "uls", "hre", "pap", "zir", "bne", "sal", "cro", "hng", "Pol", "pom", "vol", "bzn", "gal", "pec", "plo", "kev", "cng", "smo", "nov", "vla", "ryz", "cmn", "geo", "mos", "sel", "den", "swe", "nor", "fat"};
     //*1248*/ public static final String[] DEBUG_NATIONS = {"cas", "fra", "por", "ara", "gra", "eng", "wha", "sct", "alm", "cnn", "mns", "uls", "hre", "pap", "tle", "haf", "pis", "srb", "hng", "Pol", "teu", "lit", "lat", "mgl", "bul", "plo", "nic", "ach", "ven", "nov", "epi", "ayy", "asd", "den", "swe", "nor"};
-    /*1445*/ public static final String[] DEBUG_NATIONS = {"cas", "fra", "por", "ara", "nap", "gra", "eng", "sct", "mar", "cnn", "mns", "uls", "hre", "pap", "tle", "haf", "gen", "srb", "hng", "Pol", "teu", "lit", "liv", "bos", "wal", "msk", "alb", "mol", "kar", "ven", "boh", "ast", "nov", "mam", "tim", "qqu", "aqu", "geo", "cri", "gdn", "ott", "nog", "sav", "mil", "azz", "Kha", "Bav", "fez", "dje", "pis", "den", "swe", "bzn", "Pom", "bra", "hes", "Sax", "Bgn"};
+    //*1445*/ public static final String[] DEBUG_NATIONS = {"cas", "fra", "por", "ara", "nap", "gra", "eng", "sct", "mar", "cnn", "mns", "uls", "hre", "pap", "tle", "haf", "gen", "srb", "hng", "Pol", "teu", "lit", "liv", "bos", "wal", "msk", "alb", "mol", "kar", "ven", "boh", "ast", "nov", "mam", "tim", "qqu", "aqu", "geo", "cri", "gdn", "ott", "nog", "sav", "mil", "azz", "Kha", "Bav", "fez", "dje", "pis", "den", "swe", "bzn", "Pom", "bra", "hes", "Sax", "Bgn"};
     //*1532*/ public static final String[] DEBUG_NATIONS = {"spa", "fra", "por", "eng", "sct", "wat", "hre", "pap", "tle", "haf", "gen", "plc", "liv", "msk", "ven", "ast", "per", "atk", "geo", "swi", "ott", "nog", "sav", "mil", "azz", "Kha", "Bav", "pis", "den", "swe", "Pom", "bra", "hes", "Sax"};
     //*1618*/ public static final String[] DEBUG_NATIONS = {"spa", "fra", "por", "gbr", "saa", "hre", "pap", "gen", "plc", "rus", "tuc", "ven", "ast", "per", "geo", "swi", "ott", "nog", "sav", "mil", "Bav", "den", "swe", "Pom", "bra", "hes", "Sax", "net", "lor"};
     //*1756*/ public static final String[] DEBUG_NATIONS = {"spa", "fra", "por", "gbr", "mor", "hre", "pap", "gen", "plc", "rus", "tuc", "ven", "ast", "per", "geo", "swi", "ott", "aze", "pie", "mil", "Bav", "den", "swe", "zan", "pru", "hes", "Sax", "net", "lor", "han", "mec"};
@@ -241,14 +271,16 @@ public class GameActivity extends AppCompatActivity {
     //*Rom631*/public static final String[] DEBUG_NATIONS = {"neu", "ata", "eag", "yrk", "wha", "wes", "fri", "pom", "pol", "blt", "bav", "bul", "kha", "cph", "bne", "dan", "bzn", "pic", "vis", "bri", "lom", "ava", "slv", "sas", "sax", "orl", "gcn", "rom", "atr", "can"};
     //*Rom794*/ public static final String[] DEBUG_NATIONS = {"atr", "cba", "fnk", "isd", "tah", "mer", "num", "len", "cnn", "uls", "mns", "wha", "wes", "pic", "pol", "ava", "pom", "blt", "dan", "slv", "kha", "bzn", "bri", "asd", "ovi", "gcn"};
 
-    //*1917*/ public static final String[] DEBUG_NATIONS = {"spa", "Fra", "por", "gbr", "ger", "ita", "rus", "per", "swi", "trk", "den", "swe", "Nor", "net", "bel", "srb", "rmn", "Bul", "alb", "gre", "cze", "Hng", "bos", "cro", "POl", "fin"};
+    //*Kai1917*/ public static final String[] DEBUG_NATIONS = {"spa", "Fra", "por", "gbr", "ger", "ita", "rus", "per", "swi", "trk", "den", "swe", "Nor", "net", "bel", "srb", "rmn", "Bul", "alb", "gre", "cze", "Hng", "bos", "cro", "POl", "fin"};
+    //*Kai1930*/ public static final String[] DEBUG_NATIONS = {"spa", "Fra", "fsu", "por", "gbr", "ger", "ita", "rus", "per", "swi", "trk", "den", "swe", "Nor", "net", "bel", "srb", "rmn", "Bul", "alb", "gre", "cze", "Hng", "bos", "cro", "POl", "fin"};
 
     //*2023*/ public static final String[] DEBUG_NATIONS = {"SPA", "Fra", "por", "gbr", "ire", "Geo", "mor", "GEr", "ITa", "Rus", "Hng", "ira", "Atr", "swi", "trk", "den", "swe", "Nor", "fin", "net", "bel", "Srb", "POl", "rmn", "Bul", "alb", "gre", "Lit", "ltv", "est", "cze", "alg", "tun", "lib", "egy", "isr", "sau", "syr", "irq", "Bos", "slo", "slk", "Cro", "mac", "Mol", "ukr", "bru", "kaz", "Nov"};
     public static final Integer[] LOAD_ROUNDS = {R.drawable.loadhussars, R.drawable.loadnuke, R.drawable.loadplan, R.drawable.loaddisplay, R.drawable.loaddoge, R.drawable.loadnevsky, R.drawable.loadwillhelm, R.drawable.loadcurie, R.drawable.loadjoan};
-    public static final String DEBUG_TIMELINE = "vir";
-    public static final int DEBUG_YEAR = 2023;
-    public static final boolean DEBUG = false; //for just editiing a save
-    public static final boolean NEW_DEBUG_SAVE = false; //both true for new saves
+    //public static final String DEBUG_TIMELINE = "kai";
+    public static final String debugId = "kai1930";
+    public static String[] debugNations;
+    public static boolean debugingOn = false; //for just editiing a save
+    public static boolean newDebugSave = false; //both true for new saves
 
     protected static Player[] debugPlayers;
 
@@ -265,6 +297,13 @@ public class GameActivity extends AppCompatActivity {
         openMode = false;
         firstLoaded = false;
         musicOpen = false;
+        switchServerPhase = false;
+        breakServerThread = false;
+        needConfirm = false;
+        lastUnconfirmed = new ArrayList<>(0);
+        lastUnconfirmed.add("nnn");
+        lastPingId = "nnn";
+        initBilling();
         loadWindow();
         new Thread(){
             @Override
@@ -282,7 +321,7 @@ public class GameActivity extends AppCompatActivity {
                         }
                         initializeComponents();
                         Log.i("Create", "1");
-                        if(DEBUG) initialDebug();
+                        if(debugingOn) initialDebug();
                         if(!createGame()) return;
                         Log.i("Create", "2");
                         tinter();
@@ -302,6 +341,7 @@ public class GameActivity extends AppCompatActivity {
                         Log.i("mapdimensions", "W: "+mapLayout.getMeasuredWidth()+", H: "+mapLayout.getHeight()+", scl: "+ scaling);
                         winCover.setBackgroundResource(R.drawable.wincover);
                         loadText.setVisibility(View.INVISIBLE);
+                        //new Event(context, "Test", "test", new String[]{"testbtn"}, R.drawable.dipround, "0");
                     }
                 });
             }
@@ -313,6 +353,7 @@ public class GameActivity extends AppCompatActivity {
         Log.i("onDestron", "ded");
         if(!forceClosed) {
             if(!timeView)saveGame(AUTO_SAVE_ID);
+            breakServerThread = true;
             game.haltAis();
             game = null;
             killMusic();
@@ -379,7 +420,170 @@ public class GameActivity extends AppCompatActivity {
         loadText.setText(notes);
     }
     public static void changeNationAt(){showNation.setBackgroundResource(game.getCurrentPlayer().getFlag());}
+    public static void changeStageIcon(int stage){
+        if(stage == -1) stageCover.setBackgroundResource(R.drawable.stageset);
+        if(stage == 0) stageCover.setBackgroundResource(R.drawable.stagerein);
+        if(stage == 1) stageCover.setBackgroundResource(R.drawable.stageattack);
+        if(stage == 2) stageCover.setBackgroundResource(R.drawable.stagetrans);
+    }
+    public static void resetHost(){
+        switchServerPhase = true;
+        if(server != null)
+            server.reset();
+        server = null;
+    }
+    public static void createHost(String serverIp, final boolean isHost){
+        final ArrayList<String> hostValue = new ArrayList<>(0);
+        if(isHost) hostValue.add("host");
+        else hostValue.add("client");
+        if(server == null) server = new Server(serverIp, isHost);
+        switchServerPhase = false;
+        connectPhase = true;
+        gameplayPlase = false;
+        resendCycles = 0;
+        /*new Thread(){
+            @Override
+            public void run() {
+                Looper.prepare();
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(200);
+                        if(breakServerThread) break;
+                        if(connectPhase) {
+                            Log.i("HaltThread", "" + switchServerPhase);
+                            if (switchServerPhase) {
+                                //haltServerThread = false;
+                                Log.i("HaltThread", "In:" + switchServerPhase);
+                                connectPhase = false;
+                            }
+                            Log.i("Waiting", "Connecting...");
+                            ArrayList<String> data = new ArrayList(0);
+                            try {
+                                data = (ArrayList) server.getData(true);
+                            } catch (ClassCastException e) { e.printStackTrace(); }
+                            if (data != null) {
+                                Log.i("ServerData", hostValue.toString() + ", " + data.toString());
+                                ArrayList<String> tmp = hostValue;
+                                if(tmp.get(0).charAt(tmp.get(0).length()-1) != '1')
+                                    tmp.set(0, tmp.get(0)+1);
+                                server.sendData(tmp);
+                                if (data.get(0).equals(hostValue.get(0) + 1)) {
+                                    resetHost();
+                                }
+                                if (data.get(0).charAt(data.get(0).length() - 1) == '1') {
+                                    serverPing();
+                                }
+                            } else
+                                server.sendData(hostValue);
+                        }else{
+                            server.sendData((ArrayList)null);
+                        }
+                        if(gameplayPlase){
+                            if(game != null)
+                                if(game.outgoing != null && game.getCurrentPlayer() != null) {
+                                    try {
+                                        ArrayList<String> testIncoming = (ArrayList<String>) server.getData(false);
+                                        if(testIncoming != null) {
+                                            if (testIncoming.size() > 0) {
+                                                Log.i("IncomtinTest", testIncoming.toString() + ", " + lastUnconfirmed.toString());
+                                                game.incoming = testIncoming;
+                                                lastPingId = testIncoming.get(0);
+                                                game.parseIncoming();
+                                            /&if(!testIncoming.get(testIncoming.size()-1).equals("c")){
+                                                game.incoming = testIncoming;
+                                                lastPingId = testIncoming.get(0);
+                                                game.parseIncoming();
+                                                testIncoming.add("c");
+                                                Log.i("Data Confirmed", "Sending confirmation: "+testIncoming.toString());
+                                                server.sendData(testIncoming);
+                                                continue;
+                                            }else if(testIncoming.get(0).equals(lastUnconfirmed.get(0)))
+                                                needConfirm = false;&/
+                                            }
+                                        }
 
+                                        Log.i("Outgoing", ""+game.outgoing.size()+", "+needConfirm+", "+game.outgoing.toString());
+                                        if(resendCycles <= 5){
+                                            resendCycles ++;
+                                            Log.i("SendGameData", lastUnconfirmed.toString());
+                                            server.sendData(lastUnconfirmed);
+                                        }else {
+                                            resendCycles = 0;
+                                            lastUnconfirmed = game.outgoing;
+                                            game.flushOutgoing();
+                                        }
+                                        /*if (lastUnconfirmed.size() > 1 && !needConfirm) {
+
+
+                                            //needConfirm = true;
+                                            //game.flushOutgoing();
+                                        }*//*else if(needConfirm){
+                                            Log.i("Data Unconfirmed", "resending: "+lastUnconfirmed.toString());
+                                            server.sendData(lastUnconfirmed);
+                                        }&/
+                                    }catch (ClassCastException e){e.printStackTrace();}
+                                }
+                        }
+                    }
+                    Log.i("HaltThread", "In2:"+ switchServerPhase);
+                }catch (InterruptedException e){e.printStackTrace();}
+            }
+        }.start();*/
+    }
+    public static void serverPing(){
+        connectPhase = false;
+        /*new Thread(){
+            @Override
+            public void run() {
+                try{
+                    while (!isInterrupted()){
+                        Thread.sleep(500);
+                        if(game != null)
+                            if(game.outgoing != null) {
+                                try {
+
+                                    ArrayList<String> testIncoming = new ArrayList<>(0);
+                                    try {
+                                        testIncoming = (ArrayList<String>) server.getData();
+                                    }catch (ClassCastException e){
+                                        e.printStackTrace();
+                                        game.outgoing = new ArrayList<>(0);
+                                        game.outgoing.add("nnn"); game.outgoing.add("nnnnnnnnnnn");
+                                        server.sendData(game.outgoing);
+                                        game.flushOutgoing();
+                                    }
+                                    if(testIncoming.size() > 0) {
+                                        Log.i("IncomtinTest", testIncoming.toString()+", "+lastUnconfirmed.toString());
+                                        if(!testIncoming.get(testIncoming.size()-1).equals("c")){
+                                            game.incoming = testIncoming;
+                                            lastPingId = testIncoming.get(0);
+                                            game.parseIncoming();
+                                            testIncoming.add("c");
+                                            Log.i("Data Confirmed", "Sending confirmation: "+testIncoming.toString());
+                                            server.sendData(testIncoming);
+                                            continue;
+                                        }else if(testIncoming.get(0).equals(lastUnconfirmed.get(0)))
+                                            needConfirm = false;
+                                    }
+
+                                    Log.i("Outgoing", ""+game.outgoing.size()+", "+needConfirm+", "+game.outgoing.toString());
+                                    if (game.outgoing.size() > 1 && !needConfirm) {
+                                        Log.i("SendGameData", game.outgoing.toString());
+                                        server.sendData(game.outgoing);
+                                        lastUnconfirmed = game.outgoing;
+                                        needConfirm = true;
+                                        game.flushOutgoing();
+                                    }else if(needConfirm){
+                                        Log.i("Data Unconfirmed", "resending: "+lastUnconfirmed.toString());
+                                        server.sendData(lastUnconfirmed);
+                                    }
+                                }catch (ClassCastException e){e.printStackTrace();}
+                            }
+                    }
+                }catch (InterruptedException e){e.printStackTrace();}
+            }
+        }.start();*/
+    }
     public static void achiveDrop(String tag){
         Log.i("drop", "achive");
         Object[] info = Achivements.infoFromTag(tag);
@@ -454,8 +658,9 @@ public class GameActivity extends AppCompatActivity {
         slider = findViewById(R.id.slide);
         //status
         status = findViewById(R.id.status);
-        status.setTextSize(TypedValue.COMPLEX_UNIT_IN,.9f*BASE_TEXT_SCALE*inchWidth);
+        status.setTextSize(TypedValue.COMPLEX_UNIT_IN,.8f*BASE_TEXT_SCALE*inchWidth);
         statusCover = findViewById(R.id.statusCover);
+        stageCover = findViewById(R.id.stageCover);
         //controllers
         annihilate = findViewById(R.id.annihilate);
         again = findViewById(R.id.again);
@@ -474,6 +679,7 @@ public class GameActivity extends AppCompatActivity {
         playerInfo = findViewById(R.id.playerInfo);
         jumpTo = findViewById(R.id.jumpTo);
         nationFlag = findViewById(R.id.nationFlag);
+        nationFlag.setVisibility(View.INVISIBLE);
         flags = findViewById(R.id.flagLayout);
         selections = findViewById(R.id.selectLayout);
         toBuild = findViewById(R.id.toBuild);
@@ -487,7 +693,7 @@ public class GameActivity extends AppCompatActivity {
         //misc
         //winLayout = findViewById(R.id.winLayout);
         winnerFlag = findViewById(R.id.winnerFlag);
-        masterLayout = findViewById(R.id.constraint);
+        masterLayout = findViewById(R.id.gameLayout);
         mapLayout = findViewById(R.id.map);
         //mapLayout.animate().x(screenHeight/4).y(screenWidth/4).setDuration(2000);
         mapLayout.setScaleX(scaling);
@@ -512,11 +718,10 @@ public class GameActivity extends AppCompatActivity {
         open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!LOCKED) {
                     if (musicOpen) player.animate().x(-screenHeight * .24f).setDuration(500);
                     else player.animate().x(screenHeight * .01f).setDuration(500);
                     musicOpen = !musicOpen;
-                }else unlockPopup();
+                //}else unlockPopup();
             }
         });
         backward.setOnClickListener(new View.OnClickListener() {
@@ -606,6 +811,7 @@ public class GameActivity extends AppCompatActivity {
     public static ImageView getMapImage(){return mapImage;}
     //public static ConstraintLayout getAchiveDrop(){return achiveDrop;}
 
+    public static void setInfoProv(Province prov){infoProv = prov;}
     public static void setPlayerInfo(String set){playerInfo.setText(set);}
     public static void setJumpText(String set){jumpTo.setText(set);}
     public static void setWinFlag(Player winner){winnerFlag.setBackgroundResource(winner.getFlag());}
@@ -662,28 +868,26 @@ public class GameActivity extends AppCompatActivity {
                                     Log.i("DiploToiuch", ""+game.getMapMode());
                                     if (System.currentTimeMillis() - downtime > 300 && touched != null)
                                         touched.doLongClick();
-                                    else if(touched != null && game.getMapMode() == 8){
-                                        game.setFocusPlayer(touched.getOwner());
-                                        Log.i("Focsd", ""+(game.getFocusPlayer() == null));
-                                        if(game.getFocusPlayer() != null) {
-                                            game.updateAllOverlays();
-                                        }
-                                    }
-                                    else if (touched != null && provEnabled) touched.doClick();
-                                    if (touched != null) {
-                                        if (timeView && touched.getOwnerId() != -1) {
-                                            Player owner = touched.getOwner();
-                                            String playerText = owner.getName() + "\nLegions: " + (owner.getFreeTroops()) +
-                                                    "\nDevelopment: " + owner.totalIncome()
-                                                    + "\nOperations Efficiency: "+owner.getOpsEfficiency()
-                                                    + "\nLegion Hardening: "+owner.getTroopHardening();
-                                            nationFlag.setBackgroundResource(owner.getFlag());
-                                            nationAt = owner.getNation();
-                                            playerInfo.setText(playerText);
-                                        } else if (touched.getOwnerId() == -1 && timeView) {
-                                            playerInfo.setText("Natives, Barbarians, and the like");
-                                            nationFlag.setBackgroundResource(R.drawable.noflag);
-                                            nationAt = null;
+                                    else if (touched != null) {
+                                        if(provEnabled) touched.doClick();
+                                        if(touched.getOwnerId() != -1) {
+                                            game.setFocusPlayer(touched.getOwner());
+                                            Log.i("Focsd", "" + (game.getFocusPlayer() == null));
+                                            if (game.getMapMode() == 8) game.updateAllOverlays();
+                                            if (timeView) {
+                                                Player owner = touched.getOwner();
+                                                String playerText = owner.getName() + "\nLegions: " + (owner.getFreeTroops()) +
+                                                        "\nDevelopment: " + owner.totalIncome()
+                                                        + "\nOperations Efficiency: " + owner.getOpsEfficiency()
+                                                        + "\nLegion Hardening: " + owner.getTroopHardening();
+                                                nationFlag.setBackgroundResource(owner.getFlag());
+                                                nationAt = owner.getNation();
+                                                playerInfo.setText(playerText);
+                                            } else {
+                                                playerInfo.setText("Natives, Barbarians, and the like");
+                                                nationFlag.setBackgroundResource(R.drawable.noflag);
+                                                nationAt = null;
+                                            }
                                         }
                                     }
                                 }
@@ -953,7 +1157,7 @@ public class GameActivity extends AppCompatActivity {
         subDiplo.setBackgroundColor(Color.TRANSPARENT);
 
 
-        if(game.getCurrentPlayer().hasOverLord()){
+        if(game.getCurrentPlayer().hasOverlord() || game.playerFromTag(diploTag).hasOverlord()){
             warDiplo.setColorFilter(grayScale());
             allyDiplo.setColorFilter(grayScale());
             subDiplo.setColorFilter(grayScale());
@@ -965,10 +1169,10 @@ public class GameActivity extends AppCompatActivity {
             warDiplo.setColorFilter(grayScale());
             warEnabled = false;
         }
-        else if(game.getCurrentPlayer().hasOverLord()){
+        /*else if(game.getCurrentPlayer().hasOverlord()){
             subDiplo.setColorFilter(grayScale());
             subEnabled = false;
-        }
+        }*/
         else if(game.getCurrentPlayer().hasSubject(diploTag)){
             allyDiplo.setColorFilter(grayScale());
             allyEnabled = false;
@@ -1007,6 +1211,7 @@ public class GameActivity extends AppCompatActivity {
         else if(plater.isAllied(tag)) textDiplo.setText("Relation to us: \nWe are allies");
         else if(plater.hasSubject(tag)) textDiplo.setText("Relation to us: \nThey are our subject");
         else if(plater.isHostile(tag)) textDiplo.setText("Relation to us: \nWe are at war!");
+        else if(plater.hasOverlord()) if(getGame().playerFromTag(plater.getOverlord()).isAllied(tag)) textDiplo.setText("Relation to us: \nThey are a subject of our ally");
         else textDiplo.setText("Relation to us: \nThey are neutral");
     }
     private void allyScreen(){
@@ -1045,7 +1250,7 @@ public class GameActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //check if ai would ally
-                    game.getPlayerList()[game.playerIdFromTag(diploTag)].addRequestFrom(1, "000000", game.getCurrentPlayer().getTag());
+                    makeAlly(diploTag);
                     backDiplo.performClick();
                 }
             });
@@ -1086,10 +1291,7 @@ public class GameActivity extends AppCompatActivity {
             subDiplo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    game.getPlayerList()[game.playerIdFromTag(diploTag)].addRequestFrom(2, "000000", game.getCurrentPlayer().getTag());
-                    for(String s : game.playerFromTag(diploTag).getDiplo()[1]){
-                        game.playerFromTag(diploTag).removeAlly(s);
-                    }
+                    makeSubject(diploTag);
                     backDiplo.performClick();
                 }
             });
@@ -1111,36 +1313,29 @@ public class GameActivity extends AppCompatActivity {
             warDiplo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String currentTag = game.getCurrentPlayer().getTag();
-                    game.getCurrentPlayer().addToWar(currentTag+diploTag, currentTag);
-                    game.playerFromTag(diploTag).addToWar(currentTag+diploTag, diploTag);
-                    for(Province p : game.playerFromTag(diploTag).getAllOwned()) p.updateOwner();
-                    /*
-                    game.getCurrentPlayer().addHostile(target.getTag(), currentTag, diploTag);
-                    game.getCurrentPlayer().addRecentWar(currentTag+diploTag);
-
-                    for (String s : game.getCurrentPlayer().getDiplo()[1])
-                        if(!game.playerFromTag(s).isTruce(diploTag)) game.playerFromTag(s).addRequestFrom(3, currentTag+diploTag, game.getCurrentPlayer().getTag());
-
-                    game.playerFromTag(diploTag).addHostile(game.getCurrentPlayer().getTag(),currentTag, diploTag);
-                    game.playerFromTag(diploTag).addRecentWar(currentTag+diploTag);
-                    for (String s : target.getDiplo()[1])
-                        if(!game.playerFromTag(s).isTruce(currentTag)) game.playerFromTag(s).addRequestFrom(3, currentTag+diploTag, target.getTag());*/
-
-                    backDiplo.performClick();
-                    addWar(game.getCurrentPlayer().getTag(), diploTag);
+                    declareWar(diploTag);
                 }
             });
-        }/*else{
-            textDiplo.setText("Negotiate for peace with " + target.getName() + " to end our conflict");
-            warDiplo.setBackgroundResource(R.drawable.peacedeal);
-            warDiplo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //peace stuff
-                }
-            });
-        }*/
+        }
+    }
+    protected void makeAlly(String tag){
+        game.addOutgoing(game.getCurrentPlayer().getTag(), "aly", tag, "nnnn");
+        game.getPlayerList()[game.playerIdFromTag(tag)].addRequestFrom(1, "000000", game.getCurrentPlayer().getTag());
+    }
+    protected void makeSubject(String tag){
+        game.addOutgoing(game.getCurrentPlayer().getTag(), "sub", tag, "nnnn");
+        game.getPlayerList()[game.playerIdFromTag(tag)].addRequestFrom(2, "000000", game.getCurrentPlayer().getTag());
+        for(String s : game.playerFromTag(tag).getDiplo()[1]){
+            game.playerFromTag(tag).removeAlly(s);
+        }
+    }
+    protected void declareWar(String tag){
+        game.addOutgoing(game.getCurrentPlayer().getTag(), "war", tag, "nnnn");
+        String currentTag = game.getCurrentPlayer().getTag();
+        game.getCurrentPlayer().addToWar(currentTag+tag, currentTag);
+        game.playerFromTag(tag).addToWar(currentTag+tag, tag);
+        for(Province p : game.playerFromTag(tag).getAllOwned()) p.updateOwner();
+        addWar(game.getCurrentPlayer().getTag(), tag);
     }
     private void makeDipPopup(){
         dipPopLayout = findViewById(R.id.diploPopup);
@@ -1418,6 +1613,10 @@ public class GameActivity extends AppCompatActivity {
     }
     public void showYearInfo(){
         infoText.setText(yearInfo);
+        ownerFlag.setVisibility(View.INVISIBLE);
+        devasIcon.setVisibility(View.INVISIBLE);
+        attriIcon.setVisibility(View.INVISIBLE);
+        devlIcon.setVisibility(View.INVISIBLE);
         if(!openInfo){
             info.setVisibility(View.VISIBLE);
             info.animate().x(0).setDuration(500).start();
@@ -1428,6 +1627,10 @@ public class GameActivity extends AppCompatActivity {
     }
     public void updateInfo(){
         String infoStr = "";
+        ownerFlag.setVisibility(View.VISIBLE);
+        devasIcon.setVisibility(View.VISIBLE);
+        attriIcon.setVisibility(View.VISIBLE);
+        devlIcon.setVisibility(View.VISIBLE);
         if(!game.getImperium()) {
             infoStr += "Province: " + infoProv.getName() + "\nTroops: " + (int) infoProv.getTroops();
             infoStr += "\n\nContinent: " + infoProv.getContinent().getName() + "\nBonus: " + infoProv.getContinent().getBonus();
@@ -1514,9 +1717,7 @@ public class GameActivity extends AppCompatActivity {
                 developer.setBackgroundResource(R.drawable.developerdown);
                 developer.postDelayed(new Runnable() {
                     @Override public void run() { developer.setBackgroundResource(R.drawable.developer);}}, 500);
-                game.getCurrentPlayer().modMonetae(-10);
-                infoProv.modDevelopment(Math.exp(-infoProv.modDevelopment(0)/15));
-                updateInfo();
+                developer(infoProv);
             }
         });
         fortifier.setOnClickListener(new View.OnClickListener() {
@@ -1525,10 +1726,20 @@ public class GameActivity extends AppCompatActivity {
                 fortifier.setBackgroundResource(R.drawable.builderdown);
                 fortifier.postDelayed(new Runnable() {
                     @Override public void run() { fortifier.setBackgroundResource(R.drawable.builder);}}, 500);
-                infoProv.fortify();
-                updateInfo();
+                fortifier(infoProv);
             }
         });
+    }
+    public void developer(Province prov){
+        game.addOutgoing(game.getCurrentPlayer().getTag(), "dev", "#nn", ""+formatInt(prov.getId(), 4));
+        game.getCurrentPlayer().modMonetae(-10);
+        prov.modDevelopment(Math.exp(-prov.modDevelopment(0)/15));
+        updateInfo();
+    }
+    public void fortifier(Province prov){
+        game.addOutgoing(game.getCurrentPlayer().getTag(), "frt", "#nn", ""+formatInt(prov.getId(), 4));
+        prov.fortify();
+        updateInfo();
     }
     private void infoMods() {
         Button[] minus = new Button[]{
@@ -1577,10 +1788,10 @@ public class GameActivity extends AppCompatActivity {
             }
         });
         playerInfo.setVisibility(View.VISIBLE);
-        if(NEW_DEBUG_SAVE) {
-            debugPlayers = new Player[DEBUG_NATIONS.length];
+        if(newDebugSave) {
+            debugPlayers = new Player[debugNations.length];
             for (int i = 0; i < debugPlayers.length; i++)
-                debugPlayers[i] = new Player(context, i, true, DEBUG_NATIONS[i]);
+                debugPlayers[i] = new Player(context, i, true, debugNations[i]);
         }
 
         infoMods();
@@ -1687,10 +1898,13 @@ public class GameActivity extends AppCompatActivity {
         loadString = new String(mapFile);
         yearInfo = loadString.substring(loadString.indexOf("\"")+1);
         int mapMode = game.getMapMode();
+        game.inSetup = true;
         loadBuilder();
         game.loadOwnerFromTag();
         game.playerTitles();
         game.updateMapMode(mapMode);
+        game.inSetup = false;
+        Log.i("OutSetup", "out5");
         firstLoaded = true;
         Log.i("Time Files", "Done");
     }
@@ -1698,6 +1912,7 @@ public class GameActivity extends AppCompatActivity {
         historicalSave = true;
         initialTimeFiles();
         findViewById(R.id.timeProgress).setVisibility(View.VISIBLE);
+        nationFlag.setVisibility(View.VISIBLE);
         showNation.setVisibility(View.INVISIBLE);
         showNationFrame.setVisibility(View.INVISIBLE);
         handle.setVisibility(View.INVISIBLE);
@@ -1758,6 +1973,9 @@ public class GameActivity extends AppCompatActivity {
                 int[] out = snapTo(timeProgress);
                 //timeSlider.setProgress(out[0]);
                 yearAt = out[1];
+                if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+                else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+                else locked.setVisibility(View.INVISIBLE);
                 year.setText("Year: "+yearAt);
                 yearTitle.setText(titles[out[2]]);
                 timeFile();
@@ -1766,6 +1984,9 @@ public class GameActivity extends AppCompatActivity {
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[0]);
         yearAt = out[1];
+        if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+        else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+        else locked.setVisibility(View.INVISIBLE);
         year.setText("Year: "+yearAt);
         yearTitle.setText(titles[out[2]]);
         timeFile();
@@ -1826,7 +2047,7 @@ public class GameActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!LOCKED || yearAt == DEFAULT_YEAR_ALP) {
+                //if(!LOCKED || yearAt == DEFAULT_YEAR_ALP) {
                     boolean already = false;
                     if (nationAt != null) {
                         for (String at : nations)
@@ -1843,7 +2064,7 @@ public class GameActivity extends AppCompatActivity {
                             players[id].setBackgroundResource(nationAt.getFlag());
                         }
                     }
-                }
+                //}
             }};
     }
     private View.OnClickListener unSelector(final int id){
@@ -1862,22 +2083,40 @@ public class GameActivity extends AppCompatActivity {
         unlockPop = findViewById(R.id.unlockPop);
         unlockClose = findViewById(R.id.unlockClose);
         locked = findViewById(R.id.locked);
+        unlockedYears = new ArrayList<>(0);
+        FileInputStream fis = null;
+        final StringBuilder sb = new StringBuilder();
+        try {
+            fis = new FileInputStream(Environment.getExternalStorageDirectory().getPath()+"/Imperium/Game/State.txt");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String text;
+            while ((text = br.readLine()) != null)
+                sb.append(text).append("\n");
+
+        } catch (Exception e) { e.printStackTrace(); }
+        finally {
+            if (fis != null)
+                try { fis.close(); } catch (IOException e) { e.printStackTrace(); }
+        }
+        String years = sb.substring(sb.indexOf("[")+1, sb.indexOf("]"));
+        for(int i=0; i<years.length()-3; i++){
+            unlockedYears.add(years.substring(i, years.indexOf(",", i)));
+            i = years.indexOf(",", i);
+        }
+        Log.i("unlockedYears", unlockedYears.toString());
         ImageView playerLock = findViewById(R.id.playerLock);
         TextView unlockText = findViewById(R.id.unlockText);
         ImageButton toStore = findViewById(R.id.unlockButton);
         unlockText.setTextSize(TypedValue.COMPLEX_UNIT_IN,BASE_TEXT_SCALE*inchWidth);
-        unlockText.setText("Tap the Unlock button to head to the Unrestricted Version of ImperiumLite." +
-                "  This version unlocks extra maps, Historical mode and the music player! Happy Strategizing!");
-        if(LOCKED && timeView) locked.setVisibility(View.VISIBLE);
-        if(LOCKED) playerLock.setVisibility(View.VISIBLE);
+        unlockText.setGravity(Gravity.CENTER);
         toStore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String appPackageName = getPackageName();
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.reactordevelopment.ImperiumLite")));
-                } catch (android.content.ActivityNotFoundException e) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.reactordevelopment.Imperium")));
+                for(int i=0; i<SKU_ARRAY.length; i++) {
+                    Log.i("CurrentTimeline", "unlock_" + timeLine + yearAt+", "+SKU_ARRAY[i]);
+                    if (SKU_ARRAY[i].equals("unlock_modern") && timeLine.equals("alp")) launchBilling(i);
+                    if (SKU_ARRAY[i].equals("unlock_althist") && !timeLine.equals("alp")) launchBilling(i);
                 }
             }
         });
@@ -1895,6 +2134,10 @@ public class GameActivity extends AppCompatActivity {
         });
     }
     private void unlockPopup(){
+        unlockPop.setVisibility(View.VISIBLE);
+        TextView unlockText = findViewById(R.id.unlockText);
+        if(timeLine.equals("alp")) unlockText.setText("Unlock the entire modern timeline for .99 (USD)?\nThis will permanently unlock this timeline for your enjoyment!");
+        else unlockText.setText("Unlock all alternate history timelines for .99 (USD)?\nThis will permanently unlock this timeline for your enjoyment!");
         unlockPop.animate().y(screenWidth*.3f).setDuration(500);
     }
     private void unlockPopdown(){
@@ -1918,8 +2161,6 @@ public class GameActivity extends AppCompatActivity {
                 //if(yearAt >= years[i] && yearAt < years[i+1]){
                 if (yearAt >= i && yearAt < i + 1) {
                     Log.i("YearAt:",""+years[i]);
-                    if(years[i] == DEFAULT_YEAR_ALP) locked.setVisibility(View.INVISIBLE);
-                    else if (LOCKED) locked.setVisibility(View.VISIBLE);
                     if (i > 0 && i < years.length - 1)
                         return new int[]{(int) (/*(years[i]-min)*/i * 100f / span), years[i], i, years[i + 1], (int) (/*(years[i+1]-min)*/(i + 1) * 100f / span), years[i - 1], (int) (/*(years[i-1]-min)*/(i - 1) * 100f / span)};
                     else if (i == 0)
@@ -1936,8 +2177,9 @@ public class GameActivity extends AppCompatActivity {
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[6]);
         yearAt = out[5];
-        if(yearAt == DEFAULT_YEAR_ALP) locked.setVisibility(View.INVISIBLE);
-        else if (LOCKED) locked.setVisibility(View.VISIBLE);
+        if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+        else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+        else locked.setVisibility(View.INVISIBLE);
         year.setText("Year: "+yearAt);
         if(out[2] > 0) yearTitle.setText(titles[out[2]-1]);
         timeFile();
@@ -1946,8 +2188,9 @@ public class GameActivity extends AppCompatActivity {
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[4]+1);
         yearAt = out[3];
-        if(yearAt == DEFAULT_YEAR_ALP) locked.setVisibility(View.INVISIBLE);
-        else if (LOCKED) locked.setVisibility(View.VISIBLE);
+        if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+        else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+        else locked.setVisibility(View.INVISIBLE);
         Log.i("out3", ""+out[3]);
         year.setText("Year: "+yearAt);
         if(out[2] < titles.length-1) yearTitle.setText(titles[out[2]+1]);
@@ -2049,7 +2292,7 @@ public class GameActivity extends AppCompatActivity {
         }
         else if(getIntent().getStringExtra("tag").equals("new")){
             int mapId = getIntent().getIntExtra("mapId", 0);
-            if(!DEBUG)game = new Game(this, getIntent().getBooleanArrayExtra("ais"), mapImperium(mapId), new Object[]{"", ""});
+            if(!debugingOn)game = new Game(this, getIntent().getIntArrayExtra("types"), mapImperium(mapId), new Object[]{"", ""}, true);
             else {
                 mapImperium(DEBUG_MAP_ID);
                 game = new Game(this, true, new Object[]{"", ""});
@@ -2058,8 +2301,8 @@ public class GameActivity extends AppCompatActivity {
             game.postNew();
             gameControls();
             Log.i("newGame", "" + game);
-            for(boolean b : getIntent().getBooleanArrayExtra("ais"))
-                Log.i("newGame","Ais"+b);
+            for(int i : getIntent().getIntArrayExtra("types"))
+                Log.i("newGame","PLayer Types"+i);
         }
         return true;
     }
@@ -2120,6 +2363,79 @@ public class GameActivity extends AppCompatActivity {
                 } catch (InterruptedException e) { e.printStackTrace(); }
             }
         };lookingThread.start();
+    }
+    private void initBilling(){
+        billingClient = BillingClient.newBuilder(context).enablePendingPurchases().setListener(this).build();
+        billingClient.startConnection(new BillingClientStateListener() {
+            @Override
+            public void onBillingSetupFinished(BillingResult billingResult) {
+                if(billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK){
+
+                }
+            }
+
+            @Override
+            public void onBillingServiceDisconnected() {
+
+            }
+        });
+    }
+    private void launchBilling(final int skuId){
+        Log.i("Ready", ""+billingClient.isReady());
+        if(billingClient.isReady()){
+            SkuDetailsParams params = SkuDetailsParams.newBuilder().setSkusList(Arrays.asList(SKU_ARRAY)).setType(BillingClient.SkuType.INAPP).build();
+            billingClient.querySkuDetailsAsync(params, new SkuDetailsResponseListener() {
+                @Override
+                public void onSkuDetailsResponse(BillingResult billingResult, List<SkuDetails> list) {
+                    Log.i("Billingresp", billingResult.getResponseCode()+", "+BillingClient.BillingResponseCode.OK);
+                    if(billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK){
+                        for(SkuDetails detail : list){
+                            Log.i("Detail", detail.getSku()+", "+SKU_ARRAY[skuId]);
+                            if(detail.getSku().equals(SKU_ARRAY[skuId])){
+                                BillingFlowParams params = BillingFlowParams.newBuilder().setSkuDetails(detail).build();
+                                billingClient.launchBillingFlow(GameActivity.this, params);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+    @Override
+    public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> purchases) {
+        int response = billingResult.getResponseCode();
+        if(response == BillingClient.BillingResponseCode.OK && purchases != null){
+            for(Purchase purchase : purchases)
+                doPurchase(purchase);
+        }if(response == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED){
+
+        }
+    }
+    public void doPurchase(Purchase purchase) {
+        String path = Environment.getExternalStorageDirectory().getPath() + "/Imperium/Game/";
+        FileInputStream fis = null;
+        FileOutputStream fos;
+        StringBuilder sb = new StringBuilder();
+        try {
+            fis = new FileInputStream(path+"State.txt");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String text;
+            while ((text = br.readLine()) != null)
+                sb.append(text).append("\n");
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { if (fis != null) try { fis.close(); } catch (IOException e) { e.printStackTrace(); } }
+        String stateText = sb.toString();
+        sb = new StringBuilder(stateText);
+        File state = new File(path, "State.txt");
+        if(timeLine.equals("alp")) sb.insert(sb.indexOf("]"), "modern,");
+        else sb.insert(sb.indexOf("]"), "althist,");
+        try {
+            fos = new FileOutputStream(state);
+            fos.write(sb.toString().getBytes());
+            fos.close();
+        } catch (Exception e) { e.printStackTrace(); }
+
     }
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override

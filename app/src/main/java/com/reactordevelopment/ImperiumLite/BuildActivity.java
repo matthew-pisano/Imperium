@@ -38,6 +38,10 @@ public class BuildActivity extends AppCompatActivity {
     private SeekBar playerSelect;
     private TextView playersTitle;
     private Button create;
+    private ImageButton alpCk;
+    private ImageButton romCk;
+    private ImageButton kaiCk;
+    private ImageView timelineIcon;
     private ImageView mapCanvas;
     private ImageButton helper;
     private ImageButton chronometer;
@@ -50,7 +54,7 @@ public class BuildActivity extends AppCompatActivity {
     private static int players = 2;
     private int progressNum = 0;
     private boolean historical = false;
-    private static boolean[] ais;
+    private static int[] types;
     private int[] mapList;
     private String timeLine;
     private boolean shiftOpen;
@@ -63,6 +67,10 @@ public class BuildActivity extends AppCompatActivity {
         ImageView activityRound = findViewById(R.id.buildRound);
         activityRound.setScaleType(ImageView.ScaleType.FIT_XY);
         absoluteLayout = findViewById(R.id.flagCanvas);
+        alpCk = findViewById(R.id.alpCheck);
+        romCk = findViewById(R.id.romCheck);
+        kaiCk = findViewById(R.id.kaiCheck);
+        timelineIcon = findViewById(R.id.timelineIcon);
         Log.i("initial", "added " + players + " players");
         context = this;
         mapAtId = 0;
@@ -78,7 +86,7 @@ public class BuildActivity extends AppCompatActivity {
         }
         if(historical) hideSelect();
         Log.i("history", ""+historical);
-        Log.i("initial", "has " + ais[0] + " ais");
+        Log.i("initial", "has " + types[0] + " ais");
         createButtons();
     }
     @Override
@@ -95,7 +103,7 @@ public class BuildActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         players = 2;
-        ais = null;
+        types = null;
         Log.i("Build destroy", "ddede");
         super.onDestroy();
     }
@@ -122,13 +130,13 @@ public class BuildActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(mapAtId <= mapList.length-2) mapAtId ++;
                 if(mapAtId == 0)mapVersion.setText("Classic");
-                if(mapAtId == 1)mapVersion.setText("ImperiumLite");
+                if(mapAtId == 1)mapVersion.setText("Imperium");
                 if(mapAtId == 2)mapVersion.setText("Europe");
                 mapCanvas.setBackgroundResource(mapList[mapAtId]);
-                if(LOCKED){
+                /*if(LOCKED){
                     if(mapAtId != 0) mapLock.setVisibility(View.VISIBLE);
                     else mapLock.setVisibility(View.INVISIBLE);
-                }
+                }*/
             }});
         Log.i("Mapid", ""+mapAtId);
         mapLeft.setOnClickListener(new View.OnClickListener() {
@@ -136,13 +144,13 @@ public class BuildActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(mapAtId >= 1) mapAtId --;
                 if(mapAtId == 0)mapVersion.setText("Classic");
-                if(mapAtId == 1)mapVersion.setText("ImperiumLite");
+                if(mapAtId == 1)mapVersion.setText("Imperium");
                 if(mapAtId == 2)mapVersion.setText("Europe");
                 mapCanvas.setBackgroundResource(mapList[mapAtId]);
-                if(LOCKED){
+                /*if(LOCKED){
                     if(mapAtId != 0) mapLock.setVisibility(View.VISIBLE);
                     else mapLock.setVisibility(View.INVISIBLE);
-                }
+                }*/
             }});
     }
     private void aiToPlayer(String timeline, int year, String mapPath, String[] nations){
@@ -247,8 +255,27 @@ public class BuildActivity extends AppCompatActivity {
                 String desc = "";
                 for(String s : realityFiles){
                     Log.i("realtiy string", s);
-                    if(s.substring(0, 3).equals(timeTag))
+                    if(s.substring(0, 3).equals(timeTag)) {
                         desc = s.substring(3);
+                        if (timeTag.equals("alp")) {
+                            alpCk.setVisibility(View.VISIBLE);
+                            romCk.setVisibility(View.INVISIBLE);
+                            kaiCk.setVisibility(View.INVISIBLE);
+                            timelineIcon.setBackgroundResource(R.drawable.blank);
+                        }
+                        if (timeTag.equals("rom")) {
+                            alpCk.setVisibility(View.INVISIBLE);
+                            romCk.setVisibility(View.VISIBLE);
+                            kaiCk.setVisibility(View.INVISIBLE);
+                            timelineIcon.setBackgroundResource(R.drawable.romlogo);
+                        }
+                        if (timeTag.equals("kai")) {
+                            alpCk.setVisibility(View.INVISIBLE);
+                            romCk.setVisibility(View.INVISIBLE);
+                            kaiCk.setVisibility(View.VISIBLE);
+                            timelineIcon.setBackgroundResource(R.drawable.kailogo);
+                        }
+                    }
                 }
                 ((TextView)findViewById(R.id.timeInfo)).setText(desc);
             }
@@ -289,14 +316,15 @@ public class BuildActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, GameActivity.class);
-                if (!historical && loadString == null && !DEBUG) {
+                if (!historical && loadString == null && !debugingOn) {
                     intent.putExtra("players", players);
                     Log.i("build", "added " + players + " players");
-                    if(!LOCKED)intent.putExtra("mapId", mapAtId);
-                    else intent.putExtra("mapId", 0);
-                    intent.putExtra("ais", ais);
+                    intent.putExtra("mapId", mapAtId);
+                    //else intent.putExtra("mapId", 0);
+                    Log.i("Typeslen", ""+types.length);
+                    intent.putExtra("types", types);
                     intent.putExtra("tag", "new");
-                }else if (historical && !DEBUG){
+                }else if (historical && !debugingOn){
                     try {
                         Log.i("Historial", "load");
                         ArrayList<Object> history = (ArrayList<Object>)getIntent().getSerializableExtra("historyFiles");
@@ -307,10 +335,10 @@ public class BuildActivity extends AppCompatActivity {
                         intent.putExtra("loadName", AUTO_SAVE_ID);
                     }catch (Exception e){e.printStackTrace();}
                 }
-                else if(DEBUG){
+                else if(debugingOn){
                     try {
-                        getAssets().open("sacredTexts/timeLines/"+DEBUG_MAP+DEBUG_TIMELINE+DEBUG_YEAR+".imprm");
-                        aiToPlayer(DEBUG_TIMELINE, DEBUG_YEAR, DEBUG_MAP, DEBUG_NATIONS);
+                        getAssets().open("sacredTexts/timeLines/"+DEBUG_MAP+debugId +".imprm");
+                        aiToPlayer(debugId.substring(0, 3), Integer.parseInt(debugId.substring(3)), DEBUG_MAP, GameActivity.debugNations);
                         intent.putExtra("loadedGame", loadString);
                         intent.putExtra("tag", "loaded");
                         intent.putExtra("loadName", AUTO_SAVE_ID);
@@ -319,7 +347,7 @@ public class BuildActivity extends AppCompatActivity {
                         intent.putExtra("players", players);
                         Log.i("build", "added " + players + " players");
                         intent.putExtra("mapId", DEBUG_MAP_ID);
-                        intent.putExtra("ais", ais);
+                        intent.putExtra("types", types);
                         intent.putExtra("tag", "new");
                     }
                 }
@@ -383,17 +411,18 @@ public class BuildActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(ais.length >= player+1) {
-                    ais[player] = !ais[player];
-                    if (ais[player]) aiAt.setBackgroundResource(R.drawable.halus);
+                if(types.length >= player+1) {
+                    if(types[player] == 0) types[player] = 1;
+                    else types[player] = 0;
+                    if (types[player] == 1) aiAt.setBackgroundResource(R.drawable.halus);
                     else aiAt.setBackgroundResource(R.drawable.helmet);
-                    Log.i("ais", "" + ais[player]);
+                    Log.i("types", "" + types[player]);
                 }
             }
         };
     }
     private void playerSelect(){
-        ais = new boolean[players];
+        types = new int[players];
         playersTitle = findViewById(R.id.playersTitle);
         playersTitle.setTextSize(TypedValue.COMPLEX_UNIT_IN,BASE_TEXT_SCALE*inchWidth);
         playerSelect = findViewById(R.id.playerSelect);
@@ -447,7 +476,7 @@ public class BuildActivity extends AppCompatActivity {
                 ai1.setX(one);
                 ai2.setX(two);
                 ai3.setX(three);
-                ais = new boolean[players];
+                types = new int[players];
                 ai0.setBackgroundResource(R.drawable.helmet);
                 ai1.setBackgroundResource(R.drawable.helmet);
                 ai2.setBackgroundResource(R.drawable.helmet);

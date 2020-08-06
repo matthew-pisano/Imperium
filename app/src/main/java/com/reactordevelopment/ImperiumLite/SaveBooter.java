@@ -28,7 +28,7 @@ public class SaveBooter extends GameActivity {
                 game.getMap().resetAll();
             }
             game.setTurnNum(get(5, SAVE_FORM[0]));
-            if(DEBUG) game.setTurnNum(0);
+            if(debugingOn) game.setTurnNum(0);
             for(int i=0; i<game.getMap().getList().length; i++){
                 Province pAt = game.getMap().getList()[i];
                 Log.i("inProv", "{"+loadString.substring(init+pStrLen*i, init+6+pStrLen*i)+"}");
@@ -56,7 +56,7 @@ public class SaveBooter extends GameActivity {
             for(int player=0; player<game.getPlayerList().length; player++){
                 int index = init+plLen+pStrLen*map.getList().length+plStrLen*player;
                 Log.i("PlayerSave", "Text: "+loadString.substring(index, 17+index)+", "+ais[player]);
-                if(!ais[player] || timeView || DEBUG) game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index+3));
+                if(!ais[player] || timeView || debugingOn) game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index+3));
                 else game.getPlayerList()[player] = new Ai(context, player, AI_STYLE, game.getImperium(), loadString.substring(index, index+3));
                 index += 3+1;
                 game.getPlayerList()[player].setStage(get(index, 1));
@@ -96,7 +96,7 @@ public class SaveBooter extends GameActivity {
                 game.getMap().resetAll();
             }
             game.setTurnNum(get(5, SAVE_FORM[0]));
-            if (DEBUG) game.setTurnNum(0);
+            if (debugingOn) game.setTurnNum(0);
             for (int i = 0; i < game.getMap().getList().length; i++) {
                 Province pAt = game.getMap().getList()[i];
                 Log.i("inProv", "{" + loadString.substring(init + pStrLen * i, init + 6 + pStrLen * i) + "}");
@@ -117,7 +117,7 @@ public class SaveBooter extends GameActivity {
             for (int player = 0; player < game.getPlayerList().length; player++) {
                 int index = init + plLen + pStrLen * map.getList().length + plStrLen * player;
                 Log.i("PlayerSave", "Text: " + loadString.substring(index, 17 + index));
-                if (!ais[player] || timeView || DEBUG)
+                if (!ais[player] || timeView || debugingOn)
                     game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index + 3));
                 else
                     game.getPlayerList()[player] = new Ai(context, player, AI_STYLE, game.getImperium(), loadString.substring(index, index + 3));
@@ -159,7 +159,7 @@ public class SaveBooter extends GameActivity {
                 game.getMap().resetAll();
             }
             game.setTurnNum(get(5, SAVE_FORM[0]));
-            if (DEBUG) game.setTurnNum(0);
+            if (debugingOn) game.setTurnNum(0);
             int lastStart = 0;
             lastStart = loadString.indexOf("<", lastStart)+1;
             for (int i = 0; i < game.getMap().getList().length; i++) {
@@ -187,7 +187,7 @@ public class SaveBooter extends GameActivity {
                 //int index = init + plLen + pStrLen * map.getList().length + plStrLen * player;
                 int index = lastStart;
                 Log.i("PlayerSave", "Text: " + loadString.substring(index, 17 + index));
-                if (!ais[player] || timeView || DEBUG)
+                if (!ais[player] || timeView || debugingOn)
                     game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index + 3));
                 else
                     game.getPlayerList()[player] = new Ai(context, player, AI_STYLE, game.getImperium(), loadString.substring(index, index + 3));
@@ -234,7 +234,7 @@ public class SaveBooter extends GameActivity {
             for(Player p : game.getPlayerList()) p.printDiplo();
             gameControls();
             game.inSetup = false;
-            Log.i("insetup", ""+game.inSetup);
+            Log.i("OutSetup", "out3");
         }
         if(ver == 1.31) {
             logLoad();
@@ -258,7 +258,7 @@ public class SaveBooter extends GameActivity {
                 game.getMap().resetAll();
             }
             game.setTurnNum(get(5, SAVE_FORM[0]));
-            if (DEBUG) game.setTurnNum(0);
+            if (debugingOn) game.setTurnNum(0);
             int lastStart = 0;
             lastStart = loadString.indexOf("<", lastStart)+1;
             boolean ranOut = false;
@@ -303,7 +303,7 @@ public class SaveBooter extends GameActivity {
             for (int player = 0; player < game.getPlayerList().length; player++) {
                 //int index = init + plLen + pStrLen * map.getList().length + plStrLen * player;
                 int index = lastStart;
-                if (!ais[player] || timeView || DEBUG)
+                if (!ais[player] || timeView || debugingOn)
                     game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index + 3));
                 else
                     game.getPlayerList()[player] = new Ai(context, player, AI_STYLE, game.getImperium(), loadString.substring(index, index + 3));
@@ -334,7 +334,9 @@ public class SaveBooter extends GameActivity {
                         Log.i("LoadRequest", "to "+game.getPlayerList()[player].getTag()+" from "+loadString.substring(index+8, index+11));
                         game.getPlayerList()[player].addRequestFrom(Integer.parseInt(loadString.substring(index, index+2)), loadString.substring(index+2, index+2+6), loadString.substring(index+8, index+11));
                     }
+                    Log.i("DiploBuild", ""+game.inSetup);
                     if(dipAt == 1) game.getPlayerList()[player].addAlly(loadString.substring(index, index+3));
+                    Log.i("DiploBuild2", ""+game.inSetup);
                     if(dipAt == 2) game.getPlayerList()[player].addMinion(loadString.substring(index, index+3));
                     if(dipAt == 3) game.getPlayerList()[player].getDiplo()[3].add(loadString.substring(index, index+3)+loadString.substring(index+3, index+6)+loadString.substring(index+6, index+9));
                     if(dipAt == 4) game.getPlayerList()[player].addTruce(loadString.substring(index, index+7));
@@ -352,7 +354,7 @@ public class SaveBooter extends GameActivity {
             for(Player p : game.getPlayerList()) p.printDiplo();
             gameControls();
             game.inSetup = false;
-            Log.i("insetup", ""+game.inSetup);
+            Log.i("OutSetup", "out4");
         }
     }
     private void logLoad(){

@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/gameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".GameActivity">
@@ -92,7 +93,18 @@
 
 
     </RelativeLayout>
-
+    <ImageView
+        android:id="@+id/stageCover"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent=".17"
+        app:layout_constraintWidth_percent=".1"
+        app:layout_constraintHorizontal_bias=".42"
+        app:layout_constraintVertical_bias=".999"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <ImageView
         android:id="@+id/statusCover"
         android:layout_width="0dp"
@@ -106,6 +118,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/statusbar"/>
+
+
 
     <ImageView
         android:id="@+id/showNation"
@@ -1884,16 +1898,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </android.support.constraint.ConstraintLayout>
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/unlockPop"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="1000dp"
-        app:layout_constraintHeight_percent=".6"
-        app:layout_constraintWidth_percent=".6"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent=".6"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent=".6">
 
         <ImageView
             android:id="@+id/unlockCover"
@@ -1909,40 +1925,41 @@
             android:id="@+id/unlockText"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintHeight_percent=".5"
-            app:layout_constraintWidth_percent=".8"
+            android:text="Unloc Text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent=".7"
+            app:layout_constraintVertical_bias=".25"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:text="Unloc Text" />
+            app:layout_constraintWidth_percent=".8" />
 
         <ImageButton
             android:id="@+id/unlockButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintWidth_percent=".3"
-            app:layout_constraintHeight_percent=".2"
-            app:layout_constraintVertical_bias=".99"
             android:background="@drawable/unlockbutton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent=".2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias=".99"
+            app:layout_constraintWidth_percent=".3" />
 
         <ImageButton
             android:id="@+id/unlockClose"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintWidth_percent=".15"
-            app:layout_constraintHeight_percent=".3"
-            app:layout_constraintVertical_bias=".001"
-            app:layout_constraintHorizontal_bias=".99"
             android:background="@drawable/openmodes"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent=".2"
+            app:layout_constraintHorizontal_bias=".999"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias=".001"
+            app:layout_constraintWidth_percent=".1" />
     </android.support.constraint.ConstraintLayout>
 
 

@@ -2,7 +2,9 @@ package com.reactordevelopment.ImperiumLite;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -25,14 +27,24 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.SkuDetails;
+import com.google.gson.internal.$Gson$Preconditions;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -68,19 +80,22 @@ public class MainActivity extends AppCompatActivity {
     public static final int TRUCE_TIMER = 5;
     public static final int YEET = View.GONE;
     public static final int START_PAUSE = 500;
-    public static final String SAVE_PATH = Environment.getExternalStorageDirectory().getPath()+"/ImperiumLite/Saves";
-    public static final String MUSIC_PATH = Environment.getExternalStorageDirectory().getPath()+"/ImperiumLite/Music";
+    public static final String SAVE_PATH = Environment.getExternalStorageDirectory().getPath()+"/Imperium/Saves";
+    public static final String MUSIC_PATH = Environment.getExternalStorageDirectory().getPath()+"/Imperium/Music";
     public static final int[] SAVE_FORM = {3, 5, 4, 4, 4, 5, 4, 4, 3};
     public static final float BASE_TEXT_SCALE =  .05f;
     public static final int DEFAULT_YEAR_ALP = 17;
     public static final int DEFAULT_YEAR_ROM = 414;
     public static final int DEFAULT_YEAR_KAI = 1917;
     public static final int DEFAULT_YEAR_VIR = 2023;
+    public static final boolean DEV_MODE = false;
+    public static int devType = 0;
+    private static boolean devScrollOpen = false;
     //turnNum, provTroops, playerTroops, Monetae, infamy, development, devastation, attrition, ownerId
     private int STORAGE_PERMISSION_CODE = 1;
     public static final double SAVE_VERSION = 1.31;
-    public static boolean LOCKED = true;
-    public static final boolean MAIN_APP_DED = true;
+    //public static boolean LOCKED = true;
+    //public static final boolean MAIN_APP_DED = true;
 
     private static String[] tracks;
     private static SharedPreferences vars;
@@ -115,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
     private static boolean musicPaused = false;
     public static int gameAt;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         textMaker();
         music();
         startThread();
-        if(MAIN_APP_DED || vars.getBoolean("unlockedLite", false)) LOCKED = false;
+        //if(MAIN_APP_DED || vars.getBoolean("unlockedLite", false)) LOCKED = false;
         setActivity("none");
         setMusicActivity("menu");
         onMain = true;
@@ -186,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
         if(formatted.length() > digits) formatted = formatted.substring(0, digits);
         return formatted;
     }
-
     private void releaseNotes(){
         ImageButton updateBanner = findViewById(R.id.updateBanner);
         final ConstraintLayout releaseLayout = findViewById(R.id.releaseLayout);
@@ -201,18 +216,18 @@ public class MainActivity extends AppCompatActivity {
         closeNotes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { releaseLayout.animate().y(-1000).setDuration(500); }});
-        if(!MAIN_APP_DED || !firstLoad.getBoolean("firstLoad", true)) {
+        if(!firstLoad.getBoolean("firstLoad", true)) {
             releaseLayout.animate().y(-1000).setDuration(0);
         }
-        Log.i("Release Notes", ""+MAIN_APP_DED+", "+firstLoad.getBoolean("firstLoad", true));
-        if(MAIN_APP_DED && firstLoad.getBoolean("firstLoad", true)){
+        //Log.i("Release Notes", ""+MAIN_APP_DED+", "+firstLoad.getBoolean("firstLoad", true));
+        /*if(MAIN_APP_DED && firstLoad.getBoolean("firstLoad", true)){
             releaseLayout.animate().y(screenHeight/3).setDuration(0);
             String notice = "Notice: Due to the full version of ImperiumLite being currently unavailable, ImperiumLite Lite (Thats this one) will include " +
                     "the full features of ImperiumLite until further notice.  After that, new downloads of ImperiumLite Lite will contain reduced features, " +
                     "however this one that you own will remain unlocked!";
             releaseNotes.setText(notice);
             return;
-        }
+        }*/
 
         byte[] buffer = new byte[0];
         String notes = "";
@@ -291,19 +306,28 @@ public class MainActivity extends AppCompatActivity {
         Log.i("firstLoad", ""+firstLoad.getBoolean("firstLoad", true));
         releaseNotes();
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(mainActivity,
+            requestStoragePermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                    "Permission needed to access storage");
+            /*ActivityCompat.requestPermissions(mainActivity,
                     new String[] {Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);*/
         else {
+            Log.i("Permissions granted", "");
             makeDirs();
             if(firstLoad.getBoolean("firstLoad", true)) firstLoad();
             listTracks();
         }
-        if(MAIN_APP_DED){
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+            requestStoragePermission(new String[]{Manifest.permission.INTERNET, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE},
+                    "Permission needed to access internet (multiplayer)");
+            /*ActivityCompat.requestPermissions(mainActivity,
+                    new String[] {Manifest.permission.INTERNET,
+                            Manifest.permission.ACCESS_NETWORK_STATE}, STORAGE_PERMISSION_CODE);*/
+        /*if(MAIN_APP_DED){
             SharedPreferences.Editor varEdit = vars.edit();
             varEdit.putBoolean("unlockedLite", true);
             varEdit.commit();
-        }
+        }*/
     }
     private void startThread(){
         new Thread(){
@@ -362,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void firstLoad(){
         Log.i("First Loaded!", "");
-        String path = Environment.getExternalStorageDirectory().getPath()+"/ImperiumLite/Music/";
+        String path = Environment.getExternalStorageDirectory().getPath()+"/Imperium/Music/";
         SharedPreferences.Editor edit = firstLoad.edit();
         edit.putBoolean("firstLoad", false);
         edit.commit();
@@ -444,7 +468,7 @@ public class MainActivity extends AppCompatActivity {
                                         final String title = tracks[currentSongId];
                                         runOnUiThread(new Runnable() {
                                             @Override
-                                            public void run() { setMusicTitle(title.substring(0, title.indexOf("."))); }});
+                                            public void run() { try{setMusicTitle(title.substring(0, title.indexOf(".")));}catch (NullPointerException e){}}});
                                         Log.i("duration", "" + media.getDuration());
                                         media.start();
                                     } else if (musicOn.getString("musicOn", "none").equals("menu")) {
@@ -536,28 +560,47 @@ public class MainActivity extends AppCompatActivity {
         }catch (Exception e){e.printStackTrace();}
     }
     private void makeDirs(){
-        String path = Environment.getExternalStorageDirectory().getPath()+"/ImperiumLite";
+        String path = Environment.getExternalStorageDirectory().getPath()+"/Imperium";
         Log.i("path", path);
         File dir = new File(path);
-        if(!dir.exists()) if(!dir.mkdir()) Log.i("No", "nomake");;
+        if(!dir.exists()) if(!dir.mkdir()) Log.i("No", "nomake");
         dir = new File(path+"/Saves");
         if(!dir.exists()) if(!dir.mkdir()) Log.i("No2", "nomake");
         dir = new File(path+"/Music");
         if(!dir.exists()) if(!dir.mkdir()) Log.i("No3", "nomake");
         dir = new File(path+"/Logs");
         if(!dir.exists()) if(!dir.mkdir()) Log.i("No4", "nomake");
+        dir = new File(path+"/Game");
+        if(!dir.exists()) if(!dir.mkdir()) Log.i("No5", "nomake");
+
         FileOutputStream fos;
         File save = new File(path+"/Music", "Readme.txt");
-        String readme = "This folder stores ImperiumLite's music. Paste any music files that you'd like in the game here!";
+        String readme = "This folder stores Imperium's music. Paste any music files that you'd like in the game here!";
         try {
             fos = new FileOutputStream(save);
             fos.write(readme.getBytes());
             fos.close();
         } catch (Exception e) { e.printStackTrace(); }
-
+        path = Environment.getExternalStorageDirectory().getPath()+"/Imperium/Game/";
+        Log.i("path2", path);
+        File state = new File(path, "State.txt");
+        Log.i("StateFile", path+state.getName()+", "+new File(path+state.getName()).exists());
+        if(!new File(path+state.getName()).exists()) {
+            String statedesc = "Critical Game Files, Do Not Remove (Please)\n";
+            for(int i=0; i<50; i++)
+                statedesc += ""+(char)((int)(Math.random()*24)+65);
+            statedesc +="[modern,althist,]";
+            for(int i=0; i<50; i++)
+                statedesc += ""+(char)((int)(Math.random()*24)+65);
+            try {
+                fos = new FileOutputStream(state);
+                fos.write(statedesc.getBytes());
+                fos.close();
+            } catch (Exception e) { e.printStackTrace(); }
+        }
     }
     private static void listTracks(){
-        String path = Environment.getExternalStorageDirectory().getPath()+"/ImperiumLite/Music";
+        String path = Environment.getExternalStorageDirectory().getPath()+"/Imperium/Music";
         File dir = new File(path);
         String[] dirList = dir.list();
         ArrayList<String> dirArray = new ArrayList<>(0);
@@ -577,25 +620,25 @@ public class MainActivity extends AppCompatActivity {
             System.exit(0);
         }
     }
-    /*private void requestStoragePermission(final String code){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, code)) {
+    private void requestStoragePermission(final String[] code, String message){
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, code[0])) {
             new AlertDialog.Builder(this)
                     .setTitle("Permission needed")
-                    .setMessage("This permission is needed because of this and that")
+                    .setMessage(message)
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[] {code}, STORAGE_PERMISSION_CODE);
+                                    code, STORAGE_PERMISSION_CODE);
                         }
                     }).setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) { dialog.dismiss(); }
                     }).create().show();
 
-        } else ActivityCompat.requestPermissions(this, new String[] {code}, STORAGE_PERMISSION_CODE);
+        }// else ActivityCompat.requestPermissions(this, code, STORAGE_PERMISSION_CODE);
 
-    }*/
+    }
     private void textMaker() {
         version = findViewById(R.id.version);
         final TextView splash = findViewById(R.id.splash);
@@ -608,7 +651,7 @@ public class MainActivity extends AppCompatActivity {
 
         version.setTextSize(TypedValue.COMPLEX_UNIT_IN, (float) (BASE_TEXT_SCALE * inchWidth));
         version.setText("" + BuildConfig.VERSION_NAME);
-        if (LOCKED && !MAIN_APP_DED) version.setText("ImperiumLite: Lite");
+        //if (LOCKED && !MAIN_APP_DED) version.setText("ImperiumLite: Lite");
         byte[] buffer = new byte[0];
         String notes = "";
         try {
@@ -673,6 +716,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        /*ImageButton multiplayer = findViewById(R.id.multiplayer);
+        multiplayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MultiplayerActivity.class);
+                startActivity(intent);
+            }
+        });*/
         ImageButton loadGame = findViewById(R.id.loadGame);
         loadGame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -682,9 +733,11 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }else{
                     Toast.makeText(context, "File permissions needed to load saves!", Toast.LENGTH_LONG).show();
-                    ActivityCompat.requestPermissions(mainActivity,
+                    requestStoragePermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                            "Storage permission needed to access save files");
+                    /*ActivityCompat.requestPermissions(mainActivity,
                             new String[] {Manifest.permission.READ_EXTERNAL_STORAGE,
-                                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);*/
                 }
             }
         });
@@ -720,6 +773,94 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        final Button devToggle = findViewById(R.id.devToggle);
+        devToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(devType < 2) devType ++;
+                else devType = 0;
+                switch (devType) {
+                    case 0:
+                        devToggle.setText("No Dev");
+                        debugingOn = false;
+                        newDebugSave = false;
+                        break;
+                    case 1:
+                        devToggle.setText("Editing");
+                        debugingOn = true;
+                        newDebugSave = false;
+                        break;
+                    case 2:
+                        devToggle.setText("New Save");
+                        debugingOn = true;
+                        newDebugSave = true;
+                        break;
+                }
+            }
+        });
+        final Button debugIdBtn = findViewById(R.id.debugId);
+        if(!DEV_MODE){
+            devToggle.setVisibility(View.INVISIBLE);
+            debugIdBtn.setVisibility(View.INVISIBLE);
+        }
+        final ScrollView devIdScroll = findViewById(R.id.devIdScroll);
+        final LinearLayout devIdLayout = findViewById(R.id.devIdLayout);
+        devIdScroll.setVisibility(View.INVISIBLE);
+        debugIdBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(devScrollOpen){
+                    devScrollOpen = false;
+                    devIdScroll.setVisibility(View.INVISIBLE);
+                }else{
+                    devScrollOpen = true;
+                    devIdScroll.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        byte[] buffer;
+        ArrayList<String> ids = new ArrayList<>(0);
+        String full = "";
+        try {
+            InputStream stream = getAssets().open("sacredTexts/timeLines/europeMap/dateTags.txt");
+            int size = stream.available();
+            buffer = new byte[size];
+            stream.read(buffer);
+            stream.close();
+            full = new String(buffer);
+        } catch (IOException e) { e.printStackTrace(); }
+        for(int i=0; i<full.length(); i++){
+            Log.i("Add Ids", full.substring(i, full.indexOf("}", i)+1));
+            ids.add(full.substring(i, full.indexOf("}", i)+1));
+            final Button id = new Button(context);
+            final String idAt = ids.get(ids.size()-1);
+            id.setText(idAt.substring(0, idAt.indexOf("{")));
+            id.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    overwriteDebugNations(idAt);
+                    debugIdBtn.setText(id.getText().toString());
+                    devScrollOpen = false;
+                    devIdScroll.setVisibility(View.INVISIBLE);
+                }
+            });
+            devIdLayout.addView(id);
+            Log.i("Add Ids", ""+i);
+            i = full.indexOf("}", i)+2;
+            if(i == 1) break;
+        }
+        //initializes as alp17
+        overwriteDebugNations(ids.get(0));
+
+    }
+    private void overwriteDebugNations(String idAt){
+        ArrayList<String> temp = new ArrayList<>(0);
+        int start = idAt.indexOf("{")+2;
+        for(int i=start; i<idAt.length(); i+=7){
+            Log.i("BuildId"+idAt.substring(0, start), idAt.substring(i, i+3));
+            temp.add(idAt.substring(i, i+3));
+        }
+        debugNations = temp.toArray(new String[0]);
     }
 
 }

@@ -17,6 +17,7 @@ import static com.reactordevelopment.ImperiumLite.MainActivity.formatInt;
 
 public class Player extends Game{
     protected boolean human = true;
+    protected boolean puppet = false;
     protected int id;
     protected int monetae;
     protected int stage;
@@ -74,7 +75,7 @@ public class Player extends Game{
             nation = new Nation(tag, game.getTimeline(), game.getYear());
 
         }else
-            nation = new Nation(tag, DEBUG_TIMELINE, DEBUG_YEAR);
+            nation = new Nation(tag, debugId.substring(0, 3), Integer.parseInt(debugId.substring(3)));
         savedSelect = new Province[2];
         tmpSelect = new Province[2];
         attackSelected = new Province[2];
@@ -118,10 +119,10 @@ public class Player extends Game{
                 p.getStackFrom(getTag()).resetMoves();
         //if(isHistorical()) movesLeft = 5;
         //else movesLeft = 1;
-        changeProvEnabled(isHuman());
+        changeProvEnabled(isHuman() && !isPuppet());
         if(!timeView && isHistorical()) {
             warVis(isHuman());
-            turnMoveVis(isHuman());
+            turnMoveVis(isHuman() && !isPuppet());
         }
         if(stage > 0 && overwriteStage) setStage(0);
         calcAllOwned(true);
@@ -171,7 +172,12 @@ public class Player extends Game{
     public boolean isHostile(String tag){ return isRelation(3, tag); }
     public boolean isTruce(String tag){ return isRelation(4, tag); }
     public boolean hasOverlord(String tag){ return isRelation(5, tag);}
-    public boolean hasOverLord(){return diploList[5].size() == 1;}
+    public boolean hasOverlord(){return diploList[5].size() == 1;}
+    public String getOverlord(){
+        if(diploList[5].size() == 1) return diploList[5].get(0);
+        else return "#nn";
+    }
+    public ArrayList<String> getSubjects(){return diploList[2];}
     public String getWar(String memberTag){
         for(String s : diploList[3]){
             if(s.substring(0, 3).equals(memberTag) || s.substring(3, 6).equals(memberTag) || s.substring(6, 9).equals(memberTag))
@@ -213,6 +219,7 @@ public class Player extends Game{
     public Province[] getAttackSelected(){return attackSelected;}
     public Province[] getTransportSelected(){return transportSelected;}
     public boolean isHuman(){return human;}
+    public boolean isPuppet(){return puppet;}
     public boolean isOwned(Province province){return province.getOwnerId() == id;}
     public int getId(){return id;}
     public double getTroops(){ return reinforcements; }
@@ -220,7 +227,7 @@ public class Player extends Game{
     public Province[] getAllOwned(){return allOwned;}
     public Province[] getCoreProvs(){return coreProvs;}
     public boolean isAttackable(String tag){
-        return !isAllied(tag) && !isTruce(tag) && !hasSubject(tag) && !hasOverLord();
+        return !isAllied(tag) && !isTruce(tag) && !hasSubject(tag) && !hasOverlord();
     }
     public boolean isFriendly(String tag){
         return isAllied(tag) || hasSubject(tag) || hasOverlord(tag);
@@ -331,7 +338,7 @@ public class Player extends Game{
             total += p.calcOutput();
         for(String tag : diploList[2])
             total += playerFromTag(tag).totalIncome() * SUBJECT_INCOME;
-        if(hasOverLord()) total -= total*SUBJECT_INCOME;
+        if(hasOverlord()) total -= total*SUBJECT_INCOME;
         return (int) total+nation.getExtraDev();
     }
     public String attDefFromTag(String tag){
@@ -469,14 +476,51 @@ public class Player extends Game{
     }
     public void removeRequest(int type, String group, String from){diploList[0].remove(type+group+from);}
 
-    public void addAlly(String tag){ Log.i("Add Ally", getName()+" added "+tag);diploList[1].add(tag);}
-    public void removeAlly(String tag){ Log.i("Remove Ally", getName()+" removed "+tag);diploList[1].remove(tag); addTruce(tag);}
+    public void addAlly(final String tag){
+        Log.i("Add Ally", getName()+" added "+tag);diploList[1].add(tag);
+        Log.i("AllyStetup", ""+inSetup);
+        if(isHuman() && !inSetup)
+            runOnUiThread(new Runnable() {
+            @Override
+            public void run() { new Event(context, "A New Alliance", "We have entered into an alliance with "+playerFromTag(tag).getName(), new String[]{"A bulwark against our foes"}, R.drawable.dipround, "0"); }});
+    }
+    public void removeAlly(final String tag){
+        Log.i("Remove Ally", getName()+" removed "+tag);diploList[1].remove(tag); addTruce(tag);
+        if(isHuman() && !inSetup)
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() { new Event(context, "An Ally Lost", "We have lost our alliance with "+playerFromTag(tag).getName(), new String[]{"Good riddance!"}, R.drawable.dipround, "0"); }});
+    }
 
-    public void addMinion(String tag){ diploList[2].add(tag);}
-    public void removeMinion(String tag){ diploList[2].remove(tag); addTruce(tag);}
+    public void addMinion(final String tag){
+        diploList[2].add(tag);
+        if(isHuman() && !inSetup)
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() { new Event(context, "A New Subject", playerFromTag(tag).getName()+" has agreed to our overlordship", new String[]{"Our domain grows"}, R.drawable.dipround, "0"); }});
+    }
+    public void removeMinion(final String tag){
+        diploList[2].remove(tag); addTruce(tag);
+        if(isHuman() && !inSetup)
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() { new Event(context, "A Subject has broken away", "The traitorous people of "+playerFromTag(tag).getName()+" have rejected our protection and influence", new String[]{"Good riddance!"}, R.drawable.dipround, "0"); }});
+    }
 
-    public void addOverlord(String tag){ diploList[5].add(tag);}
-    public void removeOverlord(String tag){ diploList[5].remove(tag); addTruce(tag);}
+    public void addOverlord(final String tag){
+        diploList[5].add(tag);
+        if(isHuman() && !inSetup)
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() { new Event(context, "A New Protector", "The government of "+playerFromTag(tag).getName()+" has agreed to shield our nation from our foes", new String[]{"Security at last"}, R.drawable.dipround, "0"); }});
+    }
+    public void removeOverlord(final String tag){
+        diploList[5].remove(tag); addTruce(tag);
+        if(isHuman() && !inSetup)
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() { new Event(context, "Freedom", "We have thrown off the chains of our oppressors!", new String[]{"The future is ours!"}, R.drawable.dipround, "0"); }});
+    }
     public ArrayList<String> getAllMinions(){
         ArrayList<String> subs = new ArrayList<>(0);
         for(String sub : diploList[2]) {
@@ -488,8 +532,8 @@ public class Player extends Game{
     }
     public void addHostile(String tag, String attacker, String defender){ //only for top level overlords
         String tagAt = tag;
-        while(playerFromTag(tagAt).hasOverLord()) tagAt = playerFromTag(tagAt).getDiplo()[5].get(0);
-        while(playerFromTag(tagAt).hasOverLord()) tagAt = playerFromTag(tagAt).getDiplo()[5].get(0);
+        while(playerFromTag(tagAt).hasOverlord()) tagAt = playerFromTag(tagAt).getDiplo()[5].get(0);
+        while(playerFromTag(tagAt).hasOverlord()) tagAt = playerFromTag(tagAt).getDiplo()[5].get(0);
         tag = tagAt; //highest enemy
         ArrayList<String> enemies = playerFromTag(tag).getAllMinions();
         ArrayList<String> friends = getAllMinions();
@@ -507,6 +551,12 @@ public class Player extends Game{
         }
         diploList[3].add(attacker+defender+tag);
         Log.i("War", tag+" is now enemy of "+getName());
+        if(isHuman() && !inSetup) {
+            final String finalTag = tag;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() { new Event(context, "A New Enemy", "We have entered into conflict with the tyrants of"+playerFromTag(finalTag).getName(), new String[]{"Prepare for battle!"}, R.drawable.dipround, "0"); }});
+        }
     }
     public void removeHostile(String tag, String attacker, String defender, boolean winningSide){
         Log.i("Remosve Hostile", getName()+winningSide);
@@ -540,7 +590,7 @@ public class Player extends Game{
         String tagAt = tag;
         Log.i("REmovingHostile", tagAt);
         addTruce(tagAt);
-        while(playerFromTag(tagAt).hasOverLord()) tagAt = playerFromTag(tagAt).getDiplo()[5].get(0);
+        while(playerFromTag(tagAt).hasOverlord()) tagAt = playerFromTag(tagAt).getDiplo()[5].get(0);
         tag = tagAt; //highest enemy
         ArrayList<String> enemies = playerFromTag(tag).getAllMinions();
         ArrayList<String> friends = getAllMinions();
@@ -562,6 +612,12 @@ public class Player extends Game{
         diploList[3].remove(attacker+defender+tag);
         addTruce(tag);
         Log.i("peace", tag+" is not enemy of "+getName());
+        if(isHuman() && !inSetup) {
+            final String finalTag = tag;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() { new Event(context, "Peace!", "We have made peace with our former enemies in "+playerFromTag(finalTag).getName(), new String[]{"Let us move forward"}, R.drawable.dipround, "0"); }});
+        }
     }
     public void addToWar(String attDef, String senderTag){
         saveCores();

@@ -14,7 +14,6 @@ public class Ai extends Player {
     public static final int HAN = 3;
     private static final int MONGOL_LIMIT = 30;
     private static final int MAX_TURNS = 5000;
-    private static final double WAR_CHANCE_MOD = .5;
     private static long lastRun;
 
     private int gameId;
@@ -35,6 +34,7 @@ public class Ai extends Player {
         super(cont, ident, imperium, tag);
         id = ident;
         human = false;
+        puppet = false;
         gameId = getGameId();
         executing = false;
         this.style = style;
@@ -361,8 +361,8 @@ public class Ai extends Player {
         if (getStage() == 0 || getStage() == 1) {
             if (isHistorical()) {
                 double warCahnce = Math.random();
-                Log.i("WarChance", "rand: "+warCahnce+", fromNat: "+(getWarChance()*WAR_CHANCE_MOD));
-                if (warCahnce < getWarChance()*WAR_CHANCE_MOD) searchAndDeclareWar();
+                Log.i("WarChance", "rand: "+warCahnce+", fromNat: "+(getWarChance()));
+                if (warCahnce < getWarChance()) searchAndDeclareWar();
             }
 
             int randAttacks = (int) (2 * Math.random()) + 2;
