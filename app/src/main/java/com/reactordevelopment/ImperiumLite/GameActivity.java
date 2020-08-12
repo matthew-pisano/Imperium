@@ -2099,7 +2099,12 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
             if (fis != null)
                 try { fis.close(); } catch (IOException e) { e.printStackTrace(); }
         }
-        String years = sb.substring(sb.indexOf("[")+1, sb.indexOf("]"));
+        String years = "";
+        try{years = sb.substring(sb.indexOf("[")+1, sb.indexOf("]"));}
+        catch (StringIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            years = "modern,althist,";
+        }
         for(int i=0; i<years.length()-3; i++){
             unlockedYears.add(years.substring(i, years.indexOf(",", i)));
             i = years.indexOf(",", i);

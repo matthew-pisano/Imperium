@@ -1,6 +1,9 @@
 Current Version-
 	Save Encoding-
 
+Version 1.1.2 (8/12/20)
+	-Fixed crash caused by starting new historical game
+---------------
 Version 1.1.1 (8/5/20)
 	-Additions to Kaiser Gloria Timeline
 	-Events to show results of diplomatic actions
