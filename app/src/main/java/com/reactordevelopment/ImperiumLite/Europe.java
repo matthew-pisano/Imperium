@@ -15,6 +15,7 @@ public static final int MAP_DRAWABLE = R.drawable.europe;
         mapFilePath = "europeMap/";
         assemble(context);
     }
+    public Europe(){ mapFilePath = "europeMap/"; }
     public void assemble(Context context){
         double scaleX = 1;
         double scaleY = 1;

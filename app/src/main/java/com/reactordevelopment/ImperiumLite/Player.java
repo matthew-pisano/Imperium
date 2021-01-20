@@ -240,28 +240,34 @@ public class Player extends Game{
         }
         stationedIn = stationed.toArray(new Province[0]);
     }
-    public void calcAllOwned(boolean updateTitle){
+    public void calcAllOwned(boolean updateTitle) {
         //Log.i("clacOwned", "in");
         provinces = new ArrayList<>(0);
         //Log.i("Maplen", ""+getMap().getList().length);
-        for(int i=0; i<getMap().getList().length; i++){
+        for (int i = 0; i < getMap().getList().length; i++) {
             //Log.i("ownerId", ""+getMap().getList()[i].getOwnerId());
-            if(getMap().getList()[i].getOwnerId() != -1) {
+            if (getMap().getList()[i].getOwnerId() != -1) {
                 //Log.i("ownerTag", getMap().getList()[i].getOwner().getTag());
-                if(getMap().getList()[i].getOwner().getTag().equals(nation.getTag())) {
+                if (getMap().getList()[i].getOwner().getTag().equals(nation.getTag())) {
                     try {
                         provinces.add(getMap().getList()[i]);
                     } catch (ArrayIndexOutOfBoundsException e) { e.printStackTrace(); }
                 }
             }
         }
-        Log.i("CalcAllOwned", ""+provinces.size()+" from "+getName());
+
+        if (provinces.size() == 0) {
+            allOwned = new Province[0];
+            return;
+        }
+        Log.i("CalcAllOwned", "" + provinces.size() + " from " + getName());
         allOwned = provinces.toArray(new Province[0]);
-        Log.i("CalcAllOwned", ""+allOwned.length+" from "+getName());
+        Log.i("CalcAllOwned", "" + allOwned.length + " from " + getName());
         //Log.i("ownedlen", ""+allOwned.length);
-        if(allOwned.length > 0 && (firstLoaded || !timeView) && updateTitle) {
+        if (allOwned.length > 0 && (firstLoaded || !timeView) && updateTitle) {
             pocketText();
         }
+
     }
     private void findNehiborTags(){
         ArrayList<String> nehibors = new ArrayList<>(0);
@@ -834,7 +840,6 @@ public class Player extends Game{
         nameTitle.setLayoutParams(params);
         nameTitles.add(nameTitle);
     }
-    public void halt() {}
     //public void modMovesLeft(int mod){movesLeft += mod;}
     public int modMonetae(int mod){
         if(mod != 0) Log.i("modMoney", ""+monetae+"moddedby"+mod);

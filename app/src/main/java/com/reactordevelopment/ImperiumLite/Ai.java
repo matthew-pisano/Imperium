@@ -28,6 +28,7 @@ public class Ai extends Player {
     private int id;
     private Thread control;
     private boolean halted;
+    private static boolean killSwitch;
     private SharedPreferences prefs;
 
     public Ai(Context cont, int ident, int style, boolean imperium, String tag) {
@@ -35,7 +36,9 @@ public class Ai extends Player {
         id = ident;
         human = false;
         puppet = false;
+        killSwitch = false;
         gameId = getGameId();
+        killSwitch = false;
         executing = false;
         this.style = style;
         setStage(-1);
@@ -53,10 +56,12 @@ public class Ai extends Player {
             public void run() {
                 try {
                     while (!isInterrupted()) {
-                        if(halted) {
+                        Log.i("KillSwitch", "killed "+Ai.this.getName()+" "+killSwitch);
+                        if(killSwitch) break;
+                        /*if(halted) {
                             Log.i("AiHalt", getNation().getName()+", gameAt: "+gameAt+", "+gameId);
                             Thread.sleep(10000000);
-                        }
+                        }*/
                         Thread.sleep(500);
                         if (getPlayerList().length != 0 && getGame() != null && System.currentTimeMillis() > lastRun + prefs.getInt("turnSpeed", 5000)) {
                             if (getCurrentPlayer() != null) {
@@ -103,7 +108,11 @@ public class Ai extends Player {
         }
         Log.i("Logic", "Done: " + id+", "+getName());*/
     }
-    public void halt(){ halted = true; }
+    public static void halt(){
+        /*halted = true;*/
+        Log.i("AiKill", "killed");
+        killSwitch = true;
+    }
     //Tools
     private void pressProvince(final Province province) {
         Log.i("AiProvince", "presed");

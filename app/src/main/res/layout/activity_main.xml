@@ -173,14 +173,16 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent=".3"
+        app:layout_constraintHeight_percent=".37"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintWidth_percent=".8">
 
         <ImageView
             android:id="@+id/releaseCover"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent=".8"
+            app:layout_constraintVertical_bias="0"
             android:background="@drawable/canvas"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -192,10 +194,10 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:scrollbars="vertical"
+            app:layout_constraintHeight_percent=".5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent=".7"
-            app:layout_constraintVertical_bias=".62"
+            app:layout_constraintVertical_bias=".4"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent=".85" />
@@ -213,6 +215,37 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:background="@drawable/closemodes" />
+
+        <ImageButton
+            android:id="@+id/notesToggle"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent=".2"
+            app:layout_constraintWidth_percent=".75"
+            app:layout_constraintVertical_bias=".999"
+            app:layout_constraintHorizontal_bias=".5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:padding="0dp"
+            android:background="@drawable/showonstart"/>
+        <ImageButton
+            android:id="@+id/notesCheck"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent=".17"
+            app:layout_constraintWidth_percent=".1"
+            app:layout_constraintVertical_bias=".3"
+            app:layout_constraintHorizontal_bias=".13"
+            app:layout_constraintBottom_toBottomOf="@id/notesToggle"
+            app:layout_constraintEnd_toEndOf="@id/notesToggle"
+            app:layout_constraintStart_toStartOf="@id/notesToggle"
+            app:layout_constraintTop_toTopOf="@id/notesToggle"
+            android:padding="0dp"
+            android:src="@drawable/checkmark"
+            android:scaleType="centerInside"
+            android:background="@drawable/blank"/>
     </android.support.constraint.ConstraintLayout>
 
     <Button
@@ -252,6 +285,22 @@
         app:layout_constraintEnd_toEndOf="@+id/mainRound"
         app:layout_constraintStart_toStartOf="@+id/devToggle"
         app:layout_constraintTop_toBottomOf="@+id/devToggle" />
+
+    <ImageButton
+        android:id="@+id/superintelligent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/superintelligent"
+        android:scaleType="centerInside"
+        android:background="@drawable/blank"
+        app:layout_constraintWidth_percent=".15"
+        app:layout_constraintHeight_percent=".08"
+        app:layout_constraintVertical_bias=".99"
+        app:layout_constraintHorizontal_bias=".01"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

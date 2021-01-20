@@ -497,12 +497,12 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/playerInfo"
-        app:layout_constraintHeight_percent=".18"
+        app:layout_constraintHeight_percent=".15"
         app:layout_constraintHorizontal_bias=".9"
         app:layout_constraintStart_toStartOf="@id/playerInfo"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias=".74"
-        app:layout_constraintWidth_percent=".25">
+        app:layout_constraintWidth_percent=".27">
 
         <LinearLayout
             android:id="@+id/flagLayout"
@@ -515,7 +515,7 @@
             android:id="@+id/selectLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight=".4"
+            android:layout_weight=".5"
             android:orientation="horizontal"></LinearLayout>
     </LinearLayout>
 

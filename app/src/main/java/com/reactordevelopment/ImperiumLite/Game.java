@@ -283,9 +283,8 @@ public class Game extends GameActivity implements java.io.Serializable {
             p.pocketText();
     }
     public void haltAis(){
-        for(Player p : players)
-            if(!p.isHuman())
-                p.halt();
+        Log.i("AiHalt", "");
+        Ai.halt();
     }
     public void removePlayer(int id){
         //players[id].setId(-1);

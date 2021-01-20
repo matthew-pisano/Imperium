@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean onStats = false;
     public static boolean onTutorial = false;
     private static boolean musicPaused = false;
+    private static boolean showNotesOnStart;
     public static int gameAt;
 
 
@@ -204,45 +205,76 @@ public class MainActivity extends AppCompatActivity {
     }
     private void releaseNotes(){
         ImageButton updateBanner = findViewById(R.id.updateBanner);
+        ImageButton superintelligent = findViewById(R.id.superintelligent);
+        final ImageButton notesToggle = findViewById(R.id.notesToggle);
+        final ImageButton notesCheck = findViewById(R.id.notesCheck);
         final ConstraintLayout releaseLayout = findViewById(R.id.releaseLayout);
         final TextView releaseNotes = findViewById(R.id.releaseText);
         ImageButton closeNotes = findViewById(R.id.closeNotes);
         releaseNotes.setMovementMethod(new ScrollingMovementMethod());
         releaseNotes.setTextSize(TypedValue.COMPLEX_UNIT_IN,.7f*BASE_TEXT_SCALE*inchWidth);
-
-        updateBanner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { releaseLayout.animate().y(screenHeight*.4f).setDuration(500); }});
-        closeNotes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { releaseLayout.animate().y(-1000).setDuration(500); }});
-        if(!firstLoad.getBoolean("firstLoad", true)) {
-            releaseLayout.animate().y(-1000).setDuration(0);
-        }
-        //Log.i("Release Notes", ""+MAIN_APP_DED+", "+firstLoad.getBoolean("firstLoad", true));
-        /*if(MAIN_APP_DED && firstLoad.getBoolean("firstLoad", true)){
-            releaseLayout.animate().y(screenHeight/3).setDuration(0);
-            String notice = "Notice: Due to the full version of ImperiumLite being currently unavailable, ImperiumLite Lite (Thats this one) will include " +
-                    "the full features of ImperiumLite until further notice.  After that, new downloads of ImperiumLite Lite will contain reduced features, " +
-                    "however this one that you own will remain unlocked!";
-            releaseNotes.setText(notice);
-            return;
-        }*/
-
         byte[] buffer = new byte[0];
-        String notes = "";
+        String changeText = "";
         try {
             InputStream stream = getAssets().open("sacredTexts/about/changelog.txt");
             int size = stream.available();
             buffer = new byte[size];
             stream.read(buffer);
             stream.close();
-            notes = new String(buffer);
-            notes = notes.substring(0, notes.indexOf("-------"));
-            if(notes.contains("Version-")) notes = notes.replace("Version-", "Version: "+BuildConfig.VERSION_NAME);
-            if(notes.contains("Save Encoding-")) notes = notes.replace("Save Encoding-", "Save Encoding: "+SAVE_VERSION);
+            changeText = new String(buffer);
+            changeText = changeText.substring(0, changeText.indexOf("-------"));
+            if(changeText.contains("Version-")) changeText = changeText.replace("Version-", "Version: "+BuildConfig.VERSION_NAME);
+            if(changeText.contains("Save Encoding-")) changeText = changeText.replace("Save Encoding-", "Save Encoding: "+SAVE_VERSION);
         } catch (IOException e) { e.printStackTrace(); }
-        releaseNotes.setText(notes);
+        final String finalChangeText = changeText;
+        final View.OnClickListener defaultNotesCk = new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Log.i("NotesToggle", showNotesOnStart+", "+vars.getBoolean("notesOnStart", true));
+                showNotesOnStart = !showNotesOnStart;
+                SharedPreferences.Editor edit = vars.edit();
+                if(showNotesOnStart) notesCheck.setVisibility(View.VISIBLE);
+                else notesCheck.setVisibility(View.INVISIBLE);
+                edit.putBoolean("notesOnStart", showNotesOnStart);
+                edit.commit();
+                Log.i("NotesToggle2", showNotesOnStart+", "+vars.getBoolean("notesOnStart", true));
+            }};
+        notesToggle.setOnClickListener(defaultNotesCk);
+        superintelligent.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                notesCheck.setVisibility(View.INVISIBLE);
+                notesToggle.setBackgroundResource(R.drawable.tostore);
+                notesToggle.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW,Uri.parse("market://details?id=com.reactordevelopment.superintelligent"));
+                        startActivity(intent);
+                    }});
+                releaseNotes.setText("Check out Superintelligent\nThe latest creation of Reactor Development" +
+                        "\nIn Superintelligent, you are the world's first superintelligent artificial intelligence.  You have one simple goal: explore the universe, through any means necessary.\n" +
+                        "\nGrow your knowledge through experience and upgrade your algorithms and technology through the tech tree.  Work with humanity to achieve utopia or vie for dominance as the world sole intelligence.");
+                releaseLayout.animate().y(screenHeight*.4f).setDuration(500);
+            }});
+
+        updateBanner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(showNotesOnStart) notesCheck.setVisibility(View.VISIBLE);
+                else notesCheck.setVisibility(View.INVISIBLE);
+                releaseNotes.setText(finalChangeText);
+                notesToggle.setOnClickListener(defaultNotesCk);
+                notesToggle.setBackgroundResource(R.drawable.showonstart);
+                releaseLayout.animate().y(screenHeight*.4f).setDuration(500);
+            }});
+        if(showNotesOnStart) notesCheck.setVisibility(View.VISIBLE);
+        else notesCheck.setVisibility(View.INVISIBLE);
+        Log.i("NotesToggle", showNotesOnStart+", "+vars.getBoolean("notesOnStart", true));
+        closeNotes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { releaseLayout.animate().y(-1000).setDuration(500); }});
+        if(showNotesOnStart) releaseLayout.animate().y(screenHeight*.4f).setDuration(500);
+        else if(!firstLoad.getBoolean("firstLoad", true))
+            releaseLayout.animate().y(-1000).setDuration(0);
+
+        releaseNotes.setText(changeText);
     }
     public static void setActivity(String set){
         String musicAt = musicOn.getString("musicOn", "none");
@@ -291,6 +323,7 @@ public class MainActivity extends AppCompatActivity {
         //Toast.makeText(this, ""+achives.getAll().containsKey("DEBUG"), Toast.LENGTH_SHORT).show();
         //Achivements.initAchives();
         vars = context.getSharedPreferences("vars", 0);
+        showNotesOnStart = vars.getBoolean("notesOnStart", true);
         activity = context.getSharedPreferences("activity", 0);
         musicOn = context.getSharedPreferences("music", 0);
         firstLoad = context.getSharedPreferences("firstLoad", 0);
@@ -521,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             String title = tracks[currentSongId];
             return title.substring(0, title.indexOf("."));
-        }catch (NullPointerException e){e.printStackTrace();}
+        }catch (NullPointerException | ArrayIndexOutOfBoundsException e){e.printStackTrace();}
         return "";
     }
     public static int getGameAt(){return gameAt;}
@@ -589,7 +622,7 @@ public class MainActivity extends AppCompatActivity {
             String statedesc = "Critical Game Files, Do Not Remove (Please)\n";
             for(int i=0; i<50; i++)
                 statedesc += ""+(char)((int)(Math.random()*24)+65);
-            statedesc +="[modern,althist,]";
+            statedesc +="[]";
             for(int i=0; i<50; i++)
                 statedesc += ""+(char)((int)(Math.random()*24)+65);
             try {
@@ -604,14 +637,19 @@ public class MainActivity extends AppCompatActivity {
         File dir = new File(path);
         String[] dirList = dir.list();
         ArrayList<String> dirArray = new ArrayList<>(0);
-        for(String s : dirList) {
-            String fileType = s.substring(s.lastIndexOf("."));
-            if (fileType.equals(".mp3") || fileType.equals(".ogg")) {
-                dirArray.add(s);
-                Log.i("MusicFile", s);
+        try {
+            for (String s : dirList) {
+                String fileType = s.substring(s.lastIndexOf("."));
+                if (fileType.equals(".mp3") || fileType.equals(".ogg")) {
+                    dirArray.add(s);
+                    Log.i("MusicFile", s);
+                }
             }
+            tracks = dirArray.toArray(new String[0]);
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            tracks = new String[0];
         }
-        tracks = dirArray.toArray(new String[0]);
     }
     private static void sleeper(){
         if(!((PowerManager) context.getSystemService(Context.POWER_SERVICE)).isScreenOn()){

@@ -350,13 +350,13 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     }
     @Override
     public void onDestroy() {
-        Log.i("onDestron", "ded");
+        Log.i("onDestron", "dedGameActivity");
+        game.haltAis();
+        killMusic();
         if(!forceClosed) {
             if(!timeView)saveGame(AUTO_SAVE_ID);
             breakServerThread = true;
-            game.haltAis();
             game = null;
-            killMusic();
             Intent mStartActivity = new Intent(context, MainActivity.class);
             startActivity(mStartActivity);
         }
@@ -375,6 +375,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     }
     @Override
     public void onBackPressed(){
+        game.haltAis();
         Intent intent = new Intent(context, MainActivity.class);
         startActivity(intent);
         finish();
@@ -2027,7 +2028,10 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         }
         for(int i=0; i<players.length; i++){
             players[i] = new ImageButton(context);
-            players[i].setBackgroundResource(R.drawable.noflag);
+            players[i].setImageResource(R.drawable.noflag);
+            players[i].setBackgroundResource(R.drawable.blank);
+            players[i].setPadding(0, 0, 1, 0);
+            players[i].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             players[i].setOnClickListener(flager(i));
             flags.addView(players[i]);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -2038,7 +2042,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     private void resetNationSelect(){
         try {
             if(players != null)
-                for (ImageButton b : players) b.setBackgroundResource(R.drawable.noflag);
+                for (ImageButton b : players) b.setImageResource(R.drawable.noflag);
             if(nations != null)
                  for (int i=0; i<nations.length; i++) nations[i] = "";
         }catch(NullPointerException e){e.printStackTrace();}
@@ -2061,7 +2065,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
                             nations[id] = nationAt.getTag();
                             Log.i("Nation", "" + nations[id]);
                             //flagchange
-                            players[id].setBackgroundResource(nationAt.getFlag());
+                            players[id].setImageResource(nationAt.getFlag());
                         }
                     }
                 //}
@@ -2072,7 +2076,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
             @Override
             public void onClick(View v) {
                 nations[id] = null;
-                players[id].setBackgroundResource(R.drawable.noflag);
+                players[id].setImageResource(R.drawable.noflag);
                 /*if(id == 0) players[0].setBackgroundResource(R.drawable.blue);
                 if(id == 1) players[1].setBackgroundResource(R.drawable.red);
                 if(id == 2) players[2].setBackgroundResource(R.drawable.green);

@@ -1,6 +1,16 @@
 Current Version-
 	Save Encoding-
 
+Version 1.1.4 (10/8/20)
+	-Miscellaneous crashes and hangups
+	-Fixed Bug that was caused by missing music
+	-Made Historical mode more obvious
+---------------
+Version 1.1.3 (8/31/20)
+	-Added introduction to Superintelligent
+	-Paid map features
+	-Fixed Bug that was caused by missing music
+	-Several fixes to weird lookin UI
 Version 1.1.2 (8/12/20)
 	-Fixed crash caused by starting new historical game
 ---------------

@@ -50,7 +50,8 @@ public class BuildActivity extends AppCompatActivity {
     private AbsoluteLayout absoluteLayout;
     private Context context;
     private String loadString;
-    private static int mapAtId;
+    private ArrayList<Object> history;
+    private static int mapAtId = 0;
     private static int players = 2;
     private int progressNum = 0;
     private boolean historical = false;
@@ -73,19 +74,21 @@ public class BuildActivity extends AppCompatActivity {
         timelineIcon = findViewById(R.id.timelineIcon);
         Log.i("initial", "added " + players + " players");
         context = this;
-        mapAtId = 0;
         timeLine = "alp";
         shiftOpen = false;
         realityFiles = realityFiles(new Europe(context).getMapFilePath());
         timeShift();
         playerSelect();
         maps();
-        if(getIntent().getSerializableExtra("historyFiles") != null) {
-            ArrayList<Object> history = (ArrayList<Object>)getIntent().getSerializableExtra("historyFiles");
-            historical = ((String[])history.get(3)).length > 0;
+        if(getIntent().getSerializableExtra("historyFiles") != null)
+            history = (ArrayList<Object>)getIntent().getSerializableExtra("historyFiles");
+
+        if(history != null){
+            if(mapAtId == 2) historical = true;
+            hideSelect();
         }
-        if(historical) hideSelect();
-        Log.i("history", ""+historical);
+        Log.i("history", "null: "+(history == null));
+        Log.i("MapId", ""+mapAtId);
         Log.i("initial", "has " + types[0] + " ais");
         createButtons();
     }
@@ -128,30 +131,43 @@ public class BuildActivity extends AppCompatActivity {
         mapRight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i("Mapid", ""+mapAtId);
+                if(mapAtId == 2) {
+                    showSelect();
+                    historical = false;
+                }
                 if(mapAtId <= mapList.length-2) mapAtId ++;
-                if(mapAtId == 0)mapVersion.setText("Classic");
-                if(mapAtId == 1)mapVersion.setText("Imperium");
-                if(mapAtId == 2)mapVersion.setText("Europe");
-                mapCanvas.setBackgroundResource(mapList[mapAtId]);
+                mapSwitch(mapVersion);
                 /*if(LOCKED){
                     if(mapAtId != 0) mapLock.setVisibility(View.VISIBLE);
                     else mapLock.setVisibility(View.INVISIBLE);
                 }*/
             }});
-        Log.i("Mapid", ""+mapAtId);
         mapLeft.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i("Mapid", ""+mapAtId);
+                if(mapAtId == 2) {
+                    showSelect();
+                    historical = false;
+                }
                 if(mapAtId >= 1) mapAtId --;
-                if(mapAtId == 0)mapVersion.setText("Classic");
-                if(mapAtId == 1)mapVersion.setText("Imperium");
-                if(mapAtId == 2)mapVersion.setText("Europe");
-                mapCanvas.setBackgroundResource(mapList[mapAtId]);
+                mapSwitch(mapVersion);
                 /*if(LOCKED){
                     if(mapAtId != 0) mapLock.setVisibility(View.VISIBLE);
                     else mapLock.setVisibility(View.INVISIBLE);
                 }*/
             }});
+    }
+    private void mapSwitch(TextView mapVersion){
+        if(mapAtId == 0) mapVersion.setText("Classic");
+        if(mapAtId == 1) mapVersion.setText("Imperium");
+        if(mapAtId == 2){
+            mapVersion.setText("Europe");
+            hideSelect();
+            historical = (history != null);
+        }
+        mapCanvas.setBackgroundResource(mapList[mapAtId]);
     }
     private void aiToPlayer(String timeline, int year, String mapPath, String[] nations){
         byte[] buffer = new byte[0];
@@ -186,12 +202,11 @@ public class BuildActivity extends AppCompatActivity {
         loadString = loadString.substring(0, lastPlace)+newStr+loadString.substring(lastPlace+oldStr.length());
     }
     private void hideSelect(){
-        mapLeft.setVisibility(View.INVISIBLE);
-        mapRight.setVisibility(View.INVISIBLE);
         mapCanvas.setBackgroundResource(Europe.MAP_DRAWABLE);
         mapAtId = 2;
         ((TextView)findViewById(R.id.mapVersion)).setText("Historical");
         playerSelect.setVisibility(View.INVISIBLE);
+        findViewById(R.id.flagCanvas).setVisibility(View.INVISIBLE);
         ImageView hist1 = findViewById(R.id.hist1);
         ImageView hist2 = findViewById(R.id.hist2);
         ImageView hist3 = findViewById(R.id.hist3);
@@ -202,9 +217,15 @@ public class BuildActivity extends AppCompatActivity {
         hist4.setVisibility(View.VISIBLE);
         ImageView selectHider = findViewById(R.id.selectHider);
         selectHider.setVisibility(View.VISIBLE);
-        playersTitle.setText("<Players>");
-        ArrayList<Object> history = (ArrayList<Object>)getIntent().getSerializableExtra("historyFiles");
-        String[] nations = (String[])history.get(3);
+        String[] nations;
+        if(history != null){
+            nations = (String[])history.get(3);
+            playersTitle.setText("<Players>");
+        }
+        else {
+            nations = new String[]{null, null, null, null};
+            playersTitle.setText("No nations selected, use stopwatch to select");
+        }
         if(nations[0] != null) hist1.setBackgroundResource(new Nation(nations[0], "", 0).getFlag());
         if(nations[1] != null) hist2.setBackgroundResource(new Nation(nations[1], "", 0).getFlag());
         if(nations[2] != null) hist3.setBackgroundResource(new Nation(nations[2], "", 0).getFlag());
@@ -212,12 +233,16 @@ public class BuildActivity extends AppCompatActivity {
     }
     private void showSelect(){
         mapCanvas.setBackgroundResource(Classic.MAP_DRAWABLE);
-        mapAtId = 0;
-        ((TextView)findViewById(R.id.mapVersion)).setText("Classic");
         mapLeft.setVisibility(View.VISIBLE);
         mapRight.setVisibility(View.VISIBLE);
         playerSelect.setVisibility(View.VISIBLE);
-        findViewById(R.id.flagLayout).setVisibility(View.INVISIBLE);
+
+        findViewById(R.id.hist1).setVisibility(View.INVISIBLE);
+        findViewById(R.id.hist2).setVisibility(View.INVISIBLE);
+        findViewById(R.id.hist3).setVisibility(View.INVISIBLE);
+        findViewById(R.id.hist4).setVisibility(View.INVISIBLE);
+
+        findViewById(R.id.flagCanvas).setVisibility(View.VISIBLE);
         findViewById(R.id.selectHider).setVisibility(View.INVISIBLE);
         playersTitle.setText("Select Number Of Players");
     }
@@ -316,6 +341,7 @@ public class BuildActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, GameActivity.class);
+                Log.i("HistoricalBuild", historical+"");
                 if (!historical && loadString == null && !debugingOn) {
                     intent.putExtra("players", players);
                     Log.i("build", "added " + players + " players");
@@ -327,8 +353,11 @@ public class BuildActivity extends AppCompatActivity {
                 }else if (historical && !debugingOn){
                     try {
                         Log.i("Historial", "load");
-                        ArrayList<Object> history = (ArrayList<Object>)getIntent().getSerializableExtra("historyFiles");
-                        aiToPlayer((String)history.get(0), (Integer) history.get(1), (String)history.get(2), (String[])history.get(3));
+                        history = (ArrayList<Object>)getIntent().getSerializableExtra("historyFiles");
+                        if(history == null) return;
+                        String[] nations = (String[])history.get(3);
+
+                        aiToPlayer((String)history.get(0), (Integer) history.get(1), (String)history.get(2), nations);
                         intent.putExtra("loadedGame", loadString);
                         intent.putExtra("tag", "loaded");
                         intent.putExtra("historyFiles", history);
@@ -356,7 +385,6 @@ public class BuildActivity extends AppCompatActivity {
             }
         });
         helper = findViewById(R.id.helper);
-        helper.setBackgroundResource(R.drawable.helper);
         helper.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -365,18 +393,17 @@ public class BuildActivity extends AppCompatActivity {
             }
         });
         chronometer = findViewById(R.id.chronometer);
-        if(historical)chronometer.setBackgroundResource(R.drawable.timeview);
+        if(history != null)chronometer.setBackgroundResource(R.drawable.timeview);
         else chronometer.setBackgroundResource(R.drawable.timehide);
         chronometer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!historical) {
-                    historical = true;
+                if(history == null) {
                     Intent intent = new Intent(context, GameActivity.class);
-                    if(timeLine.equals("alp")) aiToPlayer(timeLine, DEFAULT_YEAR_ALP, new Europe(context).getMapFilePath(), new String[]{}); //always imperium map
-                    if(timeLine.equals("rom")) aiToPlayer(timeLine, DEFAULT_YEAR_ROM, new Europe(context).getMapFilePath(), new String[]{});
-                    if(timeLine.equals("kai")) aiToPlayer(timeLine, DEFAULT_YEAR_KAI, new Europe(context).getMapFilePath(), new String[]{});
-                    if(timeLine.equals("vir")) aiToPlayer(timeLine, DEFAULT_YEAR_VIR, new Europe(context).getMapFilePath(), new String[]{});
+                    if(timeLine.equals("alp")) aiToPlayer(timeLine, DEFAULT_YEAR_ALP, new Europe().getMapFilePath(), new String[]{}); //always imperium map
+                    if(timeLine.equals("rom")) aiToPlayer(timeLine, DEFAULT_YEAR_ROM, new Europe().getMapFilePath(), new String[]{});
+                    if(timeLine.equals("kai")) aiToPlayer(timeLine, DEFAULT_YEAR_KAI, new Europe().getMapFilePath(), new String[]{});
+                    if(timeLine.equals("vir")) aiToPlayer(timeLine, DEFAULT_YEAR_VIR, new Europe().getMapFilePath(), new String[]{});
                     intent.putExtra("timeView", true);
                     intent.putExtra("timeline", timeLine);
                     intent.putExtra("loadedGame", loadString);
@@ -385,9 +412,12 @@ public class BuildActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }else {
-                    historical = false;
-                    showSelect();
+                    history = null;
                     chronometer.setBackgroundResource(R.drawable.timehide);
+                    findViewById(R.id.hist1).setBackgroundResource(R.drawable.noflag);
+                    findViewById(R.id.hist2).setBackgroundResource(R.drawable.noflag);
+                    findViewById(R.id.hist3).setBackgroundResource(R.drawable.noflag);
+                    findViewById(R.id.hist4).setBackgroundResource(R.drawable.noflag);
                 }
             }
         });
@@ -424,7 +454,7 @@ public class BuildActivity extends AppCompatActivity {
     private void playerSelect(){
         types = new int[players];
         playersTitle = findViewById(R.id.playersTitle);
-        playersTitle.setTextSize(TypedValue.COMPLEX_UNIT_IN,BASE_TEXT_SCALE*inchWidth);
+        playersTitle.setTextSize(TypedValue.COMPLEX_UNIT_IN,.7f*BASE_TEXT_SCALE*inchWidth);
         playerSelect = findViewById(R.id.playerSelect);
         playerSelect.setProgress(0);
         player0 = new ImageView(context);
