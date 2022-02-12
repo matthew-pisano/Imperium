@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -141,6 +142,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     private static Nation nationAt;
     private String timeLine = "";
     private String mapPath;
+    private boolean lockedBuild;
     //Achives
     private static ConstraintLayout achiveDrop;
     private static ImageView achiveImage;
@@ -351,15 +353,9 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     @Override
     public void onDestroy() {
         Log.i("onDestron", "dedGameActivity");
-        game.haltAis();
-        killMusic();
-        if(!forceClosed) {
-            if(!timeView)saveGame(AUTO_SAVE_ID);
-            breakServerThread = true;
-            game = null;
-            Intent mStartActivity = new Intent(context, MainActivity.class);
-            startActivity(mStartActivity);
-        }
+        if(game != null) game.haltAis();
+        Intent mStartActivity = new Intent(context, MainActivity.class);
+        if(!onBuild) startActivity(mStartActivity);
         super.onDestroy();
     }
     @Override
@@ -376,6 +372,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     @Override
     public void onBackPressed(){
         game.haltAis();
+        killMusic();
         Intent intent = new Intent(context, MainActivity.class);
         startActivity(intent);
         finish();
@@ -630,6 +627,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         developer = findViewById(R.id.developer);
         closeInfo = findViewById(R.id.closeInfo);
         infoText = findViewById(R.id.infoText);
+        infoText.setMovementMethod(new ScrollingMovementMethod());
         infoText.setTextSize(TypedValue.COMPLEX_UNIT_IN,BASE_TEXT_SCALE*inchWidth);
         fortifier = findViewById(R.id.fortifier);
         //rolls
@@ -678,6 +676,8 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         showNationFrame.setBackgroundResource(R.drawable.flagframe);
         yearTitle = findViewById(R.id.yearTitle);
         playerInfo = findViewById(R.id.playerInfo);
+        playerInfo.setMovementMethod(new ScrollingMovementMethod());
+        playerInfo.setTextSize(TypedValue.COMPLEX_UNIT_IN,BASE_TEXT_SCALE*inchWidth);
         jumpTo = findViewById(R.id.jumpTo);
         nationFlag = findViewById(R.id.nationFlag);
         nationFlag.setVisibility(View.INVISIBLE);
@@ -1083,6 +1083,12 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         alertLayout = findViewById(R.id.alertHolder);
         alerts = new ArrayList<>(0);
     }
+    public void alertVis(final boolean vis){
+        runOnUiThread(new Runnable() {
+            @Override public void run() {
+                if(vis) alertLayout.setVisibility(View.VISIBLE);
+                else alertLayout.setVisibility(View.INVISIBLE); }});
+    }
     public void addAlert(final int id, final int type, final String group, final String from){
         runOnUiThread(new Runnable() {
             @Override
@@ -1139,6 +1145,18 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     public void openDiplo(final String tag){
         Player plater = game.getCurrentPlayer();
         diploTag = tag;
+
+        Log.i("RelationText", (String) textDiplo.getText());
+        textDiplo.setText("Relation to us: \nThey are neutral");
+        if(plater.isTruce(tag)) textDiplo.setText("Relation to us: \nWe have a truce which expires in "
+                +(-plater.getTruceEnd(tag)+(int)(game.getTurnNum()/(double)game.getPlayerList().length))+" turns");
+        if(plater.isAllied(tag)) textDiplo.setText("Relation to us: \nWe are allies");
+        if(plater.hasSubject(tag)) textDiplo.setText("Relation to us: \nThey are our subject");
+        if(plater.isHostile(tag)) textDiplo.setText("Relation to us: \nWe are at war!");
+        if(plater.hasOverlord()) if(getGame().playerFromTag(plater.getOverlord()).isAllied(tag)) textDiplo.setText("Relation to us: \nThey are a subject of our ally");
+
+        Log.i("RelationText", (String) textDiplo.getText());
+
         diploLayout.setVisibility(View.VISIBLE);
         allyDiplo.setVisibility(View.VISIBLE);
         warDiplo.setVisibility(View.VISIBLE);
@@ -1189,7 +1207,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         dipType.setBackgroundResource(R.drawable.diplomacy);
         dipLogo.setBackgroundResource(R.drawable.diplogo);
         flagDiplo.setBackgroundResource(game.playerFromTag(tag).getFlag());
-        Log.i("gflaf", tag+game.playerFromTag(tag).getName());
+        Log.i("Open Diplo", tag+game.playerFromTag(tag).getName());
         backDiplo.setOnClickListener(new View.OnClickListener() {@Override public void onClick(View v) { openDiplo(diploTag);}});
         final boolean finalAllyEnabled = allyEnabled;
         allyDiplo.setOnClickListener(new View.OnClickListener() {@Override public void onClick(View v) { if(finalAllyEnabled)allyScreen();}});
@@ -1207,13 +1225,6 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         warDiplo.setX(screenHeight*.04f); warDiplo.setY(screenWidth*.38f);
         allyDiplo.setX(screenHeight*.04f); allyDiplo.setY(screenWidth*.5f);
         subDiplo.setX(screenHeight*.04f); subDiplo.setY(screenWidth*.65f);
-        if(plater.isTruce(tag)) textDiplo.setText("Relation to us: \nWe have a truce which expires in "
-                +(-plater.getTruceEnd(tag)+(int)(game.getTurnNum()/(double)game.getPlayerList().length))+" turns");
-        else if(plater.isAllied(tag)) textDiplo.setText("Relation to us: \nWe are allies");
-        else if(plater.hasSubject(tag)) textDiplo.setText("Relation to us: \nThey are our subject");
-        else if(plater.isHostile(tag)) textDiplo.setText("Relation to us: \nWe are at war!");
-        else if(plater.hasOverlord()) if(getGame().playerFromTag(plater.getOverlord()).isAllied(tag)) textDiplo.setText("Relation to us: \nThey are a subject of our ally");
-        else textDiplo.setText("Relation to us: \nThey are neutral");
     }
     private void allyScreen(){
         dipType.setBackgroundResource(R.drawable.allytitle);
@@ -1326,8 +1337,11 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     protected void makeSubject(String tag){
         game.addOutgoing(game.getCurrentPlayer().getTag(), "sub", tag, "nnnn");
         game.getPlayerList()[game.playerIdFromTag(tag)].addRequestFrom(2, "000000", game.getCurrentPlayer().getTag());
-        for(String s : game.playerFromTag(tag).getDiplo()[1]){
+        ArrayList<String> strings = game.playerFromTag(tag).getDiplo()[1];
+        for (int i = 0; i < strings.size(); i++) {
+            String s = strings.get(i);
             game.playerFromTag(tag).removeAlly(s);
+            i--;
         }
     }
     protected void declareWar(String tag){
@@ -1406,7 +1420,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
                 removeWar(game.getCurrentPlayer().getTag(), friendTag);
             }
 
-        }else if(type == 40 && !game.getCurrentPlayer().getRecentWars().contains(group)){
+        }else if(/*type == 40 && */!game.getCurrentPlayer().getRecentWars().contains(group)){
             game.playerFromTag(enemyTag).addRequestFrom(type, group, game.getCurrentPlayer().getTag());
         }
         if(!from.equals("#nn")) {
@@ -1913,6 +1927,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         historicalSave = true;
         initialTimeFiles();
         findViewById(R.id.timeProgress).setVisibility(View.VISIBLE);
+        stageCover.setVisibility(View.INVISIBLE);
         nationFlag.setVisibility(View.VISIBLE);
         showNation.setVisibility(View.INVISIBLE);
         showNationFrame.setVisibility(View.INVISIBLE);
@@ -1974,9 +1989,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
                 int[] out = snapTo(timeProgress);
                 //timeSlider.setProgress(out[0]);
                 yearAt = out[1];
-                if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-                else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-                else locked.setVisibility(View.INVISIBLE);
+                checkLocked();
                 year.setText("Year: "+yearAt);
                 yearTitle.setText(titles[out[2]]);
                 timeFile();
@@ -1985,9 +1998,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[0]);
         yearAt = out[1];
-        if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-        else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-        else locked.setVisibility(View.INVISIBLE);
+        checkLocked();
         year.setText("Year: "+yearAt);
         yearTitle.setText(titles[out[2]]);
         timeFile();
@@ -1996,19 +2007,37 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         toBuild.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean send = false;
-                for(String s : nations) if(s != null) if(s != "") send = true;
+                checkLocked();
+                Log.i("LockedBuild", ""+lockedBuild);
+                if(!lockedBuild) {
+                    boolean send = false;
+                    for (String s : nations) if (s != null) if (!s.equals("")) send = true;
 
-                Intent intent = new Intent(context, BuildActivity.class);
-                ArrayList<Object> history = new ArrayList<Object>(0);
-                history.add(timeLine);history.add(yearAt);history.add(mapPath);history.add(nations);
-                if(send) intent.putExtra("historyFiles", history);
-                forceClosed = true;
-                startActivity(intent);
-                finish();
+                    Intent intent = new Intent(context, BuildActivity.class);
+                    ArrayList<Object> history = new ArrayList<>(0);
+                    history.add(timeLine);
+                    history.add(yearAt);
+                    history.add(mapPath);
+                    history.add(nations);
+                    if (send) intent.putExtra("historyFiles", history);
+                    Log.i("tobuild", "send: "+send);
+                    forceClosed = true;
+                    startActivity(intent);
+                    finish();
+                }
+                else unlockPopup();
             }
         });
         addSelections();
+    }
+    private void checkLocked(){
+        lockedBuild = true;
+        if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+        else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
+        else {
+            locked.setVisibility(View.INVISIBLE);
+            lockedBuild = false;
+        }
     }
     private void addSelections(){
         findViewById(R.id.timeCover).setBackgroundResource(R.drawable.timecover);
@@ -2117,6 +2146,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         ImageView playerLock = findViewById(R.id.playerLock);
         TextView unlockText = findViewById(R.id.unlockText);
         ImageButton toStore = findViewById(R.id.unlockButton);
+        ImageButton unlockToBuild = findViewById(R.id.unlockToBuild);
         unlockText.setTextSize(TypedValue.COMPLEX_UNIT_IN,BASE_TEXT_SCALE*inchWidth);
         unlockText.setGravity(Gravity.CENTER);
         toStore.setOnClickListener(new View.OnClickListener() {
@@ -2139,6 +2169,15 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
             @Override
             public void onClick(View v) {
                 unlockPopdown();
+            }
+        });
+        unlockToBuild.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, BuildActivity.class);
+                forceClosed = true;
+                startActivity(intent);
+                finish();
             }
         });
     }
@@ -2186,9 +2225,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[6]);
         yearAt = out[5];
-        if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-        else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-        else locked.setVisibility(View.INVISIBLE);
+        checkLocked();
         year.setText("Year: "+yearAt);
         if(out[2] > 0) yearTitle.setText(titles[out[2]-1]);
         timeFile();
@@ -2197,9 +2234,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[4]+1);
         yearAt = out[3];
-        if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-        else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-        else locked.setVisibility(View.INVISIBLE);
+        checkLocked();
         Log.i("out3", ""+out[3]);
         year.setText("Year: "+yearAt);
         if(out[2] < titles.length-1) yearTitle.setText(titles[out[2]+1]);
@@ -2281,6 +2316,18 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     }
     private boolean createGame(){ //false if fails
         Log.i("Greate", "InGame:"+getIntent().getStringExtra("tag"));
+        // If intent is missing, go back to build
+        if(getIntent() == null) {
+            Toast.makeText(context, "Minor issue, try again", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, BuildActivity.class);
+            startActivity(intent);
+            return false;
+        } else if(getIntent().getStringExtra("tag") == null){
+            Toast.makeText(context, "Minor issue, try again", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, BuildActivity.class);
+            startActivity(intent);
+            return false;
+        }
 
         if(getIntent().getStringExtra("tag").equals("loaded")) {
             loadString = getIntent().getStringExtra("loadedGame");

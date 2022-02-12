@@ -8,7 +8,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -29,6 +33,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -277,6 +282,9 @@ public class MainActivity extends AppCompatActivity {
         releaseNotes.setText(changeText);
     }
     public static void setActivity(String set){
+        if(musicOn == null)
+            musicOn = context.getSharedPreferences("music", 0);
+
         String musicAt = musicOn.getString("musicOn", "none");
         SharedPreferences.Editor editor = activity.edit();
         SharedPreferences.Editor editor2 = musicOn.edit();
@@ -345,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
                     new String[] {Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);*/
         else {
-            Log.i("Permissions granted", "");
+            Log.i("Permissions", "Granted");
             makeDirs();
             if(firstLoad.getBoolean("firstLoad", true)) firstLoad();
             listTracks();
@@ -419,10 +427,14 @@ public class MainActivity extends AppCompatActivity {
     }
     private void firstLoad(){
         Log.i("First Loaded!", "");
-        String path = Environment.getExternalStorageDirectory().getPath()+"/Imperium/Music/";
         SharedPreferences.Editor edit = firstLoad.edit();
         edit.putBoolean("firstLoad", false);
         edit.commit();
+        makeMusic();
+    }
+
+    private void makeMusic(){
+        String path = Environment.getExternalStorageDirectory().getPath()+"/Imperium/Music/";
         try {
             String[] songs = getAssets().list("songs");
             Log.i("SongLen", ""+songs.length);
@@ -478,7 +490,7 @@ public class MainActivity extends AppCompatActivity {
                         if(media != null) {
                             //Log.i("Test", "2");
                             try {
-                                if (!media.isPlaying() && !musicPaused) {
+                                if (!media.isPlaying() /*&& !musicPaused*/) {
                                     //Log.i("Test", "3");
                                     Log.i("MisicOn", musicOn.getString("musicOn", "none"));
                                     Thread.sleep(3000);
@@ -587,15 +599,20 @@ public class MainActivity extends AppCompatActivity {
     }
     public static void killMusic(){
         try {
+            media.setVolume(0, 0);
             media.stop();
             media.release();
             media = null;
-        }catch (Exception e){e.printStackTrace();}
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.i("Music Err", "Could not stop");
+        }
     }
     private void makeDirs(){
         String path = Environment.getExternalStorageDirectory().getPath()+"/Imperium";
-        Log.i("path", path);
         File dir = new File(path);
+        Log.i("path", path + ", Exists? " + dir.exists());
+
         if(!dir.exists()) if(!dir.mkdir()) Log.i("No", "nomake");
         dir = new File(path+"/Saves");
         if(!dir.exists()) if(!dir.mkdir()) Log.i("No2", "nomake");
@@ -650,6 +667,9 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             tracks = new String[0];
         }
+        if(tracks.length <= 1)
+            Toast.makeText(context, "The music directory (Imperium/music) is empty!", Toast.LENGTH_LONG).show();
+
     }
     private static void sleeper(){
         if(!((PowerManager) context.getSystemService(Context.POWER_SERVICE)).isScreenOn()){
@@ -747,6 +767,15 @@ public class MainActivity extends AppCompatActivity {
     private void makeButtons(){
         ImageButton tutorial = findViewById(R.id.tutorial);
         ImageButton newGame = findViewById(R.id.newGame);
+        ImageButton makeMusic = findViewById(R.id.makeMusic);
+        makeMusic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeMusic();
+                Toast.makeText(context, "Default music inserted into music folder", Toast.LENGTH_LONG).show();
+                listTracks();
+            }
+        });
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -899,6 +928,13 @@ public class MainActivity extends AppCompatActivity {
             temp.add(idAt.substring(i, i+3));
         }
         debugNations = temp.toArray(new String[0]);
+    }
+
+    public static ColorMatrixColorFilter desaturate(boolean desaturate){
+        ColorMatrix matrix = new ColorMatrix();
+        if(desaturate) matrix.setSaturation(0);
+        else matrix.setSaturation(1);
+        return new ColorMatrixColorFilter(matrix);
     }
 
 }

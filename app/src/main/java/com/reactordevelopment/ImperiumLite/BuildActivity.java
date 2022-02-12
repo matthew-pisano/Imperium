@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,9 +39,6 @@ public class BuildActivity extends AppCompatActivity {
     private SeekBar playerSelect;
     private TextView playersTitle;
     private Button create;
-    private ImageButton alpCk;
-    private ImageButton romCk;
-    private ImageButton kaiCk;
     private ImageView timelineIcon;
     private ImageView mapCanvas;
     private ImageButton helper;
@@ -68,9 +66,6 @@ public class BuildActivity extends AppCompatActivity {
         ImageView activityRound = findViewById(R.id.buildRound);
         activityRound.setScaleType(ImageView.ScaleType.FIT_XY);
         absoluteLayout = findViewById(R.id.flagCanvas);
-        alpCk = findViewById(R.id.alpCheck);
-        romCk = findViewById(R.id.romCheck);
-        kaiCk = findViewById(R.id.kaiCheck);
         timelineIcon = findViewById(R.id.timelineIcon);
         Log.i("initial", "added " + players + " players");
         context = this;
@@ -84,9 +79,10 @@ public class BuildActivity extends AppCompatActivity {
             history = (ArrayList<Object>)getIntent().getSerializableExtra("historyFiles");
 
         if(history != null){
-            if(mapAtId == 2) historical = true;
             hideSelect();
+            if(mapAtId == 2) historical = true;
         }
+        Log.i("Historical", ""+historical);
         Log.i("history", "null: "+(history == null));
         Log.i("MapId", ""+mapAtId);
         Log.i("initial", "has " + types[0] + " ais");
@@ -160,6 +156,7 @@ public class BuildActivity extends AppCompatActivity {
             }});
     }
     private void mapSwitch(TextView mapVersion){
+        create.setVisibility(View.VISIBLE);
         if(mapAtId == 0) mapVersion.setText("Classic");
         if(mapAtId == 1) mapVersion.setText("Imperium");
         if(mapAtId == 2){
@@ -202,7 +199,11 @@ public class BuildActivity extends AppCompatActivity {
         loadString = loadString.substring(0, lastPlace)+newStr+loadString.substring(lastPlace+oldStr.length());
     }
     private void hideSelect(){
-        mapCanvas.setBackgroundResource(Europe.MAP_DRAWABLE);
+        try {
+            mapCanvas.setBackgroundResource(Europe.MAP_DRAWABLE);
+        }catch (OutOfMemoryError e){
+            mapCanvas.setBackgroundResource(R.drawable.blank);
+        }
         mapAtId = 2;
         ((TextView)findViewById(R.id.mapVersion)).setText("Historical");
         playerSelect.setVisibility(View.INVISIBLE);
@@ -215,6 +216,27 @@ public class BuildActivity extends AppCompatActivity {
         hist2.setVisibility(View.VISIBLE);
         hist3.setVisibility(View.VISIBLE);
         hist4.setVisibility(View.VISIBLE);
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, GameActivity.class);
+                if(timeLine.equals("alp")) aiToPlayer(timeLine, DEFAULT_YEAR_ALP, new Europe().getMapFilePath(), new String[]{}); //always imperium map
+                if(timeLine.equals("rom")) aiToPlayer(timeLine, DEFAULT_YEAR_ROM, new Europe().getMapFilePath(), new String[]{});
+                if(timeLine.equals("kai")) aiToPlayer(timeLine, DEFAULT_YEAR_KAI, new Europe().getMapFilePath(), new String[]{});
+                if(timeLine.equals("vir")) aiToPlayer(timeLine, DEFAULT_YEAR_VIR, new Europe().getMapFilePath(), new String[]{});
+                intent.putExtra("timeView", true);
+                intent.putExtra("timeline", timeLine);
+                intent.putExtra("loadedGame", loadString);
+                intent.putExtra("tag", "loaded");
+                intent.putExtra("loadName", AUTO_SAVE_ID);
+                startActivity(intent);
+                finish();
+            }
+        };
+        hist1.setOnClickListener(click);
+        hist2.setOnClickListener(click);
+        hist3.setOnClickListener(click);
+        hist4.setOnClickListener(click);
         ImageView selectHider = findViewById(R.id.selectHider);
         selectHider.setVisibility(View.VISIBLE);
         String[] nations;
@@ -272,7 +294,16 @@ public class BuildActivity extends AppCompatActivity {
         shiftLayout.animate().x(screenWidth*.87f).setDuration(0);
         shiftLayout.setVisibility(View.VISIBLE);
     }
+
+
     private View.OnClickListener shiftClick(final String timeTag){
+        final ImageButton alpCk = findViewById(R.id.alpCheck);
+        final ImageButton romCk = findViewById(R.id.romCheck);
+        final ImageButton kaiCk = findViewById(R.id.kaiCheck);
+        final ImageView alpBubble = findViewById(R.id.alpBubble);
+        final ImageView kaiBubble = findViewById(R.id.kaiBubble);
+        final ImageView romBubble = findViewById(R.id.romBubble);
+
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -286,18 +317,27 @@ public class BuildActivity extends AppCompatActivity {
                             alpCk.setVisibility(View.VISIBLE);
                             romCk.setVisibility(View.INVISIBLE);
                             kaiCk.setVisibility(View.INVISIBLE);
-                            timelineIcon.setBackgroundResource(R.drawable.blank);
+                            alpBubble.setColorFilter(desaturate(false));
+                            romBubble.setColorFilter(desaturate(true));
+                            kaiBubble.setColorFilter(desaturate(true));
+                            timelineIcon.setBackgroundResource(R.drawable.alplogo);
                         }
                         if (timeTag.equals("rom")) {
                             alpCk.setVisibility(View.INVISIBLE);
                             romCk.setVisibility(View.VISIBLE);
                             kaiCk.setVisibility(View.INVISIBLE);
+                            alpBubble.setColorFilter(desaturate(true));
+                            romBubble.setColorFilter(desaturate(false));
+                            kaiBubble.setColorFilter(desaturate(true));
                             timelineIcon.setBackgroundResource(R.drawable.romlogo);
                         }
                         if (timeTag.equals("kai")) {
                             alpCk.setVisibility(View.INVISIBLE);
                             romCk.setVisibility(View.INVISIBLE);
                             kaiCk.setVisibility(View.VISIBLE);
+                            alpBubble.setColorFilter(desaturate(true));
+                            romBubble.setColorFilter(desaturate(true));
+                            kaiBubble.setColorFilter(desaturate(false));
                             timelineIcon.setBackgroundResource(R.drawable.kailogo);
                         }
                     }
@@ -340,6 +380,13 @@ public class BuildActivity extends AppCompatActivity {
         create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!historical && mapAtId == 2){
+                    try{
+                        Toast.makeText(context, "You must select a nation using the stopwatch first or select a different map", Toast.LENGTH_LONG).show();
+                    }catch (Exception ignored){}
+                    return;
+                }
+
                 Intent intent = new Intent(context, GameActivity.class);
                 Log.i("HistoricalBuild", historical+"");
                 if (!historical && loadString == null && !debugingOn) {
@@ -413,6 +460,8 @@ public class BuildActivity extends AppCompatActivity {
                     finish();
                 }else {
                     history = null;
+                    historical = false;
+                    loadString = null;
                     chronometer.setBackgroundResource(R.drawable.timehide);
                     findViewById(R.id.hist1).setBackgroundResource(R.drawable.noflag);
                     findViewById(R.id.hist2).setBackgroundResource(R.drawable.noflag);

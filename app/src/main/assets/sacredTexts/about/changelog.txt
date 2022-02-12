@@ -1,6 +1,11 @@
 Current Version-
 	Save Encoding-
 
+Version 1.1.5 (1/31/21)
+	-Fixed crash caused by creating new game
+	-Now correctly creates files in newer android versions
+	-More updates to the clarity of the game
+---------------
 Version 1.1.4 (10/8/20)
 	-Miscellaneous crashes and hangups
 	-Fixed Bug that was caused by missing music

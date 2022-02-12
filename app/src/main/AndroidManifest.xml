@@ -21,6 +21,7 @@
         android:label="Imperium"
         android:largeHeap="true"
         android:roundIcon="@drawable/icon"
+        android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity

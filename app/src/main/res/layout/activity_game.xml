@@ -98,7 +98,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintHeight_percent=".17"
-        app:layout_constraintWidth_percent=".1"
+        app:layout_constraintWidth_percent=".07"
         app:layout_constraintHorizontal_bias=".42"
         app:layout_constraintVertical_bias=".999"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -169,7 +169,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/playerInfo"
         app:layout_constraintHeight_percent=".6"
-        app:layout_constraintHorizontal_bias=".9"
+        app:layout_constraintHorizontal_bias=".81"
         app:layout_constraintStart_toStartOf="@id/playerInfo"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias=".01"
@@ -191,11 +191,15 @@
         android:id="@+id/playerInfo"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent=".3"
-        app:layout_constraintWidth_percent=".2"
+        app:layout_constraintHeight_percent=".27"
+        app:layout_constraintWidth_percent=".19"
         android:visibility="invisible"
-        app:layout_constraintHorizontal_bias=".99"
-        app:layout_constraintVertical_bias=".4"
+        android:scrollbars = "vertical"
+        android:fadeScrollbars="false"
+        android:requiresFadingEdge="vertical"
+        android:fadingEdgeLength="32dp"
+        app:layout_constraintHorizontal_bias=".97"
+        app:layout_constraintVertical_bias=".355"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -220,12 +224,12 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent=".2"
-        app:layout_constraintHorizontal_bias=".3"
+        app:layout_constraintHeight_percent=".05"
+        app:layout_constraintHorizontal_bias=".4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias=".99"
-        app:layout_constraintWidth_percent=".76" />
+        app:layout_constraintVertical_bias=".999"
+        app:layout_constraintWidth_percent=".4" />
 
     <SeekBar
         android:id="@+id/timeSlider"
@@ -233,11 +237,11 @@
         android:layout_height="0dp"
         android:visibility="invisible"
         android:thumb="@drawable/blank"
-        app:layout_constraintBottom_toBottomOf="@id/timeCover"
+        app:layout_constraintBottom_toBottomOf="@id/toBuild"
         app:layout_constraintEnd_toEndOf="@+id/timeCover"
         app:layout_constraintHeight_percent=".1"
         app:layout_constraintStart_toStartOf="@id/timeCover"
-        app:layout_constraintTop_toTopOf="@id/timeCover"
+        app:layout_constraintTop_toTopOf="@id/toBuild"
         app:layout_constraintVertical_bias=".6"
         app:layout_constraintHorizontal_bias=".55"
         app:layout_constraintWidth_percent=".45" />
@@ -263,12 +267,12 @@
         android:layout_height="0dp"
         android:visibility="invisible"
         android:src="@drawable/slidebutton"
-        app:layout_constraintBottom_toBottomOf="@id/timeCover"
+        app:layout_constraintBottom_toBottomOf="@id/toBuild"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent=".07"
         app:layout_constraintWidth_percent=".04"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/timeCover"
+        app:layout_constraintTop_toTopOf="@id/toBuild"
         />
 
     <ImageButton
@@ -279,32 +283,34 @@
         app:layout_constraintWidth_percent=".08"
         app:layout_constraintHeight_percent=".15"
         app:layout_constraintHorizontal_bias=".1"
-        app:layout_constraintBottom_toBottomOf="@id/timeCover"
+        app:layout_constraintBottom_toBottomOf="@id/toBuild"
         app:layout_constraintEnd_toStartOf="@id/timeSlider"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/timeCover" />
+        app:layout_constraintTop_toTopOf="@id/toBuild" />
 
     <ImageButton
         android:id="@+id/jumpPast"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="invisible"
-        app:layout_constraintWidth_percent=".1"
-        app:layout_constraintBottom_toBottomOf="@id/timeSlider"
-        app:layout_constraintEnd_toStartOf="@id/timeSlider"
-        app:layout_constraintStart_toStartOf="@id/timeCover"
-        app:layout_constraintTop_toTopOf="@id/timeCover" />
+        app:layout_constraintHorizontal_bias=".7"
+        app:layout_constraintWidth_percent=".08"
+        app:layout_constraintBottom_toBottomOf="@id/toBuild"
+        app:layout_constraintEnd_toStartOf="@id/timeCover"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/toBuild" />
 
     <ImageButton
         android:id="@+id/jumpFuture"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="invisible"
-        app:layout_constraintWidth_percent=".1"
-        app:layout_constraintBottom_toBottomOf="@id/timeSlider"
-        app:layout_constraintEnd_toEndOf="@id/timeCover"
+        app:layout_constraintWidth_percent=".08"
+        app:layout_constraintHorizontal_bias=".1"
+        app:layout_constraintBottom_toBottomOf="@id/toBuild"
+        app:layout_constraintEnd_toEndOf="@id/toBuild"
         app:layout_constraintStart_toEndOf="@id/timeSlider"
-        app:layout_constraintTop_toTopOf="@id/timeCover" />
+        app:layout_constraintTop_toTopOf="@id/toBuild" />
 
     <TextView
         android:id="@+id/yearTitle"
@@ -314,7 +320,7 @@
         app:layout_constraintBottom_toBottomOf="@id/timeCover"
         app:layout_constraintEnd_toEndOf="@+id/timeCover"
         app:layout_constraintHeight_percent=".1"
-        app:layout_constraintVertical_bias=".8"
+        app:layout_constraintVertical_bias=".9"
         app:layout_constraintStart_toStartOf="@id/timeCover"
         app:layout_constraintTop_toTopOf="@id/timeCover"
         app:layout_constraintWidth_percent=".7" />
@@ -353,10 +359,10 @@
         android:id="@+id/warHolder"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent=".39"
+        app:layout_constraintWidth_percent=".3"
         app:layout_constraintHeight_percent=".14"
         app:layout_constraintVertical_bias=".99"
-        app:layout_constraintHorizontal_bias=".65"
+        app:layout_constraintHorizontal_bias=".7"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -948,7 +954,8 @@
             app:layout_constraintTop_toTopOf="@+id/infoBackround"
             app:layout_constraintVertical_bias=".99" />
 
-        <ScrollView
+        <TextView
+            android:id="@+id/infoText"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -958,19 +965,12 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias=".68"
-            app:layout_constraintWidth_percent=".65">
+            app:layout_constraintWidth_percent=".65"
+            android:scrollbars = "vertical"
+            android:fadeScrollbars="false"
+            android:requiresFadingEdge="vertical"
+            android:fadingEdgeLength="32dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/infoText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </ScrollView>
 
         <ImageButton
             android:id="@+id/ownerFlag"
@@ -1803,7 +1803,7 @@
             app:layout_constraintHeight_percent=".05"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias=".6"
+            app:layout_constraintVertical_bias=".75"
             app:layout_constraintWidth_percent=".6"
             app:srcCompat="@drawable/progresscover" />
 
@@ -1813,7 +1813,7 @@
             android:layout_height="0dp"
             app:layout_constraintWidth_percent=".3"
             app:layout_constraintHeight_percent=".15"
-            app:layout_constraintVertical_bias=".45"
+            app:layout_constraintVertical_bias=".6"
             android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/dipPopRound"
@@ -1829,7 +1829,7 @@
             app:layout_constraintHeight_percent=".05"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias=".6"
+            app:layout_constraintVertical_bias=".75"
             app:layout_constraintWidth_percent=".33">
 
             <ImageView
@@ -1946,6 +1946,20 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias=".99"
             app:layout_constraintWidth_percent=".3" />
+
+        <ImageButton
+            android:id="@+id/unlockToBuild"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/goback"
+            app:layout_constraintHorizontal_bias=".9"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent=".2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias=".99"
+            app:layout_constraintWidth_percent=".2" />
 
         <ImageButton
             android:id="@+id/unlockClose"

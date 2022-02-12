@@ -122,6 +122,7 @@ public class Player extends Game{
         changeProvEnabled(isHuman() && !isPuppet());
         if(!timeView && isHistorical()) {
             warVis(isHuman());
+            alertVis(isHuman());
             turnMoveVis(isHuman() && !isPuppet());
         }
         if(stage > 0 && overwriteStage) setStage(0);
@@ -201,6 +202,7 @@ public class Player extends Game{
         return relations;
     }
     public int getTruceEnd(String tag){
+        Log.i("TruceEnd", getTag()+" with "+" "+tag+" list: "+diploList[4]);
         for(String s : diploList[4])
                 if(s.substring(4).equals(tag))
                     try{return Integer.parseInt(s.substring(0, 4));}catch (Exception e){e.printStackTrace();}
@@ -320,22 +322,28 @@ public class Player extends Game{
     }
     public double reasonsToAcceptPeace(String enemy){
         if(isHuman()) return -1;
+        playerFromTag(enemy).calcAllOwned(false);
+        calcAllOwned(false);
         String warWithEnemy = attDefFromTag(enemy);
         if(!getWarsAsLeader().contains(warWithEnemy)) {
             if (playerFromTag(enemy).getCoreProvs().length < 15)
-                return (playerFromTag(enemy).getCoreProvs().length * .75) / playerFromTag(enemy).getAllOwned().length;
+                return (getCoreProvs().length * .75) / getAllOwned().length -
+                        (playerFromTag(enemy).getCoreProvs().length * .75) / playerFromTag(enemy).getAllOwned().length;
             else
-                return (playerFromTag(enemy).getCoreProvs().length - 20.0) / playerFromTag(enemy).getAllOwned().length;
+                return (getCoreProvs().length - 20.0) / getAllOwned().length -
+                        (playerFromTag(enemy).getCoreProvs().length - 20.0) / playerFromTag(enemy).getAllOwned().length;
         }else{
             String[] allies = getWarAllies(warWithEnemy);
             int totalLoss = 0;
+            int totalProvs = 0;
             for(String s : allies) {
                 playerFromTag(s).calcAllOwned(false);
                 Log.i("Pleace Reasons",
                         "difference from "+ playerFromTag(s).getName()+": "+(playerFromTag(s).getCoreProvs().length - playerFromTag(s).getAllOwned().length));
                 totalLoss += (playerFromTag(s).getCoreProvs().length - playerFromTag(s).getAllOwned().length);
+                totalProvs += playerFromTag(s).getAllOwned().length;
             }
-            return totalLoss / 30.0;
+            return totalLoss / (double) totalProvs * 1.33;
         }
     }
     public int totalIncome(){
@@ -677,6 +685,7 @@ public class Player extends Game{
                 }
                 Log.i("removeWar", "++++++++++++");
                 //p.printWars();
+                removeWar(attDef.substring(0, 3), attDef.substring(3));
             }
         } else {
             if(!isHostile(attDef.substring(3))) {

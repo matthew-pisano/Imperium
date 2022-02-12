@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_FORM;
 import static com.reactordevelopment.ImperiumLite.MainActivity.achives;
@@ -17,7 +18,7 @@ public class Achivements extends Game {
     public static final String[] ACHIVE_TAGS = new String[]{"remove", "space", "winged", "ground", "unvasion",
             "moors", "tracts", "justinian", "waves", "badnito", "goodnito", "off", "woahh", "hedgemon", "reconned",
             "zeroTo", "heroTo", "kylie", "lucky", "ctrlZ", "ricardo", "roads", "reconquistus", "khans", "deus", "student",
-            "private", "portals", "steamroll", "realThird", "notice", "defenestrate", "mercs", "tables", "rough", "zone",
+            "private", "portals", "steamroll", "realThird", "notice", "defenestrate", "mercs", "tables", /*"rough", "zone",*/
             "reich", "bismark", "ashes", "gauls"};
     //private static final String[] ACHIVE_TAGS = tagsFromFile();
     private static SharedPreferences.Editor edit = achives.edit();;
@@ -33,7 +34,7 @@ public class Achivements extends Game {
 
     public static void scanCriteria(){
         //final String[] HORDES = {"Kha, nog, cri, gdn"};
-        ArrayList<String> hordes = new ArrayList<>(Arrays.asList(new String[]{"Kha, nog, cri, gdn"}));
+        ArrayList<String> hordes = new ArrayList<>(Collections.singletonList("Kha, nog, cri, gdn"));
         current = getCurrentPlayer();
         Log.i("DEbugAchive", game.getTimeline()+game.getYear());
         int year = game.getYear();
@@ -309,18 +310,18 @@ public class Achivements extends Game {
             return new Object[] {"Who's The Mercenary Now", "Own London as Hesse", R.drawable.mercs, new int[]{12}};
         if(tag.equals("tables"))
             return new Object[] {"How The Turn Tables", "Eliminate Germany as Austria in 1931 and own Berlin", R.drawable.tables, new int[]{59}};
-        if(tag.equals("rough"))
-            return new Object[] {"A Diamond In The Rough", "Own the highest developed province in the game with at least 15 development and no devastation", R.drawable.rough, new int[]{}};
-        if(tag.equals("zone"))
-            return new Object[] {"Quarantine Zone", "Have a level 5 fort on a province with over .7 devastation", R.drawable.quarantine, new int[]{12}};
+        //if(tag.equals("rough"))
+            //return new Object[] {"A Diamond In The Rough", "Own the highest developed province in the game with at least 15 development and no devastation", R.drawable.rough, new int[]{}};
+        //if(tag.equals("zone"))
+            //return new Object[] {"Quarantine Zone", "Have a level 5 fort on a province with over .7 devastation", R.drawable.quarantine, new int[]{12}};
         if(tag.equals("reich"))
-            return new Object[] {"A True Third Reich", "As The German Empire, have an income of at least 500 per turn", R.drawable.realthird, new int[]{12}};
+            return new Object[] {"A True Third Reich", "As The German Empire in the Kaiser Gloria timeline, have an income of at least 500 per turn", R.drawable.realthird, new int[]{12}};
         if(tag.equals("bismark"))
-            return new Object[] {"The Bismark", "Destroy France, Poland, Czechoslovakia, Hungary, and Croatia while owning Tours, Berlin, Prague, Warzaw, and Hungary", R.drawable.bismark, new int[]{32, 70, 77, 53, 74}};
+            return new Object[] {"The Bismark", "As Germany in the Kaiser Gloria timeline, destroy France, Poland, Czechoslovakia, Hungary, and Croatia while owning Tours, Berlin, Prague, Warzaw, and Hungary", R.drawable.bismark, new int[]{32, 70, 77, 53, 74}};
         if(tag.equals("ashes"))
-            return new Object[] {"E Pluribus Unum", "As one of the Roman generals' empires, eliminate Rome and the others while owning Rome", R.drawable.ashes, new int[]{12}};
+            return new Object[] {"E Pluribus Unum", "As one of the Roman generals' empires in the Imperio Eternum timeline, eliminate Rome and the others while owning Rome", R.drawable.ashes, new int[]{12}};
         if(tag.equals("gauls"))
-            return new Object[] {"Gaul For Gauls", "Eliminate Lugdunensis and Aquitania as the Franks", R.drawable.gauls, new int[]{}};
+            return new Object[] {"Gaul For Gauls", "Eliminate Lugdunensis and Aquitania as the Franks in the Imperio Eternum timeline", R.drawable.gauls, new int[]{}};
         return new Object[] {"", "", R.drawable.blank, new int[]{}};
     }
     /*private static String[] tagsFromFile(){
@@ -419,8 +420,7 @@ public class Achivements extends Game {
                 if (p.getId() == id)
                     count++;
         }
-        if(count == ids.length) return true;
-        return false;
+        return count == ids.length;
     }
     private static boolean scanProvFor(int[] ids, String tag){
         int count = 0;

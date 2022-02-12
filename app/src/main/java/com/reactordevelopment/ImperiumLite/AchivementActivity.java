@@ -173,7 +173,6 @@ public class AchivementActivity extends AppCompatActivity {
         achiveLister.addView(achiveTileList[id].getCover());
         achiveLister.addView(achiveTileList[id].getIcon());
         achiveLister.addView(achiveTileList[id].getTitleView());
-        //achiveTileList[id].getIcon().setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP);
     }
     private void quitter(){
         ImageButton quitter = findViewById(R.id.quitter);

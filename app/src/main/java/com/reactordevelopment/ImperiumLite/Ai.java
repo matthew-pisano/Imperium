@@ -56,17 +56,17 @@ public class Ai extends Player {
             public void run() {
                 try {
                     while (!isInterrupted()) {
-                        Log.i("KillSwitch", "killed "+Ai.this.getName()+" "+killSwitch);
+                        //Log.i("KillSwitch", "killed "+Ai.this.getName()+" "+killSwitch);
                         if(killSwitch) break;
                         /*if(halted) {
                             Log.i("AiHalt", getNation().getName()+", gameAt: "+gameAt+", "+gameId);
                             Thread.sleep(10000000);
                         }*/
                         Thread.sleep(500);
-                        if (getPlayerList().length != 0 && getGame() != null && System.currentTimeMillis() > lastRun + prefs.getInt("turnSpeed", 5000)) {
+                        if (getPlayerList().length != 0 && getGame() != null && System.currentTimeMillis() > lastRun + prefs.getInt("turnSpeed", 500)) {
                             if (getCurrentPlayer() != null) {
                                 if (getCurrentPlayer().getId() == id && !executing && !loneSurvivor() && getTurnNum() < MAX_TURNS) {
-                                    Log.i("Timing", "" + (System.currentTimeMillis() - lastRun) + ", " + prefs.getInt("turnSpeed", 5000));
+                                    Log.i("Timing", "" + (System.currentTimeMillis() - lastRun) + ", " + prefs.getInt("turnSpeed", 500));
                                     if (getAllOwned().length == 0|| id == getGame().getLastPlayerId()){
                                         if(isHistorical() || getTurnNum() > getPlayerList().length) {
                                             Log.i("Ai cont", "Skipped: " + getNation().getName() + ", " + getAllOwned().length + ", " + getGame().getLastPlayerId() + ", " + id+", tunrnum: "+getTurnNum());
@@ -168,10 +168,14 @@ public class Ai extends Player {
 
     private boolean loneSurvivor() { //checks of there is only one player left
         int count = 0;
-        for (int i = 0; i < getPlayerList().length; i++) {
-            if (getPlayerList()[i].getAllOwned().length == 0)
-                count++;
+        try{
+            for (int i = 0; i < getPlayerList().length; i++)
+                if (getPlayerList()[i].getAllOwned().length == 0)
+                    count++;
+        }catch (NullPointerException e){
+            return true;
         }
+
         return count == getPlayerList().length - 1 && getTurnNum() > 10;
     }
 
@@ -197,7 +201,9 @@ public class Ai extends Player {
 
 
     public boolean calcAcceptPeace(String enemy) {
-        return reasonsToAcceptPeace(enemy) >= 1;
+        double reasons = reasonsToAcceptPeace(enemy);
+        Log.i("Reasons to peace with "+enemy, ""+reasons);
+        return reasons >= 1;
     }
 
     public boolean willJoinAgainst(String enemyTag, String friendFrom) {

@@ -58,7 +58,12 @@ public class WarPortal extends GameActivity {
     public Bitmap overlay() {
         Bitmap frameBmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.warframe);
         Log.i("WarFrameImg", "w: "+frameBmp.getWidth()+", H: "+frameBmp.getHeight());
-        Bitmap flagBmp = BitmapFactory.decodeResource(context.getResources(), game.playerFromTag(enemyTag).getFlag());
+        Bitmap flagBmp;
+        if(game.playerFromTag(enemyTag) != null)
+            flagBmp = BitmapFactory.decodeResource(context.getResources(), game.playerFromTag(enemyTag).getFlag());
+        else
+            flagBmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.noflag);
+
         Log.i("WarFrameImg", "w: "+flagBmp.getWidth()+", H: "+flagBmp.getHeight());
         flagBmp = Bitmap.createScaledBitmap(flagBmp, (int) (frameBmp.getWidth()*.9), (int) (frameBmp.getHeight()*.8), false);
         Log.i("WarFrameImg", "w: "+flagBmp.getWidth()+", H: "+flagBmp.getHeight());

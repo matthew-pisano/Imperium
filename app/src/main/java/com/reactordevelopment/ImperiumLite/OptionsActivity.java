@@ -64,8 +64,8 @@ public class OptionsActivity extends AppCompatActivity {
         context = this;
         vars = context.getSharedPreferences("vars", 0);
         music = vars.getInt("music", 100);
-        attackSpeed = vars.getInt("attackSpeed", ATT_MAX+ATT_MIN);
-        turnSpeed = vars.getInt("turnSpeed", SPE_MAX+SPE_MIN);
+        attackSpeed = vars.getInt("attackSpeed", (ATT_MAX+ATT_MIN)/10);
+        turnSpeed = vars.getInt("turnSpeed", (SPE_MAX+SPE_MIN)/10);
         makeComps();
         seekSet();
         makeChecks();

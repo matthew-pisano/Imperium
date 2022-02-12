@@ -59,6 +59,7 @@ public class Event extends Game{
         eventText.setLayoutParams(new RelativeLayout.LayoutParams((int)(screenHeight*.35), (int)(screenWidth*.25)));
         ImageButton choice = new ImageButton(context);
         choice.setLayoutParams(new RelativeLayout.LayoutParams((int)(screenHeight*.35), (int)(screenWidth*.1)));
+        choice.setBackgroundResource(R.drawable.blankscroll);
         choice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,7 +71,7 @@ public class Event extends Game{
         TextView choiceText = new TextView(context);
         choiceText.setLayoutParams(new RelativeLayout.LayoutParams((int)(screenHeight*.35), (int)(screenWidth*.1)));
         choiceText.setText(choices[0]);
-        choiceText.setTextSize(TypedValue.COMPLEX_UNIT_IN, inchHeight*.027f);
+        choiceText.setTextSize(TypedValue.COMPLEX_UNIT_IN, inchHeight*.017f);
         choiceText.setGravity(Gravity.CENTER);
         eventLayout.addView(choiceText);
         choice.animate().yBy(screenWidth * .32f).setDuration(0);

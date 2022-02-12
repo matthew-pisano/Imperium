@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -84,6 +85,13 @@ public class OpenSaveActivity extends AppCompatActivity {
         Log.d("Files", "Path: " + SAVE_PATH);
         File directory = new File(SAVE_PATH);
         File[] files = directory.listFiles();
+        if(files == null) {
+            String path = Environment.getExternalStorageDirectory().getPath()+"/Imperium";
+            File dir = new File(path + "/Saves");
+            if (!dir.exists()) if (!dir.mkdirs()) Log.i("NoSaves", "nomake");
+            return 0;
+        }
+
         boolean sorted = false;
         File temp;
         while(!sorted) {
