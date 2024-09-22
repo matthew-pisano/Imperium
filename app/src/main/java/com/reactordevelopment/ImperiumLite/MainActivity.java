@@ -8,8 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
@@ -33,23 +31,19 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static com.reactordevelopment.ImperiumLite.GameActivity.*;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.*;
 
 //7/30/19 (started)
 //2221 lines main code
@@ -98,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     //public static final boolean MAIN_APP_DED = true;
 
     private static String[] tracks;
-    private static SharedPreferences vars;
+    public static SharedPreferences vars;
     public static SharedPreferences activity;
     private static SharedPreferences musicOn;
     private static SharedPreferences firstLoad;
@@ -656,8 +650,8 @@ public class MainActivity extends AppCompatActivity {
     }
     private static void sleeper(){
         if(!((PowerManager) context.getSystemService(Context.POWER_SERVICE)).isScreenOn()){
-            if(GameActivity.getGame() != null)
-                //GameActivity.saveGame(AUTO_SAVE_ID);
+            // if(GameActivity.getGame() != null)
+                // GameActivity.saveGame(AUTO_SAVE_ID);
             System.exit(0);
         }
     }

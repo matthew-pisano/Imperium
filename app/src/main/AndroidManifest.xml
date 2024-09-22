@@ -45,7 +45,7 @@
             android:name="com.reactordevelopment.ImperiumLite.AchivementActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name="com.reactordevelopment.ImperiumLite.GameActivity"
+            android:name="com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity"
             android:screenOrientation="sensorLandscape" />
         <activity
             android:name="com.reactordevelopment.ImperiumLite.MainActivity"

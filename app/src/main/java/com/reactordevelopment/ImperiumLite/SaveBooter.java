@@ -6,6 +6,8 @@ import java.io.InputStream;
 
 import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_FORM;
 
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
 public class SaveBooter extends GameActivity {
 
     public SaveBooter(/*double ver, String timeline, int year*/){
@@ -18,15 +20,13 @@ public class SaveBooter extends GameActivity {
             int pStrLen = SAVE_FORM[8] + SAVE_FORM[1] + SAVE_FORM[5] + SAVE_FORM[6] + SAVE_FORM[7] + 1; //length of province information
             int init = 8; //encodin, mapId, turnNum
             int plLen = 3;
-            if(!firstLoaded) {
-                mapImperium(get(4, 1));
-                Log.i("plterLen", loadString.substring(init + pStrLen * map.getList().length, init + pStrLen * map.getList().length+pStrLen)+", "+map.getList().length+", "+(init + pStrLen * map.getList().length));
-                game = new Game(context, get(init + pStrLen * map.getList().length, 3), get(loadString.indexOf("|") - 1, 1), new Object[]{"", ""});
-                setupMap();
-            }else {
-                game.setPlayerLength(get(init + pStrLen * map.getList().length, 3));
-                game.getMap().resetAll();
-            }
+            mapImperium(get(4, 1));
+            Log.i("plterLen", loadString.substring(init + pStrLen * map.getList().length, init + pStrLen * map.getList().length+pStrLen)+", "+map.getList().length+", "+(init + pStrLen * map.getList().length));
+            game = new Game(context, get(init + pStrLen * map.getList().length, 3), get(loadString.indexOf("|") - 1, 1), new Object[]{"", ""});
+            setupMap();
+            game.setPlayerLength(get(init + pStrLen * map.getList().length, 3));
+            game.getMap().resetAll();
+
             game.setTurnNum(get(5, SAVE_FORM[0]));
             if(debugingOn) game.setTurnNum(0);
             for(int i=0; i<game.getMap().getList().length; i++){
@@ -56,7 +56,7 @@ public class SaveBooter extends GameActivity {
             for(int player=0; player<game.getPlayerList().length; player++){
                 int index = init+plLen+pStrLen*map.getList().length+plStrLen*player;
                 Log.i("PlayerSave", "Text: "+loadString.substring(index, 17+index)+", "+ais[player]);
-                if(!ais[player] || timeView || debugingOn) game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index+3));
+                if(!ais[player] || debugingOn) game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index+3));
                 else game.getPlayerList()[player] = new Ai(context, player, AI_STYLE, game.getImperium(), loadString.substring(index, index+3));
                 index += 3+1;
                 game.getPlayerList()[player].setStage(get(index, 1));
@@ -80,21 +80,19 @@ public class SaveBooter extends GameActivity {
             int pStrLen = SAVE_FORM[8] + SAVE_FORM[1] + SAVE_FORM[5] + SAVE_FORM[6] + SAVE_FORM[7] + 1; //length of province information
             int init = 8; //encoding, mapId, turnNum
             int plLen = 3;
-            if (!firstLoaded) {
-                mapImperium(get(4, 1));
-                Log.i("Testyear", loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('[')))
-                        +", "+loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']')));
-                Log.i("plterLen", loadString.substring(init + pStrLen * map.getList().length, init + pStrLen * map.getList().length + pStrLen) + ", " + map.getList().length + ", " + (init + pStrLen * map.getList().length));
-                game = new Game(context, get(init + pStrLen * map.getList().length, 3), get(loadString.indexOf("|") - 1, 1),
-                        new Object[]{loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))), loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))});
+            mapImperium(get(4, 1));
+            Log.i("Testyear", loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('[')))
+                    +", "+loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']')));
+            Log.i("plterLen", loadString.substring(init + pStrLen * map.getList().length, init + pStrLen * map.getList().length + pStrLen) + ", " + map.getList().length + ", " + (init + pStrLen * map.getList().length));
+            game = new Game(context, get(init + pStrLen * map.getList().length, 3), get(loadString.indexOf("|") - 1, 1),
+                    new Object[]{loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))), loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))});
 
-                setupMap();
-            } else {
-                game.setPlayerLength(get(init + pStrLen * map.getList().length, 3));
-                game.setTimeline(loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))));
-                game.setYear(Integer.parseInt(loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))));
-                game.getMap().resetAll();
-            }
+            setupMap();
+            game.setPlayerLength(get(init + pStrLen * map.getList().length, 3));
+            game.setTimeline(loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))));
+            game.setYear(Integer.parseInt(loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))));
+            game.getMap().resetAll();
+
             game.setTurnNum(get(5, SAVE_FORM[0]));
             if (debugingOn) game.setTurnNum(0);
             for (int i = 0; i < game.getMap().getList().length; i++) {
@@ -117,7 +115,7 @@ public class SaveBooter extends GameActivity {
             for (int player = 0; player < game.getPlayerList().length; player++) {
                 int index = init + plLen + pStrLen * map.getList().length + plStrLen * player;
                 Log.i("PlayerSave", "Text: " + loadString.substring(index, 17 + index));
-                if (!ais[player] || timeView || debugingOn)
+                if (!ais[player] || debugingOn)
                     game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index + 3));
                 else
                     game.getPlayerList()[player] = new Ai(context, player, AI_STYLE, game.getImperium(), loadString.substring(index, index + 3));
@@ -143,21 +141,19 @@ public class SaveBooter extends GameActivity {
             int pStrLen = SAVE_FORM[8] + SAVE_FORM[1] + SAVE_FORM[5] + SAVE_FORM[6] + SAVE_FORM[7] + 1; //length of province information
             int init = 8; //encoding, mapId, turnNum
             int plLen = 3;
-            if (!firstLoaded) {
-                mapImperium(get(4, 1));
-                Log.i("Testyear", loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('[')))
-                        +", "+loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']')));
-                Log.i("plterLen", loadString.substring(loadString.indexOf("!"), loadString.indexOf("!") + plLen) + ", " + map.getList().length + ", " + (init + pStrLen * map.getList().length));
-                game = new Game(context, get(loadString.indexOf("!")+1, plLen), get(loadString.indexOf("|") - 1, 1),
-                        new Object[]{loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))), loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))});
+            mapImperium(get(4, 1));
+            Log.i("Testyear", loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('[')))
+                    +", "+loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']')));
+            Log.i("plterLen", loadString.substring(loadString.indexOf("!"), loadString.indexOf("!") + plLen) + ", " + map.getList().length + ", " + (init + pStrLen * map.getList().length));
+            game = new Game(context, get(loadString.indexOf("!")+1, plLen), get(loadString.indexOf("|") - 1, 1),
+                    new Object[]{loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))), loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))});
 
-                setupMap();
-            } else {
-                game.setPlayerLength(get(loadString.indexOf("!")+1, plLen));
-                game.setTimeline(loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))));
-                game.setYear(Integer.parseInt(loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))));
-                game.getMap().resetAll();
-            }
+            setupMap();
+            game.setPlayerLength(get(loadString.indexOf("!")+1, plLen));
+            game.setTimeline(loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))));
+            game.setYear(Integer.parseInt(loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))));
+            game.getMap().resetAll();
+
             game.setTurnNum(get(5, SAVE_FORM[0]));
             if (debugingOn) game.setTurnNum(0);
             int lastStart = 0;
@@ -187,7 +183,7 @@ public class SaveBooter extends GameActivity {
                 //int index = init + plLen + pStrLen * map.getList().length + plStrLen * player;
                 int index = lastStart;
                 Log.i("PlayerSave", "Text: " + loadString.substring(index, 17 + index));
-                if (!ais[player] || timeView || debugingOn)
+                if (!ais[player] || debugingOn)
                     game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index + 3));
                 else
                     game.getPlayerList()[player] = new Ai(context, player, AI_STYLE, game.getImperium(), loadString.substring(index, index + 3));
@@ -242,21 +238,21 @@ public class SaveBooter extends GameActivity {
             int pStrLen = SAVE_FORM[8] + SAVE_FORM[1] + SAVE_FORM[5] + SAVE_FORM[6] + SAVE_FORM[7] + 1; //length of province information
             int init = 8; //encoding, mapId, turnNum
             int plLen = 3;
-            if (!firstLoaded) {
-                mapImperium(get(4, 1));
-                Log.i("Testyear", loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('[')))
-                        +", "+loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']')));
-                Log.i("plterLen", loadString.substring(loadString.indexOf("!"), loadString.indexOf("!") + plLen) + ", " + map.getList().length + ", " + (init + pStrLen * map.getList().length));
-                game = new Game(context, get(loadString.indexOf("!")+1, plLen), get(loadString.indexOf("|") - 1, 1),
-                        new Object[]{loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))), loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))});
 
-                setupMap();
-            } else {
-                game.setPlayerLength(get(loadString.indexOf("!")+1, plLen));
-                game.setTimeline(loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))));
-                game.setYear(Integer.parseInt(loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))));
-                game.getMap().resetAll();
-            }
+            mapImperium(get(4, 1));
+            Log.i("Testyear", loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('[')))
+                    +", "+loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']')));
+            Log.i("plterLen", loadString.substring(loadString.indexOf("!"), loadString.indexOf("!") + plLen) + ", " + map.getList().length + ", " + (init + pStrLen * map.getList().length));
+            game = new Game(context, get(loadString.indexOf("!")+1, plLen), get(loadString.indexOf("|") - 1, 1),
+                    new Object[]{loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))), loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))});
+
+            setupMap();
+
+            game.setPlayerLength(get(loadString.indexOf("!")+1, plLen));
+            game.setTimeline(loadString.substring(loadString.indexOf('[')+1, loadString.indexOf(',', loadString.indexOf('['))));
+            game.setYear(Integer.parseInt(loadString.substring(loadString.indexOf(',', loadString.indexOf('['))+1, loadString.indexOf(']'))));
+            game.getMap().resetAll();
+
             game.setTurnNum(get(5, SAVE_FORM[0]));
             if (debugingOn) game.setTurnNum(0);
             int lastStart = 0;
@@ -303,7 +299,7 @@ public class SaveBooter extends GameActivity {
             for (int player = 0; player < game.getPlayerList().length; player++) {
                 //int index = init + plLen + pStrLen * map.getList().length + plStrLen * player;
                 int index = lastStart;
-                if (!ais[player] || timeView || debugingOn)
+                if (!ais[player] || debugingOn)
                     game.getPlayerList()[player] = new Player(context, player, game.getImperium(), loadString.substring(index, index + 3));
                 else
                     game.getPlayerList()[player] = new Ai(context, player, AI_STYLE, game.getImperium(), loadString.substring(index, index + 3));

@@ -120,7 +120,7 @@ public class Player extends Game{
         //if(isHistorical()) movesLeft = 5;
         //else movesLeft = 1;
         changeProvEnabled(isHuman() && !isPuppet());
-        if(!timeView && isHistorical()) {
+        if(isHistorical()) {
             warVis(isHuman());
             alertVis(isHuman());
             turnMoveVis(isHuman() && !isPuppet());
@@ -266,7 +266,7 @@ public class Player extends Game{
         allOwned = provinces.toArray(new Province[0]);
         Log.i("CalcAllOwned", "" + allOwned.length + " from " + getName());
         //Log.i("ownedlen", ""+allOwned.length);
-        if (allOwned.length > 0 && (firstLoaded || !timeView) && updateTitle) {
+        if (allOwned.length > 0 && updateTitle) {
             pocketText();
         }
 
@@ -919,7 +919,7 @@ public class Player extends Game{
                 savedSelect[1] = attackSelected[1];
                 Log.i("scanNames", attackSelected[0].getName()+", "+attackSelected[1].getName());
                 Log.i("attackScan", "friend: " + friend + " foe: " + foe + " Borders: " + attackSelected[0].bordering(attackSelected[1]));
-                if (friend && foe && attackSelected[0].bordering(attackSelected[1]) && stage == 1)
+                // if (friend && foe && attackSelected[0].bordering(attackSelected[1]) && stage == 1)
                     //tmpSelect[0].showAim(tmpSelect[1]);
 
                 Log.i("attackScan", "defenderOwner: " + attackSelected[1].getOwnerId() + ", atttckerTroops: " + attackSelected[0].getTroops());

@@ -234,7 +234,7 @@ public class Province extends Continent implements Serializable {
     }
 
     public void showSelection(boolean set) {
-        if (set && !timeView) showSelected.setVisibility(View.VISIBLE);
+        if (set) showSelected.setVisibility(View.VISIBLE);
         else showSelected.setVisibility(View.INVISIBLE);
 
     }
@@ -683,7 +683,6 @@ public class Province extends Continent implements Serializable {
                 updateOwner(); }});
     }
     public void doClick() {
-        getGame().addOutgoing(getCurrentPlayer().getTag(), "prv", "#nn", ""+formatInt(getId(), 4));
         long startClick = System.currentTimeMillis();
         if(focusPlayer != null) Log.i("Focus", "Mode: "+mapMode+", flus: "+focusPlayer.getId());
         stopPulse();

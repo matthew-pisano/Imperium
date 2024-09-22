@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 import static android.graphics.Color.*;
 
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
 public class Game extends GameActivity implements java.io.Serializable {
     //controllers
     private static ImageButton change;
@@ -82,8 +84,6 @@ public class Game extends GameActivity implements java.io.Serializable {
     public static boolean inSetup;
     private int lastPlayerId;
     protected boolean host;
-    protected ArrayList<String> outgoing;
-    protected ArrayList<String> incoming;
 
     public Game(){}
     public Game(Context context, int numPlayers, int imperium, Object[] history){ //loadGame
@@ -91,9 +91,6 @@ public class Game extends GameActivity implements java.io.Serializable {
         this.imperium = imperium==1;
         Log.i("initilize", ""+imperium);
         this.context = context;
-        outgoing = new ArrayList<>(0);
-        flushOutgoing();
-        incoming = new ArrayList<>(0);
         gameId = (int)(Math.random()*10000);
         gameAt = gameId;
         Log.i("GameId", ""+gameId+", gameAt: "+gameAt);
@@ -167,7 +164,7 @@ public class Game extends GameActivity implements java.io.Serializable {
         updateAllOwners(); //friend or foe
         if(getCurrentPlayer().getStage() == 1) change.setBackgroundResource(R.drawable.endattack);
         if(getCurrentPlayer().getStage() == 2) change.setBackgroundResource(R.drawable.endtransport);
-        turnMoveVis(getCurrentPlayer().isHuman() && isHistorical() && !timeView);
+        turnMoveVis(getCurrentPlayer().isHuman() && isHistorical());
         updateMapMode(1);
         //map.logContinents();
         initialCores();
@@ -663,7 +660,6 @@ public class Game extends GameActivity implements java.io.Serializable {
         attacking = false;
     }
     public void changer() {
-        addOutgoing(getCurrentPlayer().getTag(), "cng", "#nn", "nnnn");
         Log.i("jumpText", getJumpText());
         if(!getJumpText().equals("") && debug){
             jumpToPlayer(getJumpText());
@@ -698,7 +694,6 @@ public class Game extends GameActivity implements java.io.Serializable {
         }
     }
     public void changerRev() {
-        addOutgoing(getCurrentPlayer().getTag(), "crv", "#nn", "nnnn");
         Log.i("jumpText", getJumpText());
         if(!getJumpText().equals("") && debug){
             jumpToPlayer(getJumpText());
@@ -721,7 +716,6 @@ public class Game extends GameActivity implements java.io.Serializable {
     }
 
     public void again() {
-        addOutgoing(getCurrentPlayer().getTag(), "agn", "#nn", "nnnn");
         Log.i("again", "presses");
         rollOut(new int[6]);
 
@@ -753,7 +747,6 @@ public class Game extends GameActivity implements java.io.Serializable {
         }
     }
     public void retreat() {
-        addOutgoing(getCurrentPlayer().getTag(), "ret", "#nn", "nnnn");
         try {
             if(getCurrentPlayer().attackSelected[1] != null && getCurrentPlayer().attackSelected[0] != null)
                 if (getCurrentPlayer().attackSelected[1].getTroops() / (getCurrentPlayer().attackSelected[0].getTroops() + 1) > 3)
@@ -766,43 +759,11 @@ public class Game extends GameActivity implements java.io.Serializable {
         else if (getCurrentPlayer().getStage() == 1) endAttack();
     }
     public void annihilate() {
-        addOutgoing(getCurrentPlayer().getTag(), "ani", "#nn", "nnnn");
         annihilate.setBackgroundResource(R.drawable.annihilatedown);
         try {
             while (getCurrentPlayer().getAttackSelected()[0].getTroops() > 1 && getCurrentPlayer().getAttackSelected()[1].getTroops() > 1)
                 rollOut(getCurrentPlayer().attack());
         }catch(NullPointerException e){e.printStackTrace();}
-    }
-    public void flushOutgoing(){
-        int id = (int)(Math.random()*999);
-        outgoing = new ArrayList<>(0);
-        if(outgoing.size() == 0) outgoing.add("");
-        outgoing.set(0, ""+formatInt(id, 3));
-    }
-    public void addOutgoing(String playerTag, String actionType, String onPlayer, String onProvince){
-        if(!getCurrentPlayer().isPuppet() && outgoing != null) outgoing.add(playerTag+actionType+onPlayer+onProvince);
-        lastUnconfirmed = outgoing;
-    }
-    public void parseIncoming(){
-        for(String s : incoming){
-            if(s.length() < 3) continue;
-            Log.i("IncomingParse", s);
-            if(getCurrentPlayer().isPuppet() && s.substring(0, 3).equals(getCurrentPlayer().getTag())){
-                Log.i("IncomingParse", "MatchesPlayer");
-                if(s.substring(3, 6).equals("cng"))((Puppet)getCurrentPlayer()).pressChange();
-                if(s.substring(3, 6).equals("crv"))((Puppet)getCurrentPlayer()).pressRevChange();
-                if(s.substring(3, 6).equals("agn"))((Puppet)getCurrentPlayer()).pressAgain();
-                if(s.substring(3, 6).equals("ani"))((Puppet)getCurrentPlayer()).pressAnnihilate();
-                if(s.substring(3, 6).equals("ret"))((Puppet)getCurrentPlayer()).pressRetreat();
-                if(s.substring(3, 6).equals("dev"))((Puppet)getCurrentPlayer()).pressDeveloper(map.provFromId(s.substring(9, 13)));
-                if(s.substring(3, 6).equals("frt"))((Puppet)getCurrentPlayer()).pressFortifier(map.provFromId(s.substring(9, 13)));
-                if(s.substring(3, 6).equals("war"))((Puppet)getCurrentPlayer()).pressWar(s.substring(6, 9));
-                if(s.substring(3, 6).equals("sub"))((Puppet)getCurrentPlayer()).pressSubject(s.substring(6, 9));
-                if(s.substring(3, 6).equals("aly"))((Puppet)getCurrentPlayer()).pressAlly(s.substring(6, 9));
-                if(s.substring(3, 6).equals("prv"))((Puppet)getCurrentPlayer()).pressProvince(s.substring(9, 13));
-            }
-        }
-        incoming = new ArrayList<>(0);
     }
     //private
     private void assignCtrls(){

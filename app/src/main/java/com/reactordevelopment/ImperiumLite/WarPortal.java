@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
 public class WarPortal extends GameActivity {
     //private ImageButton flag;
     private ImageView frame;

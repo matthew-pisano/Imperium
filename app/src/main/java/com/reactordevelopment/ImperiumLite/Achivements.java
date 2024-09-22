@@ -6,11 +6,12 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_FORM;
 import static com.reactordevelopment.ImperiumLite.MainActivity.achives;
+
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 
 
 public class Achivements extends Game {

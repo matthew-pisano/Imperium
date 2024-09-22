@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import static com.reactordevelopment.ImperiumLite.GameActivity.*;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.*;
 import static com.reactordevelopment.ImperiumLite.MainActivity.*;
+
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 
 public class BuildActivity extends AppCompatActivity {
 

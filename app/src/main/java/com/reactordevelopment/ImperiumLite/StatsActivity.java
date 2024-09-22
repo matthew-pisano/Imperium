@@ -9,8 +9,9 @@ import android.widget.ImageView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 
-import static com.reactordevelopment.ImperiumLite.GameActivity.statsBundle;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.statsBundle;
 import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 import java.util.ArrayList;
 

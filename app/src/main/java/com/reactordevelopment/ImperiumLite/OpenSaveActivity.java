@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
 public class OpenSaveActivity extends AppCompatActivity {
     protected static LinearLayout saveLister;
     protected static LinearLayout scrollList;

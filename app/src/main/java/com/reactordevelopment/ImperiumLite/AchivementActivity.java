@@ -23,6 +23,8 @@ import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
 import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
 import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
 
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
 public class AchivementActivity extends AppCompatActivity {
     protected static LinearLayout achiveLister;
     protected static LinearLayout scrollList;
