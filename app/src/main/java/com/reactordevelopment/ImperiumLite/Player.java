@@ -1,5 +1,9 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.SUBJECT_INCOME;
+import static com.reactordevelopment.ImperiumLite.MainActivity.TRUCE_TIMER;
+import static com.reactordevelopment.ImperiumLite.MainActivity.formatInt;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -10,10 +14,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-
-import static com.reactordevelopment.ImperiumLite.MainActivity.SUBJECT_INCOME;
-import static com.reactordevelopment.ImperiumLite.MainActivity.TRUCE_TIMER;
-import static com.reactordevelopment.ImperiumLite.MainActivity.formatInt;
 
 public class Player extends Game{
     protected boolean human = true;

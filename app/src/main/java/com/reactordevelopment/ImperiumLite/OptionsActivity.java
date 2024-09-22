@@ -1,5 +1,11 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.BASE_TEXT_SCALE;
+import static com.reactordevelopment.ImperiumLite.MainActivity.inchWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.onOptions;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Point;
@@ -16,7 +22,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
 public class OptionsActivity extends AppCompatActivity {
     private static final double BAR_WIDTH = screenWidth*.5;

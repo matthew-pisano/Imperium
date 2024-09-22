@@ -2,20 +2,15 @@ package com.reactordevelopment.ImperiumLite.MappedActivities;
 
 import static com.reactordevelopment.ImperiumLite.MainActivity.BASE_TEXT_SCALE;
 import static com.reactordevelopment.ImperiumLite.MainActivity.inchWidth;
-import static com.reactordevelopment.ImperiumLite.MainActivity.onBuild;
 import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
-import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,12 +20,10 @@ import android.widget.Toast;
 
 import com.reactordevelopment.ImperiumLite.BuildActivity;
 import com.reactordevelopment.ImperiumLite.Game;
-import com.reactordevelopment.ImperiumLite.MainActivity;
 import com.reactordevelopment.ImperiumLite.Nation;
 import com.reactordevelopment.ImperiumLite.Player;
 import com.reactordevelopment.ImperiumLite.Province;
 import com.reactordevelopment.ImperiumLite.R;
-import com.reactordevelopment.ImperiumLite.SaveBooter;
 
 import java.io.IOException;
 import java.io.InputStream;

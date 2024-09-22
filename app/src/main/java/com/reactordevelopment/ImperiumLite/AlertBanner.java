@@ -1,12 +1,13 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
 import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 

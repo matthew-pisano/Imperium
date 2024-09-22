@@ -1,10 +1,13 @@
 package com.reactordevelopment.ImperiumLite;
 
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.inchHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.support.constraint.ConstraintLayout;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -17,12 +20,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import java.io.PipedOutputStream;
-import java.util.ArrayList;
-
-import static com.reactordevelopment.ImperiumLite.MainActivity.inchHeight;
-import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
-import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
 
 public class Event extends Game{
     private Context context;

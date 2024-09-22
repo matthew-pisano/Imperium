@@ -1,18 +1,23 @@
 package com.reactordevelopment.ImperiumLite.MappedActivities;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.BASE_TEXT_SCALE;
+import static com.reactordevelopment.ImperiumLite.MainActivity.YEET;
+import static com.reactordevelopment.ImperiumLite.MainActivity.inchWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.killMusic;
+import static com.reactordevelopment.ImperiumLite.MainActivity.onBuild;
+import static com.reactordevelopment.ImperiumLite.MainActivity.onGame;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -24,33 +29,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AnimationSet;
-import android.view.animation.RotateAnimation;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
-
-import com.reactordevelopment.ImperiumLite.AchivementActivity;
-import com.reactordevelopment.ImperiumLite.Achivements;
 import com.reactordevelopment.ImperiumLite.Ai;
-import com.reactordevelopment.ImperiumLite.AlertBanner;
 import com.reactordevelopment.ImperiumLite.BuildActivity;
 import com.reactordevelopment.ImperiumLite.Classic;
 import com.reactordevelopment.ImperiumLite.Europe;
@@ -58,14 +44,13 @@ import com.reactordevelopment.ImperiumLite.Game;
 import com.reactordevelopment.ImperiumLite.Imperium;
 import com.reactordevelopment.ImperiumLite.MainActivity;
 import com.reactordevelopment.ImperiumLite.Map;
-import com.reactordevelopment.ImperiumLite.Nation;
-import com.reactordevelopment.ImperiumLite.OptionsActivity;
 import com.reactordevelopment.ImperiumLite.Player;
 import com.reactordevelopment.ImperiumLite.Province;
 import com.reactordevelopment.ImperiumLite.R;
 import com.reactordevelopment.ImperiumLite.SaveBooter;
-import com.reactordevelopment.ImperiumLite.StatsActivity;
-import com.reactordevelopment.ImperiumLite.WarPortal;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public class MappedActivity extends AppCompatActivity {
 

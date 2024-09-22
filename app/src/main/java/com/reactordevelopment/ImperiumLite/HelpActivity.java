@@ -1,13 +1,17 @@
 package com.reactordevelopment.ImperiumLite;
 
-import android.support.v7.app.AppCompatActivity;
+import static com.reactordevelopment.ImperiumLite.MainActivity.onHelp;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import java.io.IOException;
 import java.io.InputStream;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
 public class HelpActivity extends AppCompatActivity {
     private TextView helpOut;

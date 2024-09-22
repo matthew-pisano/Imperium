@@ -1,5 +1,16 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static android.graphics.Color.BLACK;
+import static android.graphics.Color.TRANSPARENT;
+import static com.reactordevelopment.ImperiumLite.MainActivity.BURN_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.DECAY_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.DEV_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.FORT_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.GROW_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.MIGHT_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.MONETAE_TO_TROOPS;
+import static com.reactordevelopment.ImperiumLite.MainActivity.PLAYER_NONE;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,13 +25,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
+
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import static android.graphics.Color.BLACK;
-import static android.graphics.Color.TRANSPARENT;
 
 public class Province extends Continent implements Serializable {
     private int id;

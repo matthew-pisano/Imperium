@@ -1,5 +1,9 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_VERSION;
+import static com.reactordevelopment.ImperiumLite.MainActivity.onAbout;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -9,8 +13,6 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
 public class AboutActivity extends AppCompatActivity {
     private TextView infoOut;

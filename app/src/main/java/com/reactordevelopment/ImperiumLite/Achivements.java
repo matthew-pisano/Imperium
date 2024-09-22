@@ -1,17 +1,17 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_FORM;
+import static com.reactordevelopment.ImperiumLite.MainActivity.achives;
+
 import android.content.SharedPreferences;
 import android.util.Log;
+
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_FORM;
-import static com.reactordevelopment.ImperiumLite.MainActivity.achives;
-
-import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 
 
 public class Achivements extends Game {

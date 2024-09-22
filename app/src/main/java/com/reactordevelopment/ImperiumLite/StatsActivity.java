@@ -1,18 +1,21 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.onStats;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.statsBundle;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 
-import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.statsBundle;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 import java.util.ArrayList;
 
 public class StatsActivity extends AppCompatActivity {

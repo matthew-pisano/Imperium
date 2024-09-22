@@ -1,11 +1,19 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.BASE_TEXT_SCALE;
+import static com.reactordevelopment.ImperiumLite.MainActivity.achives;
+import static com.reactordevelopment.ImperiumLite.MainActivity.inchWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.onAchivement;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -14,14 +22,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import static com.reactordevelopment.ImperiumLite.MainActivity.BASE_TEXT_SCALE;
-import static com.reactordevelopment.ImperiumLite.MainActivity.achives;
-import static com.reactordevelopment.ImperiumLite.MainActivity.inchWidth;
-import static com.reactordevelopment.ImperiumLite.MainActivity.onAchivement;
-import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
-import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
-import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
 
 import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 

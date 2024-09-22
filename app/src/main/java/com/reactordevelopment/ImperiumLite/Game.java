@@ -1,5 +1,22 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static android.graphics.Color.LTGRAY;
+import static android.graphics.Color.RED;
+import static android.graphics.Color.TRANSPARENT;
+import static com.reactordevelopment.ImperiumLite.MainActivity.ALLY_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.OVERLORD_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_FORM;
+import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_VERSION;
+import static com.reactordevelopment.ImperiumLite.MainActivity.SELF_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.SUBJECT_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.TRUCE_COLOR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.formatDouble;
+import static com.reactordevelopment.ImperiumLite.MainActivity.formatInt;
+import static com.reactordevelopment.ImperiumLite.MainActivity.gameAt;
+import static com.reactordevelopment.ImperiumLite.MainActivity.getGameAt;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.media.MediaPlayer;
@@ -13,11 +30,9 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
-import static android.graphics.Color.*;
-
 import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
+import java.util.ArrayList;
 
 public class Game extends GameActivity implements java.io.Serializable {
     //controllers

@@ -1,5 +1,11 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_PATH;
+import static com.reactordevelopment.ImperiumLite.MainActivity.onOpenSave;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -15,14 +21,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
-
-import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 
 public class OpenSaveActivity extends AppCompatActivity {
     protected static LinearLayout saveLister;

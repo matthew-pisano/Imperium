@@ -1,10 +1,27 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.AUTO_SAVE_ID;
+import static com.reactordevelopment.ImperiumLite.MainActivity.BASE_TEXT_SCALE;
+import static com.reactordevelopment.ImperiumLite.MainActivity.DEFAULT_YEAR_ALP;
+import static com.reactordevelopment.ImperiumLite.MainActivity.DEFAULT_YEAR_KAI;
+import static com.reactordevelopment.ImperiumLite.MainActivity.DEFAULT_YEAR_ROM;
+import static com.reactordevelopment.ImperiumLite.MainActivity.DEFAULT_YEAR_VIR;
+import static com.reactordevelopment.ImperiumLite.MainActivity.desaturate;
+import static com.reactordevelopment.ImperiumLite.MainActivity.inchWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.onBuild;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.DEBUG_MAP;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.DEBUG_MAP_ID;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.debugId;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.debugingOn;
+
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -17,15 +34,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-
-import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.*;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
-
-import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
 
 public class BuildActivity extends AppCompatActivity {
 

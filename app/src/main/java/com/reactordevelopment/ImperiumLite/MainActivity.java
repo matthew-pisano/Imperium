@@ -1,5 +1,10 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.debugNations;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.debugingOn;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.newDebugSave;
+import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.setMusicTitle;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,6 +19,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
@@ -21,7 +27,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -42,8 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import static com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity.*;
 
 //7/30/19 (started)
 //2221 lines main code

@@ -1,12 +1,12 @@
 package com.reactordevelopment.ImperiumLite;
 
-import android.util.Log;
-
-import java.io.InputStream;
-
 import static com.reactordevelopment.ImperiumLite.MainActivity.SAVE_FORM;
 
+import android.util.Log;
+
 import com.reactordevelopment.ImperiumLite.MappedActivities.GameActivity;
+
+import java.io.InputStream;
 
 public class SaveBooter extends GameActivity {
 

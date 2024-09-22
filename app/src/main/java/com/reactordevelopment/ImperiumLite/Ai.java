@@ -1,9 +1,10 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.MONETAE_TO_TROOPS;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
 import java.util.ArrayList;
 

@@ -1,15 +1,19 @@
 package com.reactordevelopment.ImperiumLite;
 
+import static com.reactordevelopment.ImperiumLite.MainActivity.onTutorial;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenHeight;
+import static com.reactordevelopment.ImperiumLite.MainActivity.screenWidth;
+import static com.reactordevelopment.ImperiumLite.MainActivity.setActivity;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
 public class TutorialActivity extends AppCompatActivity {
     private int tutorialAt;
