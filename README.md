@@ -16,7 +16,6 @@ These include:
 - Assets - Text and images bundled inside the app file to be utilized during execution.
 - Audio management
 - Bitmap manipulation
-- Android in-app purchase features (deprecated)
 - Shared preferences
 
 ## Game Play
@@ -36,7 +35,6 @@ defeating all of their units and claiming all of their territory.
 Aside from the basic features of *RISK*, Imperium has many additional features and
 complexities.
 
-- Local multiplayer
 - Statistics of all players over time
 - Three unique maps
   - Classic - The standard rules of the game

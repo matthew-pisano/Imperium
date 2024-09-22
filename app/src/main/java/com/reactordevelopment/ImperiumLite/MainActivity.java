@@ -39,10 +39,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.billingclient.api.BillingClient;
-import com.android.billingclient.api.SkuDetails;
-import com.google.gson.internal.$Gson$Preconditions;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -99,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
     //turnNum, provTroops, playerTroops, Monetae, infamy, development, devastation, attrition, ownerId
     private int STORAGE_PERMISSION_CODE = 1;
     public static final double SAVE_VERSION = 1.31;
-    //public static boolean LOCKED = true;
     //public static final boolean MAIN_APP_DED = true;
 
     private static String[] tracks;
@@ -149,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
         textMaker();
         music();
         startThread();
-        //if(MAIN_APP_DED || vars.getBoolean("unlockedLite", false)) LOCKED = false;
         setActivity("none");
         setMusicActivity("menu");
         onMain = true;
@@ -358,17 +352,6 @@ public class MainActivity extends AppCompatActivity {
             if(firstLoad.getBoolean("firstLoad", true)) firstLoad();
             listTracks();
         }
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
-            requestStoragePermission(new String[]{Manifest.permission.INTERNET, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE},
-                    "Permission needed to access internet (multiplayer)");
-            /*ActivityCompat.requestPermissions(mainActivity,
-                    new String[] {Manifest.permission.INTERNET,
-                            Manifest.permission.ACCESS_NETWORK_STATE}, STORAGE_PERMISSION_CODE);*/
-        /*if(MAIN_APP_DED){
-            SharedPreferences.Editor varEdit = vars.edit();
-            varEdit.putBoolean("unlockedLite", true);
-            varEdit.commit();
-        }*/
     }
     private void startThread(){
         new Thread(){
@@ -709,7 +692,6 @@ public class MainActivity extends AppCompatActivity {
 
         version.setTextSize(TypedValue.COMPLEX_UNIT_IN, (float) (BASE_TEXT_SCALE * inchWidth));
         version.setText("" + BuildConfig.VERSION_NAME);
-        //if (LOCKED && !MAIN_APP_DED) version.setText("ImperiumLite: Lite");
         byte[] buffer = new byte[0];
         String notes = "";
         try {

@@ -12,14 +12,12 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -38,16 +36,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.billingclient.api.BillingClient;
-import com.android.billingclient.api.BillingClientStateListener;
-import com.android.billingclient.api.BillingFlowParams;
-import com.android.billingclient.api.BillingResult;
-import com.android.billingclient.api.Purchase;
-import com.android.billingclient.api.PurchasesUpdatedListener;
-import com.android.billingclient.api.SkuDetails;
-import com.android.billingclient.api.SkuDetailsParams;
-import com.android.billingclient.api.SkuDetailsResponseListener;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,7 +50,7 @@ import java.util.List;
 
 import static com.reactordevelopment.ImperiumLite.MainActivity.*;
 
-public class GameActivity extends AppCompatActivity implements PurchasesUpdatedListener {
+public class GameActivity extends AppCompatActivity {
     //savePopup
     private static ImageButton saveOK;
     private static ImageButton saveCancel;
@@ -142,17 +130,11 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     private static Nation nationAt;
     private String timeLine = "";
     private String mapPath;
-    private boolean lockedBuild;
     //Achives
     private static ConstraintLayout achiveDrop;
     private static ImageView achiveImage;
     private static TextView achiveTitle;
     private ImageButton toAchives;
-    //unlock
-    private ConstraintLayout unlockPop;
-    private ImageButton unlockClose;
-    private ImageView locked;
-    private static ArrayList<String> unlockedYears;
     //music
     private boolean musicOpen;
     private static TextView musicTitle;
@@ -203,10 +185,6 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     private float dXGear = 0;
     private float initX = 0;
     //vars
-    public static BillingClient billingClient;
-    public static ArrayList<String> skuDetails;
-    //public static final String[] SKU_ARRAY = new String[]{"unlock_alp396", "unlock_alp477", "unlock_alp642", "unlock_alp802", "unlock_alp1066", "unlock_alp1248", "unlock_alp1445", "unlock_alp1532", "unlock_alp1618", "unlock_alp1756", "unlock_alp1811", "unlock_alp1823", "unlock_alp1914", "unlock_alp1931", "unlock_alp1939", "unlock_alp1966", "unlock_alp2020", "unlock_kai1917", "unlock_rom414", "unlock_rom631", "unlock_rom794"};
-    public static final String[] SKU_ARRAY = new String[]{"unlock_modern", "unlock_althist"};
     private int yearAt = 0;
     private Integer[] years;
     private String[] titles;
@@ -218,17 +196,8 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
     public static final float MAX_SCALE = 10f;
     public static float scaling = 1/*(float)(screenWidth/480)*/;
     protected static Game game;
-    public static Server server;
     public static String lastPingId;
-    private static boolean switchServerPhase;
-    private static boolean needConfirm;
-    protected static boolean connectPhase;
-    protected static boolean gameplayPlase;
-    private static boolean breakServerThread;
     protected static ArrayList<String> lastUnconfirmed;
-    private static ArrayList<Client> playerClients;
-    private static int resendCycles;
-    private static boolean forceClosed = false;
     protected static boolean provEnabled;
     private static boolean openNav;
     private static boolean openInfo;
@@ -299,13 +268,9 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         openMode = false;
         firstLoaded = false;
         musicOpen = false;
-        switchServerPhase = false;
-        breakServerThread = false;
-        needConfirm = false;
         lastUnconfirmed = new ArrayList<>(0);
         lastUnconfirmed.add("nnn");
         lastPingId = "nnn";
-        initBilling();
         loadWindow();
         new Thread(){
             @Override
@@ -424,164 +389,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         if(stage == 1) stageCover.setBackgroundResource(R.drawable.stageattack);
         if(stage == 2) stageCover.setBackgroundResource(R.drawable.stagetrans);
     }
-    public static void resetHost(){
-        switchServerPhase = true;
-        if(server != null)
-            server.reset();
-        server = null;
-    }
-    public static void createHost(String serverIp, final boolean isHost){
-        final ArrayList<String> hostValue = new ArrayList<>(0);
-        if(isHost) hostValue.add("host");
-        else hostValue.add("client");
-        if(server == null) server = new Server(serverIp, isHost);
-        switchServerPhase = false;
-        connectPhase = true;
-        gameplayPlase = false;
-        resendCycles = 0;
-        /*new Thread(){
-            @Override
-            public void run() {
-                Looper.prepare();
-                try {
-                    while (!isInterrupted()) {
-                        Thread.sleep(200);
-                        if(breakServerThread) break;
-                        if(connectPhase) {
-                            Log.i("HaltThread", "" + switchServerPhase);
-                            if (switchServerPhase) {
-                                //haltServerThread = false;
-                                Log.i("HaltThread", "In:" + switchServerPhase);
-                                connectPhase = false;
-                            }
-                            Log.i("Waiting", "Connecting...");
-                            ArrayList<String> data = new ArrayList(0);
-                            try {
-                                data = (ArrayList) server.getData(true);
-                            } catch (ClassCastException e) { e.printStackTrace(); }
-                            if (data != null) {
-                                Log.i("ServerData", hostValue.toString() + ", " + data.toString());
-                                ArrayList<String> tmp = hostValue;
-                                if(tmp.get(0).charAt(tmp.get(0).length()-1) != '1')
-                                    tmp.set(0, tmp.get(0)+1);
-                                server.sendData(tmp);
-                                if (data.get(0).equals(hostValue.get(0) + 1)) {
-                                    resetHost();
-                                }
-                                if (data.get(0).charAt(data.get(0).length() - 1) == '1') {
-                                    serverPing();
-                                }
-                            } else
-                                server.sendData(hostValue);
-                        }else{
-                            server.sendData((ArrayList)null);
-                        }
-                        if(gameplayPlase){
-                            if(game != null)
-                                if(game.outgoing != null && game.getCurrentPlayer() != null) {
-                                    try {
-                                        ArrayList<String> testIncoming = (ArrayList<String>) server.getData(false);
-                                        if(testIncoming != null) {
-                                            if (testIncoming.size() > 0) {
-                                                Log.i("IncomtinTest", testIncoming.toString() + ", " + lastUnconfirmed.toString());
-                                                game.incoming = testIncoming;
-                                                lastPingId = testIncoming.get(0);
-                                                game.parseIncoming();
-                                            /&if(!testIncoming.get(testIncoming.size()-1).equals("c")){
-                                                game.incoming = testIncoming;
-                                                lastPingId = testIncoming.get(0);
-                                                game.parseIncoming();
-                                                testIncoming.add("c");
-                                                Log.i("Data Confirmed", "Sending confirmation: "+testIncoming.toString());
-                                                server.sendData(testIncoming);
-                                                continue;
-                                            }else if(testIncoming.get(0).equals(lastUnconfirmed.get(0)))
-                                                needConfirm = false;&/
-                                            }
-                                        }
 
-                                        Log.i("Outgoing", ""+game.outgoing.size()+", "+needConfirm+", "+game.outgoing.toString());
-                                        if(resendCycles <= 5){
-                                            resendCycles ++;
-                                            Log.i("SendGameData", lastUnconfirmed.toString());
-                                            server.sendData(lastUnconfirmed);
-                                        }else {
-                                            resendCycles = 0;
-                                            lastUnconfirmed = game.outgoing;
-                                            game.flushOutgoing();
-                                        }
-                                        /*if (lastUnconfirmed.size() > 1 && !needConfirm) {
-
-
-                                            //needConfirm = true;
-                                            //game.flushOutgoing();
-                                        }*//*else if(needConfirm){
-                                            Log.i("Data Unconfirmed", "resending: "+lastUnconfirmed.toString());
-                                            server.sendData(lastUnconfirmed);
-                                        }&/
-                                    }catch (ClassCastException e){e.printStackTrace();}
-                                }
-                        }
-                    }
-                    Log.i("HaltThread", "In2:"+ switchServerPhase);
-                }catch (InterruptedException e){e.printStackTrace();}
-            }
-        }.start();*/
-    }
-    public static void serverPing(){
-        connectPhase = false;
-        /*new Thread(){
-            @Override
-            public void run() {
-                try{
-                    while (!isInterrupted()){
-                        Thread.sleep(500);
-                        if(game != null)
-                            if(game.outgoing != null) {
-                                try {
-
-                                    ArrayList<String> testIncoming = new ArrayList<>(0);
-                                    try {
-                                        testIncoming = (ArrayList<String>) server.getData();
-                                    }catch (ClassCastException e){
-                                        e.printStackTrace();
-                                        game.outgoing = new ArrayList<>(0);
-                                        game.outgoing.add("nnn"); game.outgoing.add("nnnnnnnnnnn");
-                                        server.sendData(game.outgoing);
-                                        game.flushOutgoing();
-                                    }
-                                    if(testIncoming.size() > 0) {
-                                        Log.i("IncomtinTest", testIncoming.toString()+", "+lastUnconfirmed.toString());
-                                        if(!testIncoming.get(testIncoming.size()-1).equals("c")){
-                                            game.incoming = testIncoming;
-                                            lastPingId = testIncoming.get(0);
-                                            game.parseIncoming();
-                                            testIncoming.add("c");
-                                            Log.i("Data Confirmed", "Sending confirmation: "+testIncoming.toString());
-                                            server.sendData(testIncoming);
-                                            continue;
-                                        }else if(testIncoming.get(0).equals(lastUnconfirmed.get(0)))
-                                            needConfirm = false;
-                                    }
-
-                                    Log.i("Outgoing", ""+game.outgoing.size()+", "+needConfirm+", "+game.outgoing.toString());
-                                    if (game.outgoing.size() > 1 && !needConfirm) {
-                                        Log.i("SendGameData", game.outgoing.toString());
-                                        server.sendData(game.outgoing);
-                                        lastUnconfirmed = game.outgoing;
-                                        needConfirm = true;
-                                        game.flushOutgoing();
-                                    }else if(needConfirm){
-                                        Log.i("Data Unconfirmed", "resending: "+lastUnconfirmed.toString());
-                                        server.sendData(lastUnconfirmed);
-                                    }
-                                }catch (ClassCastException e){e.printStackTrace();}
-                            }
-                    }
-                }catch (InterruptedException e){e.printStackTrace();}
-            }
-        }.start();*/
-    }
     public static void achiveDrop(String tag){
         Log.i("drop", "achive");
         Object[] info = Achivements.infoFromTag(tag);
@@ -699,7 +507,6 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         //mapLayout.animate().x(screenHeight/4).y(screenWidth/4).setDuration(2000);
         mapLayout.setScaleX(scaling);
         mapLayout.setScaleY(scaling);
-        unlock();
         musicControls();
         makeDiplo();
         makeDipPopup();
@@ -719,10 +526,9 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if (musicOpen) player.animate().x(-screenHeight * .24f).setDuration(500);
-                    else player.animate().x(screenHeight * .01f).setDuration(500);
-                    musicOpen = !musicOpen;
-                //}else unlockPopup();
+                if (musicOpen) player.animate().x(-screenHeight * .24f).setDuration(500);
+                else player.animate().x(screenHeight * .01f).setDuration(500);
+                musicOpen = !musicOpen;
             }
         });
         backward.setOnClickListener(new View.OnClickListener() {
@@ -1989,7 +1795,6 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
                 int[] out = snapTo(timeProgress);
                 //timeSlider.setProgress(out[0]);
                 yearAt = out[1];
-                checkLocked();
                 year.setText("Year: "+yearAt);
                 yearTitle.setText(titles[out[2]]);
                 timeFile();
@@ -1998,7 +1803,6 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[0]);
         yearAt = out[1];
-        checkLocked();
         year.setText("Year: "+yearAt);
         yearTitle.setText(titles[out[2]]);
         timeFile();
@@ -2007,38 +1811,24 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         toBuild.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkLocked();
-                Log.i("LockedBuild", ""+lockedBuild);
-                if(!lockedBuild) {
-                    boolean send = false;
-                    for (String s : nations) if (s != null) if (!s.equals("")) send = true;
+                boolean send = false;
+                for (String s : nations) if (s != null) if (!s.equals("")) send = true;
 
-                    Intent intent = new Intent(context, BuildActivity.class);
-                    ArrayList<Object> history = new ArrayList<>(0);
-                    history.add(timeLine);
-                    history.add(yearAt);
-                    history.add(mapPath);
-                    history.add(nations);
-                    if (send) intent.putExtra("historyFiles", history);
-                    Log.i("tobuild", "send: "+send);
-                    forceClosed = true;
-                    startActivity(intent);
-                    finish();
-                }
-                else unlockPopup();
+                Intent intent = new Intent(context, BuildActivity.class);
+                ArrayList<Object> history = new ArrayList<>(0);
+                history.add(timeLine);
+                history.add(yearAt);
+                history.add(mapPath);
+                history.add(nations);
+                if (send) intent.putExtra("historyFiles", history);
+                Log.i("tobuild", "send: "+send);
+                startActivity(intent);
+                finish();
             }
         });
         addSelections();
     }
-    private void checkLocked(){
-        lockedBuild = true;
-        if(!unlockedYears.contains("modern") && yearAt > 1800 && timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-        else if(!unlockedYears.contains("althist") && !timeLine.equals("alp")) locked.setVisibility(View.VISIBLE);
-        else {
-            locked.setVisibility(View.INVISIBLE);
-            lockedBuild = false;
-        }
-    }
+
     private void addSelections(){
         findViewById(R.id.timeCover).setBackgroundResource(R.drawable.timecover);
         findViewById(R.id.nationCover).setBackgroundResource(R.drawable.nationcover);
@@ -2080,24 +1870,22 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //if(!LOCKED || yearAt == DEFAULT_YEAR_ALP) {
-                    boolean already = false;
-                    if (nationAt != null) {
-                        for (String at : nations)
-                            if (at != null)
-                                if (at.equals(nationAt.getTag())) {
-                                    already = true;
-                                    Toast.makeText(context, "There is already a player with this nation, try again or unselect", Toast.LENGTH_SHORT).show();
-                                }
+                boolean already = false;
+                if (nationAt != null) {
+                    for (String at : nations)
+                        if (at != null)
+                            if (at.equals(nationAt.getTag())) {
+                                already = true;
+                                Toast.makeText(context, "There is already a player with this nation, try again or unselect", Toast.LENGTH_SHORT).show();
+                            }
 
-                        if (!already) {
-                            nations[id] = nationAt.getTag();
-                            Log.i("Nation", "" + nations[id]);
-                            //flagchange
-                            players[id].setImageResource(nationAt.getFlag());
-                        }
+                    if (!already) {
+                        nations[id] = nationAt.getTag();
+                        Log.i("Nation", "" + nations[id]);
+                        //flagchange
+                        players[id].setImageResource(nationAt.getFlag());
                     }
-                //}
+                }
             }};
     }
     private View.OnClickListener unSelector(final int id){
@@ -2112,86 +1900,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
                 if(id == 3) players[3].setBackgroundResource(R.drawable.purple);*/
             }};
     }
-    private void unlock(){
-        unlockPop = findViewById(R.id.unlockPop);
-        unlockClose = findViewById(R.id.unlockClose);
-        locked = findViewById(R.id.locked);
-        unlockedYears = new ArrayList<>(0);
-        FileInputStream fis = null;
-        final StringBuilder sb = new StringBuilder();
-        try {
-            fis = new FileInputStream(Environment.getExternalStorageDirectory().getPath()+"/Imperium/Game/State.txt");
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
-            String text;
-            while ((text = br.readLine()) != null)
-                sb.append(text).append("\n");
 
-        } catch (Exception e) { e.printStackTrace(); }
-        finally {
-            if (fis != null)
-                try { fis.close(); } catch (IOException e) { e.printStackTrace(); }
-        }
-        String years = "";
-        try{years = sb.substring(sb.indexOf("[")+1, sb.indexOf("]"));}
-        catch (StringIndexOutOfBoundsException e) {
-            e.printStackTrace();
-            years = "modern,althist,";
-        }
-        for(int i=0; i<years.length()-3; i++){
-            unlockedYears.add(years.substring(i, years.indexOf(",", i)));
-            i = years.indexOf(",", i);
-        }
-        Log.i("unlockedYears", unlockedYears.toString());
-        ImageView playerLock = findViewById(R.id.playerLock);
-        TextView unlockText = findViewById(R.id.unlockText);
-        ImageButton toStore = findViewById(R.id.unlockButton);
-        ImageButton unlockToBuild = findViewById(R.id.unlockToBuild);
-        unlockText.setTextSize(TypedValue.COMPLEX_UNIT_IN,BASE_TEXT_SCALE*inchWidth);
-        unlockText.setGravity(Gravity.CENTER);
-        toStore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                for(int i=0; i<SKU_ARRAY.length; i++) {
-                    Log.i("CurrentTimeline", "unlock_" + timeLine + yearAt+", "+SKU_ARRAY[i]);
-                    if (SKU_ARRAY[i].equals("unlock_modern") && timeLine.equals("alp")) launchBilling(i);
-                    if (SKU_ARRAY[i].equals("unlock_althist") && !timeLine.equals("alp")) launchBilling(i);
-                }
-            }
-        });
-        locked.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                unlockPopup();
-            }
-        });
-        unlockClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                unlockPopdown();
-            }
-        });
-        unlockToBuild.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, BuildActivity.class);
-                forceClosed = true;
-                startActivity(intent);
-                finish();
-            }
-        });
-    }
-    private void unlockPopup(){
-        unlockPop.setVisibility(View.VISIBLE);
-        TextView unlockText = findViewById(R.id.unlockText);
-        if(timeLine.equals("alp")) unlockText.setText("Unlock the entire modern timeline for .99 (USD)?\nThis will permanently unlock this timeline for your enjoyment!");
-        else unlockText.setText("Unlock all alternate history timelines for .99 (USD)?\nThis will permanently unlock this timeline for your enjoyment!");
-        unlockPop.animate().y(screenWidth*.3f).setDuration(500);
-    }
-    private void unlockPopdown(){
-        ConstraintLayout unlockPop = findViewById(R.id.unlockPop);
-        unlockPop.animate().y(1000).setDuration(500);
-    }
     private int[] snapTo(int progress){
         resetNationSelect();
         int max = -10000;
@@ -2225,7 +1934,6 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[6]);
         yearAt = out[5];
-        checkLocked();
         year.setText("Year: "+yearAt);
         if(out[2] > 0) yearTitle.setText(titles[out[2]-1]);
         timeFile();
@@ -2234,7 +1942,6 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
         int[] out = snapTo(timeProgress);
         timeSlider.setProgress(out[4]+1);
         yearAt = out[3];
-        checkLocked();
         Log.i("out3", ""+out[3]);
         year.setText("Year: "+yearAt);
         if(out[2] < titles.length-1) yearTitle.setText(titles[out[2]+1]);
@@ -2335,7 +2042,6 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
             try{loadBuilder();}catch (Exception e){
                 e.printStackTrace();
                 Toast.makeText(context, "Save File Has Been Corrupted!", Toast.LENGTH_SHORT).show();
-                forceClosed = true;
                 finish();
                 return false;
             }try{statsBuilder();}catch (Exception e){e.printStackTrace();}
@@ -2420,79 +2126,7 @@ public class GameActivity extends AppCompatActivity implements PurchasesUpdatedL
             }
         };lookingThread.start();
     }
-    private void initBilling(){
-        billingClient = BillingClient.newBuilder(context).enablePendingPurchases().setListener(this).build();
-        billingClient.startConnection(new BillingClientStateListener() {
-            @Override
-            public void onBillingSetupFinished(BillingResult billingResult) {
-                if(billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK){
 
-                }
-            }
-
-            @Override
-            public void onBillingServiceDisconnected() {
-
-            }
-        });
-    }
-    private void launchBilling(final int skuId){
-        Log.i("Ready", ""+billingClient.isReady());
-        if(billingClient.isReady()){
-            SkuDetailsParams params = SkuDetailsParams.newBuilder().setSkusList(Arrays.asList(SKU_ARRAY)).setType(BillingClient.SkuType.INAPP).build();
-            billingClient.querySkuDetailsAsync(params, new SkuDetailsResponseListener() {
-                @Override
-                public void onSkuDetailsResponse(BillingResult billingResult, List<SkuDetails> list) {
-                    Log.i("Billingresp", billingResult.getResponseCode()+", "+BillingClient.BillingResponseCode.OK);
-                    if(billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK){
-                        for(SkuDetails detail : list){
-                            Log.i("Detail", detail.getSku()+", "+SKU_ARRAY[skuId]);
-                            if(detail.getSku().equals(SKU_ARRAY[skuId])){
-                                BillingFlowParams params = BillingFlowParams.newBuilder().setSkuDetails(detail).build();
-                                billingClient.launchBillingFlow(GameActivity.this, params);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-    @Override
-    public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> purchases) {
-        int response = billingResult.getResponseCode();
-        if(response == BillingClient.BillingResponseCode.OK && purchases != null){
-            for(Purchase purchase : purchases)
-                doPurchase(purchase);
-        }if(response == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED){
-
-        }
-    }
-    public void doPurchase(Purchase purchase) {
-        String path = Environment.getExternalStorageDirectory().getPath() + "/Imperium/Game/";
-        FileInputStream fis = null;
-        FileOutputStream fos;
-        StringBuilder sb = new StringBuilder();
-        try {
-            fis = new FileInputStream(path+"State.txt");
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
-            String text;
-            while ((text = br.readLine()) != null)
-                sb.append(text).append("\n");
-        } catch (Exception e) { e.printStackTrace(); }
-        finally { if (fis != null) try { fis.close(); } catch (IOException e) { e.printStackTrace(); } }
-        String stateText = sb.toString();
-        sb = new StringBuilder(stateText);
-        File state = new File(path, "State.txt");
-        if(timeLine.equals("alp")) sb.insert(sb.indexOf("]"), "modern,");
-        else sb.insert(sb.indexOf("]"), "althist,");
-        try {
-            fos = new FileOutputStream(state);
-            fos.write(sb.toString().getBytes());
-            fos.close();
-        } catch (Exception e) { e.printStackTrace(); }
-
-    }
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector scaleGestureDetector){

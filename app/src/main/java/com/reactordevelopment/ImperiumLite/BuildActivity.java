@@ -119,7 +119,6 @@ public class BuildActivity extends AppCompatActivity {
         mapRight = findViewById(R.id.mapRight);
         mapRight.setBackgroundResource(R.drawable.opennav);
         mapSelected = findViewById(R.id.mapSelected);
-        final ImageView mapLock = findViewById(R.id.mapLock);
 
         final TextView mapVersion = findViewById(R.id.mapVersion);
         mapVersion.setTextSize(TypedValue.COMPLEX_UNIT_IN,BASE_TEXT_SCALE*inchWidth);
@@ -134,10 +133,6 @@ public class BuildActivity extends AppCompatActivity {
                 }
                 if(mapAtId <= mapList.length-2) mapAtId ++;
                 mapSwitch(mapVersion);
-                /*if(LOCKED){
-                    if(mapAtId != 0) mapLock.setVisibility(View.VISIBLE);
-                    else mapLock.setVisibility(View.INVISIBLE);
-                }*/
             }});
         mapLeft.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,10 +144,6 @@ public class BuildActivity extends AppCompatActivity {
                 }
                 if(mapAtId >= 1) mapAtId --;
                 mapSwitch(mapVersion);
-                /*if(LOCKED){
-                    if(mapAtId != 0) mapLock.setVisibility(View.VISIBLE);
-                    else mapLock.setVisibility(View.INVISIBLE);
-                }*/
             }});
     }
     private void mapSwitch(TextView mapVersion){

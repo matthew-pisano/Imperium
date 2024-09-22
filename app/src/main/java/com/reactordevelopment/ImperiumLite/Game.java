@@ -91,7 +91,6 @@ public class Game extends GameActivity implements java.io.Serializable {
         this.imperium = imperium==1;
         Log.i("initilize", ""+imperium);
         this.context = context;
-        gameplayPlase = true;
         outgoing = new ArrayList<>(0);
         flushOutgoing();
         incoming = new ArrayList<>(0);

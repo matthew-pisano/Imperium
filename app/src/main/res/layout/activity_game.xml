@@ -480,20 +480,6 @@
             app:layout_constraintTop_toTopOf="parent"
             android:background="@drawable/openmusic"/>
 
-        <ImageView
-            android:id="@+id/playerLock"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="invisible"
-            app:layout_constraintHeight_percent=".5"
-            app:layout_constraintWidth_percent=".18"
-            app:layout_constraintHorizontal_bias=".99"
-            app:layout_constraintVertical_bias=".99"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:background="@drawable/lockchain"/>
     </android.support.constraint.ConstraintLayout>
 
     <LinearLayout
@@ -524,21 +510,6 @@
             android:layout_weight=".5"
             android:orientation="horizontal"></LinearLayout>
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/locked"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent=".2"
-        app:layout_constraintHorizontal_bias=".999"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias=".74"
-        app:layout_constraintWidth_percent=".25"
-        android:background="@drawable/lockchain"/>
 
     <ImageButton
         android:id="@+id/toBuild"
@@ -1897,83 +1868,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/unlockPop"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent=".6"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent=".6">
-
-        <ImageView
-            android:id="@+id/unlockCover"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/unlockcover"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/unlockText"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:text="Unloc Text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent=".7"
-            app:layout_constraintVertical_bias=".25"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent=".8" />
-
-        <ImageButton
-            android:id="@+id/unlockButton"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/unlockbutton"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent=".2"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias=".99"
-            app:layout_constraintWidth_percent=".3" />
-
-        <ImageButton
-            android:id="@+id/unlockToBuild"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/goback"
-            app:layout_constraintHorizontal_bias=".9"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent=".2"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias=".99"
-            app:layout_constraintWidth_percent=".2" />
-
-        <ImageButton
-            android:id="@+id/unlockClose"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/openmodes"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent=".2"
-            app:layout_constraintHorizontal_bias=".999"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias=".001"
-            app:layout_constraintWidth_percent=".1" />
     </android.support.constraint.ConstraintLayout>
 
 
