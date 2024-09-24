@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.reactordevelopment.ImperiumLite.activities.MappedActivities.GameActivity;
 import com.reactordevelopment.ImperiumLite.R;
+import com.reactordevelopment.ImperiumLite.core.gameTypes.Game;
 import com.reactordevelopment.ImperiumLite.core.mapping.Province;
 import com.reactordevelopment.ImperiumLite.core.player.Player;
 

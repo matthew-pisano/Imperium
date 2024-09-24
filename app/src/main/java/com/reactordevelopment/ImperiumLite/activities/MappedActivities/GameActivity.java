@@ -1214,4 +1214,70 @@ public class GameActivity extends MappedActivity {
             }
         };lookingThread.start();
     }
+
+    private void slide(){
+        slider = getSlider();
+        sliderImage = getSliderImage();
+        slideTroops = getSlideTroops();
+        slideCover = getSlideCover();
+        slideProgress = 0;
+        sliderImage.setX(50);
+        slider.setProgress(50);
+        sliderImage.setVisibility(View.INVISIBLE);
+        Log.i("slide", "created");
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                try {
+                    getCurrentPlayer().transportScan();
+                    slideProgress = progress;
+                    sliderImage.setX(progress/100f*slider.getWidth());
+                    sliderImage.bringToFront();
+                    if (getCurrentPlayer().getStage() == 1) {
+                        if (progress < 50) {
+                            slideValue = (int) ((getCurrentPlayer().getSavedSelect()[1].getTroopsFrom(getCurrentPlayer().getTag()) - 3) * (1 - progress / 50.0));
+                            slideTroops.setText(slideValue + " troops to " + getCurrentPlayer().getSavedSelect()[0].getName());
+                        }
+                        if (progress >= 50) {
+                            slideValue = (int) ((getCurrentPlayer().getSavedSelect()[0].getTroopsFrom(getCurrentPlayer().getTag()) - 1) * (progress - 50) / 50.0);
+                            slideTroops.setText(slideValue + " troops to " + getCurrentPlayer().getSavedSelect()[1].getName());
+                        }
+                    }
+                    if (getCurrentPlayer().getStage() == 2) {
+                        int friendly = 0;
+                        getCurrentPlayer().saveSelected();
+                        try {
+                            if (progress < 50) {
+                                if (getCurrentPlayer().getTransportSelected()[1].getOwnerId() != getCurrentPlayer().getId())
+                                    friendly = 1;
+                                slideValue = (int) ((getCurrentPlayer().getTransportSelected()[1].getTroopsFrom(getCurrentPlayer().getTag()) - 1 + friendly) * (1 - progress / 50.0));
+                                slideTroops.setText(slideValue + " troops to " + getCurrentPlayer().getTransportSelected()[0].getName());
+                                if(getCurrentPlayer().getTransportSelected()[1].getStackFrom(getCurrentPlayer().getTag()).getMovesLeft() == 0) {
+                                    slideTroops.setText("These legions have already been moved this turn");
+                                    slideValue = 0;
+                                }
+                            }
+                            if (progress >= 50) {
+                                if (getCurrentPlayer().getTransportSelected()[0].getOwnerId() != getCurrentPlayer().getId())
+                                    friendly = 1;
+                                slideValue = (int) ((getCurrentPlayer().getTransportSelected()[0].getTroopsFrom(getCurrentPlayer().getTag()) - 1 + friendly) * (progress - 50) / 50.0);
+                                slideTroops.setText(slideValue + " troops to " + getCurrentPlayer().getTransportSelected()[1].getName());
+                                if(getCurrentPlayer().getTransportSelected()[0].getStackFrom(getCurrentPlayer().getTag()).getMovesLeft() == 0) {
+                                    slideTroops.setText("These legions have already been moved this turn");
+                                    slideValue = 0;
+                                }
+                            }
+                        }catch (NullPointerException e){
+                            e.printStackTrace();
+                            slideValue = 0;
+                        }
+                    }
+                }catch (Exception e){e.printStackTrace();}
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+    }
 }

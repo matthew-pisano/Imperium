@@ -19,7 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.reactordevelopment.ImperiumLite.activities.BuildActivity;
-import com.reactordevelopment.ImperiumLite.core.Game;
+import com.reactordevelopment.ImperiumLite.core.gameTypes.Game;
 import com.reactordevelopment.ImperiumLite.core.player.Nation;
 import com.reactordevelopment.ImperiumLite.core.player.Player;
 import com.reactordevelopment.ImperiumLite.core.mapping.Province;
@@ -137,7 +137,7 @@ public class ScenarioSelectActivity extends MappedActivity {
         int mapMode = game.getMapMode();
         Game.inSetup = true;
         loadBuilder();
-        game.loadOwnerFromTag();
+        game.loadProvinceOwners();
         game.playerTitles();
         game.updateMapMode(mapMode);
         Game.inSetup = false;

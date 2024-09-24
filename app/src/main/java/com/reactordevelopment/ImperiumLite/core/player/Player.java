@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.reactordevelopment.ImperiumLite.core.Achivements;
 import com.reactordevelopment.ImperiumLite.components.Event;
-import com.reactordevelopment.ImperiumLite.core.Game;
+import com.reactordevelopment.ImperiumLite.core.gameTypes.Game;
 import com.reactordevelopment.ImperiumLite.R;
 import com.reactordevelopment.ImperiumLite.core.mapping.Province;
 
@@ -163,7 +163,6 @@ public class Player extends Game {
                 public void run() { updateAllOwners(); }});
         }
     }
-    public void chaos(){}
 
     public String getTag(){return nation.getTag();}
     public String getName(){return nation.getName();}

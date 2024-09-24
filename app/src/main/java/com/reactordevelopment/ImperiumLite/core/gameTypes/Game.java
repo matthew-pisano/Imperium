@@ -1,30 +1,19 @@
-package com.reactordevelopment.ImperiumLite.core;
+package com.reactordevelopment.ImperiumLite.core.gameTypes;
 
-import static android.graphics.Color.LTGRAY;
-import static android.graphics.Color.RED;
-import static android.graphics.Color.TRANSPARENT;
-import static com.reactordevelopment.ImperiumLite.activities.MainActivity.ALLY_COLOR;
-import static com.reactordevelopment.ImperiumLite.activities.MainActivity.OVERLORD_COLOR;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.SAVE_FORM;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.SAVE_VERSION;
-import static com.reactordevelopment.ImperiumLite.activities.MainActivity.SELF_COLOR;
-import static com.reactordevelopment.ImperiumLite.activities.MainActivity.SUBJECT_COLOR;
-import static com.reactordevelopment.ImperiumLite.activities.MainActivity.TRUCE_COLOR;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.formatDouble;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.formatInt;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.gameAt;
-import static com.reactordevelopment.ImperiumLite.activities.MainActivity.getGameAt;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.screenHeight;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.screenWidth;
 
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.SeekBar;
 
 import com.reactordevelopment.ImperiumLite.R;
+import com.reactordevelopment.ImperiumLite.core.Achivements;
 import com.reactordevelopment.ImperiumLite.core.mapping.Map;
 import com.reactordevelopment.ImperiumLite.core.mapping.Province;
 import com.reactordevelopment.ImperiumLite.core.mapping.TroopStack;
@@ -32,6 +21,7 @@ import com.reactordevelopment.ImperiumLite.core.player.Ai;
 import com.reactordevelopment.ImperiumLite.core.player.Player;
 
 import java.util.ArrayList;
+
 
 public class Game {
     //controllers
@@ -79,14 +69,8 @@ public class Game {
     private int turnNum;
     private Player[] players; //start attack non static
     private Map map;
-    //private int year = 0;
     private String timeline = "";
     public boolean debug;
-    private MediaPlayer deusMedia;
-    private boolean deusPlaying = false;
-    private double pulseCount = 0.2;
-    private double pulseChange = .05;
-    private int[] pulseProvs = new int[]{0};
 
     public Game(int[] playerTypes, boolean imperium, boolean debug){ //loadGame
         this.players = buildPlayers(playerTypes);
@@ -95,63 +79,13 @@ public class Game {
         currentPlayer = 0;
         slideValue = 0;
         mapMode = 1;
-        deusMedia = new MediaPlayer();
         this.debug = debug;
+        updateMaxDev();
+        loadProvinceOwners();
+        updateMapMode(1);
+        initialCores();
     }
 
-    public void postNew(){ //called after new game
-        touched();
-        initRolls();
-        slide();
-        update();
-        endAttack();
-        endTransport();
-        if(!debug) addPlayers();
-        else players = debugPlayers;
-        //players[0].turn();
-        //if(debug) ownerFromTag();
-        changeProvEnabled(players[0].isHuman() && !players[0].isPuppet());
-        setPlayerInfo(getCurrentPlayer().getName());
-        changeNationAt();
-        if(!debug) change.setVisibility(View.INVISIBLE);
-        updateMaxDev();
-        mapLayout = getMapLayout();
-        //map.logContinents();
-        getCurrentPlayer().turn(false);
-        winStuff();
-        inSetup = false;
-        Log.i("OutSetup", "out1");
-    }
-    public void postLoad(){ //called after loaded game
-        this.playerTypes = arrFromPlayerType();
-        touched();
-        initRolls();
-        slide();
-        update();
-        endAttack();
-        endTransport();
-        updateMaxDev();
-        if(debug && newDebugSave) overwritePlayers();
-        loadOwnerFromTag();
-        playerTitles();
-        statusCover.setBackgroundResource(R.drawable.statusbar);
-        //players[0].turn();
-        if(getCurrentPlayer().getStage() == -1 && !debugingOn) change.setVisibility(View.INVISIBLE);
-        setPlayerInfo(getCurrentPlayer().getName());
-        changeProvEnabled(getCurrentPlayer().isHuman() && !getCurrentPlayer().isPuppet());
-        changeNationAt();
-        updateAllOwners(); //friend or foe
-        if(getCurrentPlayer().getStage() == 1) change.setBackgroundResource(R.drawable.endattack);
-        if(getCurrentPlayer().getStage() == 2) change.setBackgroundResource(R.drawable.endtransport);
-        turnMoveVis(getCurrentPlayer().isHuman() && isHistorical());
-        updateMapMode(1);
-        //map.logContinents();
-        initialCores();
-        getCurrentPlayer().turn(false);
-        winStuff();
-        inSetup = false;
-        Log.i("OutSetup", "out2");
-    }
     //public
     public static boolean isHistorical(){return year != 0;}
     public int getYear(){return year;}
@@ -197,59 +131,12 @@ public class Game {
         for(int i=0; i<map.getList().length; i++)
             if(map.getList()[i].modDevelopment(0) > maxDev) maxDev = map.getList()[i].modDevelopment(0);
     }
-    public void updateAllOverlays(){
-        Log.i("UpdatedOverlays", "");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() { for(int i = 0; i<map.getList().length; i++) map.getList()[i].updateOverlays(); }
-        });
-        if(mapMode == 8 && focusPlayer != null){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        for (int i = focusPlayer.getDiplo().length-1; i > 0; i--) {
-                            for (String s : focusPlayer.getDiplo()[i]) {
-                                //Player target = playerFromTag(s);
-                                focusPlayer.printDiplo();
-                                if (i == 1) {
-                                    Log.i("Fromtag", s);
-                                    Player target = playerFromTag(s);
-                                    highlightPlayer(target, ALLY_COLOR);
-                                } //allies
-                                else if (i == 2) {
-                                    Player target = playerFromTag(s);
-                                    highlightPlayer(target, SUBJECT_COLOR);
-                                } //subject
-                                else if (i == 4) {
-                                    Player target = playerFromTag(s.substring(s.length()-3));
-                                    highlightPlayer(target, TRUCE_COLOR);
-                                } //truce
-                                else if (i == 3) {
-                                    Player target = playerFromTag(s.substring(6));
-                                    highlightPlayer(target, RED);
-                                } //war
-                                else if (i == 5) {
-                                    Player target = playerFromTag(s);
-                                    highlightPlayer(target, OVERLORD_COLOR);
-                                } //overlord
-                            }
-                        }
-                        highlightPlayer(focusPlayer, SELF_COLOR);
-                    }catch(ArrayIndexOutOfBoundsException e){e.printStackTrace(); focusPlayer = null;}
-                }
-            });
-        }
-    }
     private void updateDevastation(){
         for(Province p : map.getList()) p.modDevastation(-.003);
     }
     private void updateProvinces(){
         for(Province p : map.getList())
            p.updateOwner();
-    }
-    public void playerTitles(){
-        for(Player p : players) p.turn(false);
     }
     public void updateTitles(){
         for(Player p : players)
@@ -392,7 +279,7 @@ public class Game {
         }
     }
     //presses province with owner recorded in the loadTag
-    public void loadOwnerFromTag(){
+    public void loadProvinceOwners(){
         //Log.i("OwnerTag", "In");
         for(Province p : map.getList()){
             //Log.i("OwnerTag", p.getName()+", "+p.getLoadTag());
@@ -510,134 +397,6 @@ public class Game {
         return save;
     }
 
-    public static void startTransport(){
-        boolean humanity = getCurrentPlayer().isHuman();
-        defeated.setVisibility(View.INVISIBLE);
-        defeated2.setVisibility(View.INVISIBLE);
-        rollsCover.setVisibility(View.INVISIBLE);
-        attackerBackround.setVisibility(View.INVISIBLE);
-        defenderBackround.setVisibility(View.INVISIBLE);
-        if(getCurrentPlayer().isHuman())slideTroops.setVisibility(View.VISIBLE);
-        attacker.setVisibility(View.INVISIBLE);
-        defender.setVisibility(View.INVISIBLE);
-        attackerTroops.setVisibility(View.INVISIBLE);
-        defenderTroops.setVisibility(View.INVISIBLE);
-        change.setVisibility(View.INVISIBLE);
-        annihilate.setVisibility(View.INVISIBLE);
-        if(humanity){
-            again.setVisibility(View.VISIBLE);
-            retreat.setVisibility(View.VISIBLE);
-            slider.setVisibility(View.VISIBLE);
-            slideCover.setVisibility(View.VISIBLE);
-            sliderImage.setVisibility(View.VISIBLE);
-        }
-        //for(Province p : map.getList()) p.hideAim();
-        slider.setProgress(50);
-        sliderImage.setX(50);
-        again.setBackgroundResource(R.drawable.transport);
-        retreat.setEnabled(true);
-        retreat.setBackgroundResource(R.drawable.done);
-        changeProvEnabled(false);
-        transporting = true;
-        attacking = false;
-        for(Province p : map.getList()) p.updateOwner(); //friend or foe
-        Log.i("Transport", "Start");
-    }
-    public static void endTransport(){
-        Log.i("transport", "ending");
-        slider.setVisibility(View.INVISIBLE);
-        slideTroops.setText("");
-        again.setVisibility(View.INVISIBLE);
-        slideTroops.setVisibility(View.INVISIBLE);
-        retreat.setVisibility(View.INVISIBLE);
-        slideCover.setVisibility(View.INVISIBLE);
-        if(getCurrentPlayer() != null)
-            if(getCurrentPlayer().isHuman() && !getCurrentPlayer().isPuppet())changeProvEnabled(true);
-        sliderImage.setVisibility(View.INVISIBLE);
-        aDie1.setVisibility(View.INVISIBLE);
-        aDie2.setVisibility(View.INVISIBLE);
-        aDie3.setVisibility(View.INVISIBLE);
-        dDie1.setVisibility(View.INVISIBLE);
-        dDie2.setVisibility(View.INVISIBLE);
-        if(!isHistorical())change.setVisibility(View.VISIBLE);
-        transporting = false;
-    }
-    private static void startAttackBase(){
-        again.setBackgroundColor(LTGRAY);
-        again.setBackgroundResource(R.drawable.attack);
-        retreat.setBackgroundColor(LTGRAY);
-        retreat.setBackgroundResource(R.drawable.retreat);
-        annihilate.setVisibility(View.VISIBLE);
-        changeProvEnabled(false);
-        attackerBackround.setVisibility(View.VISIBLE);
-        defenderBackround.setVisibility(View.VISIBLE);
-        attacker.setVisibility(View.VISIBLE);
-        defender.setVisibility(View.VISIBLE);
-        slideTroops.setVisibility(View.INVISIBLE);
-        attackerTroops.setVisibility(View.VISIBLE);
-        defenderTroops.setVisibility(View.VISIBLE);
-        defeated.setVisibility(View.VISIBLE);
-        defeated2.setVisibility(View.VISIBLE);
-        again.setVisibility(View.VISIBLE);
-        retreat.setVisibility(View.VISIBLE);
-        change.setVisibility(View.INVISIBLE);
-        aDie1.setVisibility(View.VISIBLE);
-        aDie2.setVisibility(View.VISIBLE);
-        aDie3.setVisibility(View.VISIBLE);
-        dDie1.setVisibility(View.VISIBLE);
-        dDie2.setVisibility(View.VISIBLE);
-        rollsCover.setVisibility(View.VISIBLE);
-        annihilate.setVisibility(View.VISIBLE);
-        attacking = true;
-        attacker.setBackgroundResource(getCurrentPlayer().getFlag());
-
-    }
-    public static void startAttack(){
-        startAttackBase();
-        if(getCurrentPlayer().getSavedSelect()[1].getOwnerId() != -1)
-            defender.setBackgroundResource(getCurrentPlayer().getAttackSelected()[1].getOwner().getFlag());
-        else defender.setBackgroundResource(R.drawable.noflag);
-    }
-    public static void startAiAttack(Province defenderP){
-        startAttackBase();
-        change.setVisibility(View.INVISIBLE);
-        again.setVisibility(View.INVISIBLE);
-        retreat.setVisibility(View.INVISIBLE);
-        annihilate.setVisibility(View.INVISIBLE);
-        if(defenderP != null) {
-            if(defenderP.getOwnerId() != -1)
-                defender.setBackgroundResource(defenderP.getOwner().getFlag());
-            else defender.setBackgroundResource(R.drawable.noflag);
-        }
-    }
-    public static void endAttack(){
-        again.setBackgroundColor(TRANSPARENT);
-        again.setVisibility(View.INVISIBLE);
-        retreat.setBackgroundColor(TRANSPARENT);
-        retreat.setVisibility(View.INVISIBLE);
-        annihilate.setVisibility(View.INVISIBLE);
-        slideTroops.setText("");
-        if(getCurrentPlayer() != null)
-            if(getCurrentPlayer().isHuman() && !getCurrentPlayer().isPuppet())changeProvEnabled(true);
-        attackerBackround.setVisibility(View.INVISIBLE);
-        defenderBackround.setVisibility(View.INVISIBLE);
-        attacker.setVisibility(View.INVISIBLE);
-        defender.setVisibility(View.INVISIBLE);
-        attackerTroops.setVisibility(View.INVISIBLE);
-        defenderTroops.setVisibility(View.INVISIBLE);
-        defeated.setVisibility(View.INVISIBLE);
-        defeated2.setVisibility(View.INVISIBLE);
-        aDie1.setVisibility(View.INVISIBLE);
-        aDie2.setVisibility(View.INVISIBLE);
-        aDie3.setVisibility(View.INVISIBLE);
-        dDie1.setVisibility(View.INVISIBLE);
-        dDie2.setVisibility(View.INVISIBLE);
-        rollsCover.setVisibility(View.INVISIBLE);
-        if(!isHistorical())change.setVisibility(View.VISIBLE);
-        annihilate.setVisibility(View.INVISIBLE);
-        //for(Province p : map.getList()) p.hideAim();
-        attacking = false;
-    }
     public void changer() {
         Log.i("jumpText", getJumpText());
         if(!getJumpText().equals("") && debug){
@@ -745,117 +504,6 @@ public class Game {
         }catch(NullPointerException e){e.printStackTrace();}
     }
     //private
-    private void winStuff(){
-        winLayout = getWinLayout();
-        winLayout.setVisibility(View.INVISIBLE);
-        winLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Log.i("Winxoo", "zoom");
-                winLayout.animate().y(-screenWidth).setDuration(1000);
-                return false;
-            }
-        });
-    }
-    private void update(){
-        status = getStatus();
-        statusCover = getStatusCover();
-        statusCover.setBackgroundResource(R.drawable.statusbar);
-        Thread lookingThread = new Thread() {
-
-            @Override
-            public void run() {
-                try {
-                    while (!isInterrupted()) {
-                        if(getGameAt() != gameId) {
-                            Log.i("GameHalt", "");
-                            Thread.sleep(10000000);
-                        }
-                        Thread.sleep(500);
-                        try {
-                            if (getPlayerList().length != 0 && !inSetup) {
-                                if (getCurrentPlayer() != null && wiener == null) {
-                                    final boolean transportScan = getCurrentPlayer().transportScan();
-                                    final boolean attackScan = getCurrentPlayer().attackScan();
-                                    if (debugingOn)
-                                        getCurrentPlayer().setMonetae(getCurrentPlayer().totalIncome());
-
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (attackScan && getCurrentPlayer().getStage() == 1 && !attacking) {
-                                                if (getCurrentPlayer().isHuman()) startAttack();
-                                            } else if (!attackScan && getCurrentPlayer().getStage() == 1 && attacking)
-                                                endAttack();
-                                            //}
-                                            if (getCurrentPlayer().getStage() == 2) {
-                                                if (transportScan && !transporting)
-                                                    startTransport();
-                                                else if (!transportScan && transporting)
-                                                    endTransport();
-                                            }
-                                            if (attackScan) {
-                                                try {
-                                                    if (!imperium) {
-                                                        attackerTroops.setText("" + (int) getCurrentPlayer().getSavedSelect()[0].getTroops());
-                                                        defenderTroops.setText("" + (int) getCurrentPlayer().getSavedSelect()[1].getTroops());
-                                                    } else {
-                                                        attackerTroops.setText("" + (int) (getCurrentPlayer().getSavedSelect()[0].getTroops() * 10) / 10.0);
-                                                        defenderTroops.setText("" + (int) (getCurrentPlayer().getSavedSelect()[1].getTroops() * 10) / 10.0);
-                                                    }
-                                                } catch (NullPointerException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                            if (attacking) again.setBackgroundResource(R.drawable.attack);
-                                            changeStageIcon(getCurrentPlayer().getStage());
-                                            String statusText = /*"Stage: " + getCurrentPlayer().getStage();*/ "";
-                                            if (!imperium) statusText += ", Reinforcements: " + (int) getCurrentPlayer().getTroops();
-                                            else
-                                                statusText += "Monetae: " + getCurrentPlayer().modMonetae(0)
-                                                        + ", Development: " + getCurrentPlayer().totalIncome();
-                                            statusText += ", Infamy: " + (int) (getCurrentPlayer().getInfamy() * 100) / 100.0;
-                                            status.setText(statusText);
-
-                                            inBounds();
-                                            if (pulsing) {
-                                                if (pulseCount > .75 || pulseCount < 0.1)
-                                                    pulseChange = -pulseChange;
-                                                pulseCount += pulseChange;
-                                                highlight();
-                                            }
-                                            updateProvinces();
-                                            deusVult();
-                                        }
-                                    });
-                                }
-                            }
-                        } catch (Exception e) { e.printStackTrace(); }
-                    }
-                } catch (InterruptedException e) { e.printStackTrace(); }
-            }
-        };lookingThread.start();
-    }
-    private void deusVult(){
-        float x = getMapLayout().getX();
-        float y = getMapLayout().getY();
-        if(x < -1850 && x > -1975 && y < -1255 && y > -1355 && scaling > 9.6 && map.getId() == 2){
-            if(!deusPlaying) {
-                deusMedia = MediaPlayer.create(context, R.raw.deus);
-                deusMedia.setLooping(true);
-                deusMedia.start();
-                deusPlaying = true;
-                Log.i("deus", "start");
-            }
-            Log.i("deus", "vult");
-        }else if(deusPlaying){
-            Log.i("deus", "end");
-            deusMedia.stop();
-            deusMedia.release();
-            deusMedia = new MediaPlayer();
-            deusPlaying = false;
-        }
-    }
     private void chickenDinner() {
         Player winner = calcWiener();
         if (winner != null) {
@@ -917,95 +565,6 @@ public class Game {
         updateDevastation();
     }
 
-
-    private void slide(){
-        slider = getSlider();
-        sliderImage = getSliderImage();
-        slideTroops = getSlideTroops();
-        slideCover = getSlideCover();
-        slideProgress = 0;
-        sliderImage.setX(50);
-        slider.setProgress(50);
-        sliderImage.setVisibility(View.INVISIBLE);
-        Log.i("slide", "created");
-        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                try {
-                    getCurrentPlayer().transportScan();
-                    slideProgress = progress;
-                    sliderImage.setX(progress/100f*slider.getWidth());
-                    sliderImage.bringToFront();
-                    if (getCurrentPlayer().getStage() == 1) {
-                        if (progress < 50) {
-                            slideValue = (int) ((getCurrentPlayer().getSavedSelect()[1].getTroopsFrom(getCurrentPlayer().getTag()) - 3) * (1 - progress / 50.0));
-                            slideTroops.setText(slideValue + " troops to " + getCurrentPlayer().getSavedSelect()[0].getName());
-                        }
-                        if (progress >= 50) {
-                            slideValue = (int) ((getCurrentPlayer().getSavedSelect()[0].getTroopsFrom(getCurrentPlayer().getTag()) - 1) * (progress - 50) / 50.0);
-                            slideTroops.setText(slideValue + " troops to " + getCurrentPlayer().getSavedSelect()[1].getName());
-                        }
-                    }
-                    if (getCurrentPlayer().getStage() == 2) {
-                        int friendly = 0;
-                        getCurrentPlayer().saveSelected();
-                        try {
-                            if (progress < 50) {
-                                if (getCurrentPlayer().getTransportSelected()[1].getOwnerId() != getCurrentPlayer().getId())
-                                    friendly = 1;
-                                slideValue = (int) ((getCurrentPlayer().getTransportSelected()[1].getTroopsFrom(getCurrentPlayer().getTag()) - 1 + friendly) * (1 - progress / 50.0));
-                                slideTroops.setText(slideValue + " troops to " + getCurrentPlayer().getTransportSelected()[0].getName());
-                                if(getCurrentPlayer().getTransportSelected()[1].getStackFrom(getCurrentPlayer().getTag()).getMovesLeft() == 0) {
-                                    slideTroops.setText("These legions have already been moved this turn");
-                                    slideValue = 0;
-                                }
-                            }
-                            if (progress >= 50) {
-                                if (getCurrentPlayer().getTransportSelected()[0].getOwnerId() != getCurrentPlayer().getId())
-                                    friendly = 1;
-                                slideValue = (int) ((getCurrentPlayer().getTransportSelected()[0].getTroopsFrom(getCurrentPlayer().getTag()) - 1 + friendly) * (progress - 50) / 50.0);
-                                slideTroops.setText(slideValue + " troops to " + getCurrentPlayer().getTransportSelected()[1].getName());
-                                if(getCurrentPlayer().getTransportSelected()[0].getStackFrom(getCurrentPlayer().getTag()).getMovesLeft() == 0) {
-                                    slideTroops.setText("These legions have already been moved this turn");
-                                    slideValue = 0;
-                                }
-                            }
-                        }catch (NullPointerException e){
-                            e.printStackTrace();
-                            slideValue = 0;
-                        }
-                    }
-                }catch (Exception e){e.printStackTrace();}
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-    }
-    private void initRolls(){
-        attackerBackround = getAttackerBackround();
-        defenderBackround = getDefenderBackround();
-        attacker = getAttacker();
-        defender = getDefender();
-        attackerTroops = getAttackerTroops();
-        defenderTroops = getDefenderTroops();
-        rollsCover = getRollsCover();
-        aDie1 = getaDie1();
-        aDie2 = getaDie2();
-        aDie3 = getaDie3();
-        dDie1 = getdDie1();
-        dDie2 = getdDie2();
-        defeated = getDefeated();
-        defeated2 = getDefeated2();
-        defeated.setBackgroundResource(R.drawable.defeated);
-        defeated2.setBackgroundResource(R.drawable.defeated);
-        aDie1.setText("");
-        aDie2.setText("");
-        aDie3.setText("");
-        dDie1.setText("");
-        dDie2.setText("");
-    }
     protected boolean rollOut(final int[] rolls){
         Log.i("rolls", "rolled");
         runOnUiThread(new Runnable() {
@@ -1066,4 +625,273 @@ public class Game {
             else types[i] = 2;
         }return types;
     }
+
+
+
+//    public void updateAllOverlays(){
+//        Log.i("UpdatedOverlays", "");
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() { for(int i = 0; i<map.getList().length; i++) map.getList()[i].updateOverlays(); }
+//        });
+//        if(mapMode == 8 && focusPlayer != null){
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        for (int i = focusPlayer.getDiplo().length-1; i > 0; i--) {
+//                            for (String s : focusPlayer.getDiplo()[i]) {
+//                                //Player target = playerFromTag(s);
+//                                focusPlayer.printDiplo();
+//                                if (i == 1) {
+//                                    Log.i("Fromtag", s);
+//                                    Player target = playerFromTag(s);
+//                                    highlightPlayer(target, ALLY_COLOR);
+//                                } //allies
+//                                else if (i == 2) {
+//                                    Player target = playerFromTag(s);
+//                                    highlightPlayer(target, SUBJECT_COLOR);
+//                                } //subject
+//                                else if (i == 4) {
+//                                    Player target = playerFromTag(s.substring(s.length()-3));
+//                                    highlightPlayer(target, TRUCE_COLOR);
+//                                } //truce
+//                                else if (i == 3) {
+//                                    Player target = playerFromTag(s.substring(6));
+//                                    highlightPlayer(target, RED);
+//                                } //war
+//                                else if (i == 5) {
+//                                    Player target = playerFromTag(s);
+//                                    highlightPlayer(target, OVERLORD_COLOR);
+//                                } //overlord
+//                            }
+//                        }
+//                        highlightPlayer(focusPlayer, SELF_COLOR);
+//                    }catch(ArrayIndexOutOfBoundsException e){e.printStackTrace(); focusPlayer = null;}
+//                }
+//            });
+//        }
+//    }
+
+    //    private void update(){
+//        status = getStatus();
+//        statusCover = getStatusCover();
+//        statusCover.setBackgroundResource(R.drawable.statusbar);
+//        Thread lookingThread = new Thread() {
+//
+//            @Override
+//            public void run() {
+//                try {
+//                    while (!isInterrupted()) {
+//                        if(getGameAt() != gameId) {
+//                            Log.i("GameHalt", "");
+//                            Thread.sleep(10000000);
+//                        }
+//                        Thread.sleep(500);
+//                        try {
+//                            if (getPlayerList().length != 0 && !inSetup) {
+//                                if (getCurrentPlayer() != null && wiener == null) {
+//                                    final boolean transportScan = getCurrentPlayer().transportScan();
+//                                    final boolean attackScan = getCurrentPlayer().attackScan();
+//                                    if (debugingOn)
+//                                        getCurrentPlayer().setMonetae(getCurrentPlayer().totalIncome());
+//
+//                                    runOnUiThread(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            if (attackScan && getCurrentPlayer().getStage() == 1 && !attacking) {
+//                                                if (getCurrentPlayer().isHuman()) startAttack();
+//                                            } else if (!attackScan && getCurrentPlayer().getStage() == 1 && attacking)
+//                                                endAttack();
+//                                            //}
+//                                            if (getCurrentPlayer().getStage() == 2) {
+//                                                if (transportScan && !transporting)
+//                                                    startTransport();
+//                                                else if (!transportScan && transporting)
+//                                                    endTransport();
+//                                            }
+//                                            if (attackScan) {
+//                                                try {
+//                                                    if (!imperium) {
+//                                                        attackerTroops.setText("" + (int) getCurrentPlayer().getSavedSelect()[0].getTroops());
+//                                                        defenderTroops.setText("" + (int) getCurrentPlayer().getSavedSelect()[1].getTroops());
+//                                                    } else {
+//                                                        attackerTroops.setText("" + (int) (getCurrentPlayer().getSavedSelect()[0].getTroops() * 10) / 10.0);
+//                                                        defenderTroops.setText("" + (int) (getCurrentPlayer().getSavedSelect()[1].getTroops() * 10) / 10.0);
+//                                                    }
+//                                                } catch (NullPointerException e) {
+//                                                    e.printStackTrace();
+//                                                }
+//                                            }
+//                                            if (attacking) again.setBackgroundResource(R.drawable.attack);
+//                                            changeStageIcon(getCurrentPlayer().getStage());
+//                                            String statusText = /*"Stage: " + getCurrentPlayer().getStage();*/ "";
+//                                            if (!imperium) statusText += ", Reinforcements: " + (int) getCurrentPlayer().getTroops();
+//                                            else
+//                                                statusText += "Monetae: " + getCurrentPlayer().modMonetae(0)
+//                                                        + ", Development: " + getCurrentPlayer().totalIncome();
+//                                            statusText += ", Infamy: " + (int) (getCurrentPlayer().getInfamy() * 100) / 100.0;
+//                                            status.setText(statusText);
+//
+//                                            inBounds();
+//                                            if (pulsing) {
+//                                                if (pulseCount > .75 || pulseCount < 0.1)
+//                                                    pulseChange = -pulseChange;
+//                                                pulseCount += pulseChange;
+//                                                highlight();
+//                                            }
+//                                            updateProvinces();
+//                                            deusVult();
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        } catch (Exception e) { e.printStackTrace(); }
+//                    }
+//                } catch (InterruptedException e) { e.printStackTrace(); }
+//            }
+//        };lookingThread.start();
+//    }
+
+//    public static void startTransport(){
+//        boolean humanity = getCurrentPlayer().isHuman();
+//        defeated.setVisibility(View.INVISIBLE);
+//        defeated2.setVisibility(View.INVISIBLE);
+//        rollsCover.setVisibility(View.INVISIBLE);
+//        attackerBackround.setVisibility(View.INVISIBLE);
+//        defenderBackround.setVisibility(View.INVISIBLE);
+//        if(getCurrentPlayer().isHuman())slideTroops.setVisibility(View.VISIBLE);
+//        attacker.setVisibility(View.INVISIBLE);
+//        defender.setVisibility(View.INVISIBLE);
+//        attackerTroops.setVisibility(View.INVISIBLE);
+//        defenderTroops.setVisibility(View.INVISIBLE);
+//        change.setVisibility(View.INVISIBLE);
+//        annihilate.setVisibility(View.INVISIBLE);
+//        if(humanity){
+//            again.setVisibility(View.VISIBLE);
+//            retreat.setVisibility(View.VISIBLE);
+//            slider.setVisibility(View.VISIBLE);
+//            slideCover.setVisibility(View.VISIBLE);
+//            sliderImage.setVisibility(View.VISIBLE);
+//        }
+//        //for(Province p : map.getList()) p.hideAim();
+//        slider.setProgress(50);
+//        sliderImage.setX(50);
+//        again.setBackgroundResource(R.drawable.transport);
+//        retreat.setEnabled(true);
+//        retreat.setBackgroundResource(R.drawable.done);
+//        changeProvEnabled(false);
+//        transporting = true;
+//        attacking = false;
+//        for(Province p : map.getList()) p.updateOwner(); //friend or foe
+//        Log.i("Transport", "Start");
+//    }
+//    public static void endTransport(){
+//        Log.i("transport", "ending");
+//        slider.setVisibility(View.INVISIBLE);
+//        slideTroops.setText("");
+//        again.setVisibility(View.INVISIBLE);
+//        slideTroops.setVisibility(View.INVISIBLE);
+//        retreat.setVisibility(View.INVISIBLE);
+//        slideCover.setVisibility(View.INVISIBLE);
+//        if(getCurrentPlayer() != null)
+//            if(getCurrentPlayer().isHuman() && !getCurrentPlayer().isPuppet())changeProvEnabled(true);
+//        sliderImage.setVisibility(View.INVISIBLE);
+//        aDie1.setVisibility(View.INVISIBLE);
+//        aDie2.setVisibility(View.INVISIBLE);
+//        aDie3.setVisibility(View.INVISIBLE);
+//        dDie1.setVisibility(View.INVISIBLE);
+//        dDie2.setVisibility(View.INVISIBLE);
+//        if(!isHistorical())change.setVisibility(View.VISIBLE);
+//        transporting = false;
+//    }
+//    private static void startAttackBase(){
+//        again.setBackgroundColor(LTGRAY);
+//        again.setBackgroundResource(R.drawable.attack);
+//        retreat.setBackgroundColor(LTGRAY);
+//        retreat.setBackgroundResource(R.drawable.retreat);
+//        annihilate.setVisibility(View.VISIBLE);
+//        changeProvEnabled(false);
+//        attackerBackround.setVisibility(View.VISIBLE);
+//        defenderBackround.setVisibility(View.VISIBLE);
+//        attacker.setVisibility(View.VISIBLE);
+//        defender.setVisibility(View.VISIBLE);
+//        slideTroops.setVisibility(View.INVISIBLE);
+//        attackerTroops.setVisibility(View.VISIBLE);
+//        defenderTroops.setVisibility(View.VISIBLE);
+//        defeated.setVisibility(View.VISIBLE);
+//        defeated2.setVisibility(View.VISIBLE);
+//        again.setVisibility(View.VISIBLE);
+//        retreat.setVisibility(View.VISIBLE);
+//        change.setVisibility(View.INVISIBLE);
+//        aDie1.setVisibility(View.VISIBLE);
+//        aDie2.setVisibility(View.VISIBLE);
+//        aDie3.setVisibility(View.VISIBLE);
+//        dDie1.setVisibility(View.VISIBLE);
+//        dDie2.setVisibility(View.VISIBLE);
+//        rollsCover.setVisibility(View.VISIBLE);
+//        annihilate.setVisibility(View.VISIBLE);
+//        attacking = true;
+//        attacker.setBackgroundResource(getCurrentPlayer().getFlag());
+//
+//    }
+//    public static void startAttack(){
+//        startAttackBase();
+//        if(getCurrentPlayer().getSavedSelect()[1].getOwnerId() != -1)
+//            defender.setBackgroundResource(getCurrentPlayer().getAttackSelected()[1].getOwner().getFlag());
+//        else defender.setBackgroundResource(R.drawable.noflag);
+//    }
+//    public static void startAiAttack(Province defenderP){
+//        startAttackBase();
+//        change.setVisibility(View.INVISIBLE);
+//        again.setVisibility(View.INVISIBLE);
+//        retreat.setVisibility(View.INVISIBLE);
+//        annihilate.setVisibility(View.INVISIBLE);
+//        if(defenderP != null) {
+//            if(defenderP.getOwnerId() != -1)
+//                defender.setBackgroundResource(defenderP.getOwner().getFlag());
+//            else defender.setBackgroundResource(R.drawable.noflag);
+//        }
+//    }
+//    public static void endAttack(){
+//        again.setBackgroundColor(TRANSPARENT);
+//        again.setVisibility(View.INVISIBLE);
+//        retreat.setBackgroundColor(TRANSPARENT);
+//        retreat.setVisibility(View.INVISIBLE);
+//        annihilate.setVisibility(View.INVISIBLE);
+//        slideTroops.setText("");
+//        if(getCurrentPlayer() != null)
+//            if(getCurrentPlayer().isHuman() && !getCurrentPlayer().isPuppet())changeProvEnabled(true);
+//        attackerBackround.setVisibility(View.INVISIBLE);
+//        defenderBackround.setVisibility(View.INVISIBLE);
+//        attacker.setVisibility(View.INVISIBLE);
+//        defender.setVisibility(View.INVISIBLE);
+//        attackerTroops.setVisibility(View.INVISIBLE);
+//        defenderTroops.setVisibility(View.INVISIBLE);
+//        defeated.setVisibility(View.INVISIBLE);
+//        defeated2.setVisibility(View.INVISIBLE);
+//        aDie1.setVisibility(View.INVISIBLE);
+//        aDie2.setVisibility(View.INVISIBLE);
+//        aDie3.setVisibility(View.INVISIBLE);
+//        dDie1.setVisibility(View.INVISIBLE);
+//        dDie2.setVisibility(View.INVISIBLE);
+//        rollsCover.setVisibility(View.INVISIBLE);
+//        if(!isHistorical())change.setVisibility(View.VISIBLE);
+//        annihilate.setVisibility(View.INVISIBLE);
+//        //for(Province p : map.getList()) p.hideAim();
+//        attacking = false;
+//    }
+
+//    private void winStuff(){
+//        winLayout = getWinLayout();
+//        winLayout.setVisibility(View.INVISIBLE);
+//        winLayout.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                Log.i("Winxoo", "zoom");
+//                winLayout.animate().y(-screenWidth).setDuration(1000);
+//                return false;
+//            }
+//        });
+//    }
 }

@@ -40,7 +40,7 @@ import com.reactordevelopment.ImperiumLite.core.player.Ai;
 import com.reactordevelopment.ImperiumLite.activities.BuildActivity;
 import com.reactordevelopment.ImperiumLite.core.mapping.Classic;
 import com.reactordevelopment.ImperiumLite.core.mapping.Europe;
-import com.reactordevelopment.ImperiumLite.core.Game;
+import com.reactordevelopment.ImperiumLite.core.gameTypes.Game;
 import com.reactordevelopment.ImperiumLite.core.mapping.Imperium;
 import com.reactordevelopment.ImperiumLite.activities.MainActivity;
 import com.reactordevelopment.ImperiumLite.core.mapping.Map;

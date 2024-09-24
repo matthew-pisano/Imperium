@@ -22,7 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.reactordevelopment.ImperiumLite.R;
-import com.reactordevelopment.ImperiumLite.core.Game;
+import com.reactordevelopment.ImperiumLite.core.gameTypes.Game;
 
 public class Event extends Game {
     private Context context;

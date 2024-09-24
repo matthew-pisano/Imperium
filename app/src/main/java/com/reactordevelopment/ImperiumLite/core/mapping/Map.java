@@ -2,7 +2,7 @@ package com.reactordevelopment.ImperiumLite.core.mapping;
 
 import android.util.Log;
 
-import com.reactordevelopment.ImperiumLite.core.Game;
+import com.reactordevelopment.ImperiumLite.core.gameTypes.Game;
 import com.reactordevelopment.ImperiumLite.core.player.Player;
 
 import java.io.Serializable;
