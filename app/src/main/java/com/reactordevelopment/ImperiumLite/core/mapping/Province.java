@@ -46,8 +46,6 @@ public class Province extends Continent implements Serializable {
     private double interest;
     private double devastation;
     private double troops;
-    private double savedTroops;
-    private double savedDevelopment;
     private double development;
     private double attrition; //troops multiplied by each turn
     private boolean selected;
@@ -195,18 +193,6 @@ public class Province extends Continent implements Serializable {
         return fortLevel;
     }
 
-    public double getSavedTroops() {
-        return savedTroops;
-    }
-
-    public double getSavedDevelopment() {
-        return savedDevelopment;
-    }
-
-    public String getLastUndoable() {
-        return lastUndoable;
-    }
-
     public Bitmap getOverlay() {
         return overBit;
     }
@@ -233,12 +219,12 @@ public class Province extends Continent implements Serializable {
     }
 
     public void setSelected(boolean set) {
-        if(set && getCurrentPlayer().select(0) > 0) {
+        if(set && getCurrPlayer().select(0) > 0) {
             selected = true;
-            getCurrentPlayer().select(-1);
+            getCurrPlayer().select(-1);
         }
         else if(!set) {
-            getCurrentPlayer().select(1);
+            getCurrPlayer().select(1);
             selected = false;
         }
         //Log.i("provinceSelect", name+", isSelected: "+selected+", Selections left: "+getCurrentPlayer().select(0));
@@ -273,18 +259,18 @@ public class Province extends Continent implements Serializable {
 
     public double modDevastation(double mod) {
         if (devastation + mod < 1 && devastation + mod > -.08) devastation += mod;
-        if (mod != 0 && mapMode == 5)
+        if (mod != 0 && currentMapMode == 5)
             overlay.setColorFilter(fade(BURN_COLOR, GROW_COLOR, devastation, 1, -.08));
         return devastation;
     }
 
     public double modDevelopment(double mod) {
-        if (getCurrentPlayer().canSpend()) {
+        if (getCurrPlayer().canSpend()) {
             development += mod;
             if (attrition < 1.02) attrition += mod * .02;
             if (mod != 0) {
-                updateMaxDev();
-                if (mapMode == 3) overlay.setColorFilter(fade(DEV_COLOR, development, maxDev));
+                getMaxDev();
+                if (currentMapMode == 3) overlay.setColorFilter(fade(DEV_COLOR, development, maxDev));
                 lastUndoable = "d";
             }
         }
@@ -293,12 +279,12 @@ public class Province extends Continent implements Serializable {
 
     public boolean transportTo(double troops, Province to){
         if(getTroops()-troops <= 0) return false;
-        modTroops(-troops, getCurrentPlayer().getTag());
+        modTroops(-troops, getCurrPlayer().getTag());
         //to.getTroopStacks().add(new TroopStack(getCurrentPlayer().getTag(), 0, 0));
-        to.modTroops(troops, getCurrentPlayer().getTag());
-        if(getCurrentPlayer().getStage() == 2)
-            if(to.getStackFrom(getCurrentPlayer().getTag()) != null)
-                to.getStackFrom(getCurrentPlayer().getTag()).move();
+        to.modTroops(troops, getCurrPlayer().getTag());
+        if(getCurrPlayer().getStage() == 2)
+            if(to.getStackFrom(getCurrPlayer().getTag()) != null)
+                to.getStackFrom(getCurrPlayer().getTag()).move();
         return true;
     }
     public void place() {
@@ -313,7 +299,7 @@ public class Province extends Continent implements Serializable {
     }
 
     public void decay() {
-        if (getCurrentPlayer().getStage() != -1 && troops > 1)
+        if (getCurrPlayer().getStage() != -1 && troops > 1)
             if ((troops * (attrition + (1 - attrition) / getPlayerList().length) <= troops + 0.5 / getPlayerList().length))
                 troops *= (attrition + (1 - attrition) / getPlayerList().length);
             else troops += 0.5 / getPlayerList().length;
@@ -332,10 +318,10 @@ public class Province extends Continent implements Serializable {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mapMode == 1 && ownerId != -1 && getOwner() != null)
+                    if (currentMapMode == 1 && ownerId != -1 && getOwner() != null)
                         overlay.setColorFilter(getOwner().getColor());
-                    else if (mapMode == 1) overlay.setColorFilter(PLAYER_NONE);
-                    if (mapMode == 7) overlay.setColorFilter(fade(MIGHT_COLOR, troops, maxTroops));
+                    else if (currentMapMode == 1) overlay.setColorFilter(PLAYER_NONE);
+                    if (currentMapMode == 7) overlay.setColorFilter(fade(MIGHT_COLOR, troops, maxTroops));
                     updateOwner();
                 }
             });
@@ -360,7 +346,7 @@ public class Province extends Continent implements Serializable {
             setGuestText("");
         }
     }*/
-    public void updateOwner(){ updateOwner(getCurrentPlayer()); }
+    public void updateOwner(){ updateOwner(getCurrPlayer()); }
     public void updateOwner(Player focus) {
         //Log.i("ownerid", ""+ownerId);
         //updateStatus();
@@ -454,29 +440,29 @@ public class Province extends Continent implements Serializable {
     }
     public void updateOverlays() {
                 overlay.setVisibility(View.VISIBLE);
-                if (mapMode == 0) {
+                if (currentMapMode == 0) {
                     overlay.setColorFilter(TRANSPARENT);
                     overlay.setVisibility(View.INVISIBLE);
                 }
-                if(mapMode == 1 && ownerId != -1 && ownerId < getPlayerList().length && getOwner() != null) overlay.setColorFilter(getOwner().getColor());
-                else if(mapMode == 1) overlay.setColorFilter(PLAYER_NONE);
-                if (mapMode == 2) overlay.setColorFilter(getContinent().getColor());
-                if (mapMode == 3) overlay.setColorFilter(fade(DEV_COLOR, development, maxDev));
+                if(currentMapMode == 1 && ownerId != -1 && ownerId < getPlayerList().length && getOwner() != null) overlay.setColorFilter(getOwner().getColor());
+                else if(currentMapMode == 1) overlay.setColorFilter(PLAYER_NONE);
+                if (currentMapMode == 2) overlay.setColorFilter(getContinent().getColor());
+                if (currentMapMode == 3) overlay.setColorFilter(fade(DEV_COLOR, development, maxDev));
                 //Log.i("dev", "" + maxDev);
-                if (mapMode == 4) overlay.setColorFilter(fade(DECAY_COLOR, 1 - attrition, .2));
-                if (mapMode == 5) overlay.setColorFilter(fade(BURN_COLOR, GROW_COLOR, devastation, 1, -.08));
-                if (mapMode == 6) overlay.setColorFilter(fade(FORT_COLOR, fortLevel, 5));
-                if (mapMode == 7) overlay.setColorFilter(fade(MIGHT_COLOR, troops, maxTroops));
-                if(mapMode == 8) overlay.setColorFilter(PLAYER_NONE);
+                if (currentMapMode == 4) overlay.setColorFilter(fade(DECAY_COLOR, 1 - attrition, .2));
+                if (currentMapMode == 5) overlay.setColorFilter(fade(BURN_COLOR, GROW_COLOR, devastation, 1, -.08));
+                if (currentMapMode == 6) overlay.setColorFilter(fade(FORT_COLOR, fortLevel, 5));
+                if (currentMapMode == 7) overlay.setColorFilter(fade(MIGHT_COLOR, troops, maxTroops));
+                if(currentMapMode == 8) overlay.setColorFilter(PLAYER_NONE);
     }
 
     public double modTroops(double mod) {
         if(troopStacks.size() < 1  && mod > 0 && getOwner() != null) troopStacks.add(new TroopStack(getOwner().getTag(), 0));
-        else if(troopStacks.size() < 1 && mod > 0) troopStacks.add(new TroopStack(getCurrentPlayer().getTag(), 0));
+        else if(troopStacks.size() < 1 && mod > 0) troopStacks.add(new TroopStack(getCurrPlayer().getTag(), 0));
         //troopStacks.get(0).modTroops(mod);
         TroopStack saveStack = null;
         for(TroopStack stack : troopStacks)
-            if(stack.getOwnerTag().equals(getCurrentPlayer().getTag())) {
+            if(stack.getOwnerTag().equals(getCurrPlayer().getTag())) {
                 stack.modTroops(mod);
                 saveStack = stack;
             }
@@ -586,29 +572,20 @@ public class Province extends Continent implements Serializable {
         return false;
     }
     public String fortify() {
-        if (getCurrentPlayer().modMonetae(0) > 20 * (fortLevel + 1)) {
+        if (getCurrPlayer().modMonetae(0) > 20 * (fortLevel + 1)) {
             if (fortLevel < 5) {
                 fortLevel++;
-                getCurrentPlayer().modMonetae(-20 * (fortLevel + 1));
-                if(mapMode == 6) overlay.setColorFilter(fade(FORT_COLOR, fortLevel, 5));
+                getCurrPlayer().modMonetae(-20 * (fortLevel + 1));
+                if(currentMapMode == 6) overlay.setColorFilter(fade(FORT_COLOR, fortLevel, 5));
                 return "succeed";
             } else return "levelFail";
         } else return "monetaeFail";
     }
 
-
-
-    public void saveTroops() { savedTroops = troops; }
-    public void saveDevelopment() {
-        savedDevelopment = development;
-        lastDevelops = 0;
-    }
-
-
     public void ownerVis(boolean vis) {
         if (vis) {
             owner.setVisibility(View.VISIBLE);
-            if(ownerId != getCurrentPlayer().getId() && hasGuestStackFrom(getCurrentPlayer().getTag())) {
+            if(ownerId != getCurrPlayer().getId() && hasGuestStackFrom(getCurrPlayer().getTag())) {
                 guestTroops.setVisibility(View.VISIBLE);
                 guestStatus.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (float) (2*getMap().getStatusScale()));
             }
@@ -695,7 +672,7 @@ public class Province extends Continent implements Serializable {
     }
     public void doClick() {
         long startClick = System.currentTimeMillis();
-        if(focusPlayer != null) Log.i("Focus", "Mode: "+mapMode+", flus: "+focusPlayer.getId());
+        if(focusPlayer != null) Log.i("Focus", "Mode: "+ currentMapMode +", flus: "+focusPlayer.getId());
         stopPulse();
         Log.i("ClickDelay5", ""+(System.currentTimeMillis()-startClick));
         if(debug){
@@ -706,53 +683,53 @@ public class Province extends Continent implements Serializable {
                 showInfo(self);
                 return;
             }
-            if(ownerId != getCurrentPlayer().getId())
+            if(ownerId != getCurrPlayer().getId())
                 troopStacks = new ArrayList<>(0);
-            if(ownerId == getCurrentPlayer().getId() || ownerId == -1) modTroops(1);
-            updatePress(getCurrentPlayer().getId());
-            coreOwner = getCurrentPlayer().getTag();
+            if(ownerId == getCurrPlayer().getId() || ownerId == -1) modTroops(1);
+            updatePress(getCurrPlayer().getId());
+            coreOwner = getCurrPlayer().getTag();
             return;
         }
         Log.i("ClickDelay4", ""+(System.currentTimeMillis()-startClick));
-        if(mapMode != 8 || !getCurrentPlayer().isHuman()) {
-            Log.i("doClick", "did, Stage:" + getCurrentPlayer().getStage() + ", PLayerId: "+getCurrentPlayer().getId() + ", OwnerId: "+ownerId);
-            if (getCurrentPlayer().getStage() == -1 && (ownerId == -1 || ownerId == getCurrentPlayer().getId())) {
+        if(currentMapMode != 8 || !getCurrPlayer().isHuman()) {
+            Log.i("doClick", "did, Stage:" + getCurrPlayer().getStage() + ", PLayerId: "+ getCurrPlayer().getId() + ", OwnerId: "+ownerId);
+            if (getCurrPlayer().getStage() == -1 && (ownerId == -1 || ownerId == getCurrPlayer().getId())) {
                 boolean did = false;
-                if (!imperium && getCurrentPlayer().getTroops() > 0) {
+                if (!imperium && getCurrPlayer().getTroops() > 0) {
                     if (getMap().allTaken()) {
                         modTroops(1);
                         refreshComps();
-                        getCurrentPlayer().modTroops(-1);
+                        getCurrPlayer().modTroops(-1);
                         did = true;
                     }
                     if (ownerId == -1) {
-                        ownerId = getCurrentPlayer().getId();
+                        ownerId = getCurrPlayer().getId();
                         if(ownerId == -1) Log.i("Neggt", "");
                         modTroops(1);
                         refreshComps();
-                        getCurrentPlayer().modTroops(-1);
+                        getCurrPlayer().modTroops(-1);
                         did = true;
                     }
-                } else if (imperium && getCurrentPlayer().modMonetae(0) >= MONETAE_TO_TROOPS) {
+                } else if (imperium && getCurrPlayer().modMonetae(0) >= MONETAE_TO_TROOPS) {
                     if (getMap().allTaken()) {
                         modTroops(1);
                         refreshComps();
-                        getCurrentPlayer().modMonetae(-1 * MONETAE_TO_TROOPS);
+                        getCurrPlayer().modMonetae(-1 * MONETAE_TO_TROOPS);
                         did = true;
                     }
                     if (ownerId == -1) {
-                        ownerId = getCurrentPlayer().getId();
+                        ownerId = getCurrPlayer().getId();
                         if(ownerId == -1) Log.i("Neggp", "");
                         modTroops(1);
                         refreshComps();
-                        getCurrentPlayer().modMonetae(-1 * MONETAE_TO_TROOPS);
+                        getCurrPlayer().modMonetae(-1 * MONETAE_TO_TROOPS);
                         did = true;
                     }
                 }
-                if ((imperium && getCurrentPlayer().modMonetae(0) < MONETAE_TO_TROOPS)
-                        || (!imperium && getCurrentPlayer().getTroops() == 0)) {
+                if ((imperium && getCurrPlayer().modMonetae(0) < MONETAE_TO_TROOPS)
+                        || (!imperium && getCurrPlayer().getTroops() == 0)) {
                     Log.i("Staging", "setupDone");
-                    getCurrentPlayer().setStage(1);
+                    getCurrPlayer().setStage(1);
                     Log.i("swtupStage", "place0");
                     if(!isHistorical())
                         runOnUiThread(new Runnable() {
@@ -766,32 +743,32 @@ public class Province extends Continent implements Serializable {
                             revealProvMods(); }});
                 } else if (did) {
                     Log.i("Skip", "did");
-                    getCurrentPlayer().calcAllOwned(true);
-                    changePlayer(false);
+                    getCurrPlayer().calcAllOwned(true);
+                    startNextTurn(false);
                 }
-            } else if (getCurrentPlayer().getStage() == 0 && ownerId == getCurrentPlayer().getId()) {
+            } else if (getCurrPlayer().getStage() == 0 && ownerId == getCurrPlayer().getId()) {
                 Log.i("ClickDelay1", ""+(System.currentTimeMillis()-startClick));
-                if (!imperium && getCurrentPlayer().getTroops() > 0) {
+                if (!imperium && getCurrPlayer().getTroops() > 0) {
                     modTroops(1);
-                    getCurrentPlayer().modTroops(-1);
-                    getCurrentPlayer().setTempProvince(getMap().getList()[id - 1]);
+                    getCurrPlayer().modTroops(-1);
+                    getCurrPlayer().setTempProvince(getMap().getList()[id - 1]);
                 }
-                if (imperium && getCurrentPlayer().modMonetae(0) >= MONETAE_TO_TROOPS) {
+                if (imperium && getCurrPlayer().modMonetae(0) >= MONETAE_TO_TROOPS) {
                     Log.i("TroopPLace", "Placed troop at " + name);
                     modTroops(1);
                     Log.i("ClickDelay2", ""+(System.currentTimeMillis()-startClick));
-                    getCurrentPlayer().modMonetae(-1 * MONETAE_TO_TROOPS);
-                    getCurrentPlayer().setTempProvince(getMap().getList()[id - 1]);
+                    getCurrPlayer().modMonetae(-1 * MONETAE_TO_TROOPS);
+                    getCurrPlayer().setTempProvince(getMap().getList()[id - 1]);
                     Log.i("ClickDelay3", ""+(System.currentTimeMillis()-startClick));
                 }
-            } else if (getCurrentPlayer().getStage() == 1 || getCurrentPlayer().getStage() == 2) {
+            } else if (getCurrPlayer().getStage() == 1 || getCurrPlayer().getStage() == 2) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if (selected) {
                             setAndShowSelection(false);
                             //getCurrentPlayer().select(1);
-                        } else if (!selected && getCurrentPlayer().select(0) > 0) {
+                        } else if (!selected && getCurrPlayer().select(0) > 0) {
                             setAndShowSelection(true);
                             //getCurrentPlayer().select(-1);
                         }

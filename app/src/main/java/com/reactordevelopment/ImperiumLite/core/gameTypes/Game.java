@@ -4,7 +4,6 @@ import static com.reactordevelopment.ImperiumLite.activities.MainActivity.SAVE_F
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.SAVE_VERSION;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.formatDouble;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.formatInt;
-import static com.reactordevelopment.ImperiumLite.activities.MainActivity.gameAt;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.screenHeight;
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.screenWidth;
 
@@ -19,6 +18,7 @@ import com.reactordevelopment.ImperiumLite.core.mapping.Province;
 import com.reactordevelopment.ImperiumLite.core.mapping.TroopStack;
 import com.reactordevelopment.ImperiumLite.core.player.Ai;
 import com.reactordevelopment.ImperiumLite.core.player.Player;
+import com.reactordevelopment.ImperiumLite.core.player.PlayerStats;
 
 import java.util.ArrayList;
 
@@ -55,229 +55,74 @@ public class Game {
 //    //misc
 //    private static RelativeLayout mapLayout;
 //    private static ConstraintLayout winLayout;
-    private ArrayList<ArrayList<ArrayList>> allStats;
+    protected final GameMode gameMode;
+    protected final PlayerStats[] allPlayerStats;
     //private transient Context context;
-    protected boolean imperium;
-    protected int mapMode;
+    protected MapMode currentMapMode;
     protected Player focusPlayer = null;
     protected double maxDev;
     protected double maxTroops;
-    private Player wiener;
-    private int currentPlayer;
-    private int slideValue;
-    private int slideProgress;
-    private int turnNum;
-    private Player[] players; //start attack non static
-    private Map map;
-    private String timeline = "";
-    public boolean debug;
+    protected int currPlayerIdx;
+//    private int slideValue;
+//    private int slideProgress;
+    protected int turnNum;
+    protected Player[] players; //start attack non static
+    protected final Map map;
+    protected boolean debug;
 
-    public Game(int[] playerTypes, boolean imperium, boolean debug){ //loadGame
+    protected Game(int[] playerTypes, Map map, GameMode gameMode, boolean debug){ //loadGame
         this.players = buildPlayers(playerTypes);
-        this.imperium = imperium;
+        this.allPlayerStats = new PlayerStats[players.length];
+        this.map = map;
+        this.gameMode = gameMode;
         turnNum = 1;
-        currentPlayer = 0;
-        slideValue = 0;
-        mapMode = 1;
+        currPlayerIdx = 0;
+        currentMapMode = MapMode.PLAYER;
         this.debug = debug;
-        updateMaxDev();
         loadProvinceOwners();
-        updateMapMode(1);
-        initialCores();
     }
 
     //public
-    public static boolean isHistorical(){return year != 0;}
-    public int getYear(){return year;}
-    public String getTimeline(){return timeline;}
-    public int getGameId(){return gameId;}
-    public void setYear(int year){this.year = year;}
-    public void setTimeline(String timeline) { this.timeline = timeline; }
+    public Player getFocusPlayer(){ return focusPlayer; }
+    public MapMode getCurrentMapMode(){ return currentMapMode; }
+    public GameMode getGameMode(){ return gameMode; }
+    public Player getCurrPlayer(){ return players[currPlayerIdx]; }
+    public int getTurnNum(){ return turnNum; }
+    public Player[] getPlayerList(){ return players; }
+    public Map getMap() { return map; }
+    public PlayerStats[] getAllPlayerStats(){ return allPlayerStats; }
+    public void setMapMode(MapMode set){ currentMapMode = set; }
 
-    public Object[] getHistory(){return new Object[]{timeline, ""+year};}
-    public Player getFocusPlayer(){return focusPlayer;}
-    public int getMapMode(){return mapMode;}
-    public static Player getCurrentPlayer(){return players[currentPlayer];}
-    public static int getPlayerNum(){return currentPlayer;}
-    public boolean getImperium(){return imperium;}
-    public int getTurnNum(){return turnNum;}
-    public Player[] getPlayerList(){return players;}
-    public static Player[] getStaticPlayerList(){return players;}
-    public static Map getMap() { return map; }
-    public int getSlideProgress(){return slideProgress;}
-    public Player getWiener(){return wiener;}
-    public ArrayList<ArrayList<ArrayList>> getAllStats(){
-        allStats = new ArrayList<>(0);
-        for(int i=0; i<players.length; i++) allStats.add(players[i].getStats());
-        return allStats;
-    }
-    public static void setFocusPlayer(Player p){
-        focusPlayer = p;
-        getGame().updateAllOwners(focusPlayer);
-    }
-    public void setMap(Map set){map = set; if(map == null) Log.i("map", "nulllllll");}
-    public void updateMapMode(int set){ Log.i("InSetup", ""+inSetup);mapMode = set; updateAllOverlays(); }
-    public void setTurnNum(int set){turnNum = set;}
-    public void setCurrentPlayer(int set){currentPlayer = set;}
-    public void setPlayerLength(int len){
-        Log.i("removing", "in");
-        for(Player p : players){
-            p.remove();
-        }
-        players = new Player[len];
-    }
-    public static void changeProvEnabled(boolean set){provEnabled = set;}
-    public void updateMaxDev(){
-        for(int i=0; i<map.getList().length; i++)
-            if(map.getList()[i].modDevelopment(0) > maxDev) maxDev = map.getList()[i].modDevelopment(0);
-    }
-    private void updateDevastation(){
-        for(Province p : map.getList()) p.modDevastation(-.003);
-    }
-    private void updateProvinces(){
-        for(Province p : map.getList())
-           p.updateOwner();
-    }
-    public void updateTitles(){
-        for(Player p : players)
-            p.pocketText();
-    }
-    public void haltAis(){
-        Log.i("AiHalt", "");
-        Ai.halt();
-    }
-    public void removePlayer(int id){
-        //players[id].setId(-1);
-        players[id].remove();
-        Log.i("Player Remove", "Yeeted: "+id);
-    }
     public Player[] buildPlayers(int[] playerTypes){
         Player[] players = new Player[playerTypes.length];
         for(int i = 0; i< playerTypes.length; i++) {
-            Log.i("addPlayers", "Ai: "+ playerTypes[i]);
-            if(playerTypes[i] == 1) players[i] = new Ai(i, Ai.ROMAN, imperium, "#0"+i);
-            else players[i] = new Player(i, imperium, "#0"+i);
-            Log.i("addPlayers", "added player"+i+", "+players[i].isHuman());
+            if(playerTypes[i] == 1) players[i] = new Ai(i, Ai.ROMAN, gameMode != GameMode.CLASSIC, "#0"+i);
+            else players[i] = new Player(i, gameMode != GameMode.CLASSIC, "#0"+i);
         }
         return players;
     }
-    public void changePlayer(boolean adding){
-        clearAlerts();
-        clearWarPortals();
-        getCurrentPlayer().printDiplo();
-        String prevTag = getCurrentPlayer().getTag();
-        Log.i("inchangeplayer", "in, "+turnNum+", "+currentPlayer);
-        if(getCurrentPlayer().isHuman() && getCurrentPlayer().getAllOwned().length > 0 && !debugingOn && year != 1)
-            Achivements.scanCriteria();
-        players[currentPlayer].calcAllOwned(false);
-        if(players[currentPlayer].getAllOwned().length == 0 && turnNum > players.length){
-            getCurrentPlayer().peaceOutAll();
-            removePlayer(currentPlayer);
-        }
-        do{
-            if (currentPlayer < players.length - 1) currentPlayer++;
-            else currentPlayer = 0;
-            players[currentPlayer].calcAllOwned(false);
-        }while (players[currentPlayer].getAllOwned().length == 0 && turnNum > players.length);
-        Log.i("inchangeplayer", "in2 "+players[currentPlayer].getAllOwned().length+", "+players[currentPlayer].getName());
-        maxTroops = map.maxTroops();
-        Log.i("inchangeplayer", "in3");
-        if(adding && !imperium) {
-            getCurrentPlayer().modTroops(3 + map.bonuses(getCurrentPlayer()) + (int) getCurrentPlayer().getInfamy() + map.hegemonyBonus(getCurrentPlayer().getAllOwned()));
-        }else if(adding && imperium){
-            getCurrentPlayer().modMonetae(getCurrentPlayer().totalIncome() + (int) getCurrentPlayer().getInfamy() + map.hegemonyBonus(getCurrentPlayer().getAllOwned()));
-            //getCurrentPlayer().modTroops(getCurrentPlayer().totalIncome());
-        }else if(adding && isHistorical()){
-            getCurrentPlayer().modMonetae((int) (getCurrentPlayer().totalIncome()*getCurrentPlayer().getOpsEfficiency() + (int) getCurrentPlayer().getInfamy()));
-            //getCurrentPlayer().modTroops(getCurrentPlayer().totalIncome());
-        }
-        Log.i("inchangeplayer", "in4");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updateAllOwners(); //friend or foe
-                chickenDinner();
-                if(debug)setPlayerInfo(getCurrentPlayer().getName());
-                Log.i("playerStage", ""+getCurrentPlayer().getStage()+", "+currentPlayer);
-                change.setBackgroundResource(R.drawable.endplacement);
-                endTransport();
-                /*if(getCurrentPlayer().getId() == 0) statusCover.setBackgroundResource(R.drawable.statusblue);
-                if(getCurrentPlayer().getId() == 1) statusCover.setBackgroundResource(R.drawable.statusred);
-                if(getCurrentPlayer().getId() == 2) statusCover.setBackgroundResource(R.drawable.statusgreen);
-                if(getCurrentPlayer().getId() == 3) statusCover.setBackgroundResource(R.drawable.statuspurple);*/
-                changeNationAt();
-                changeAllUISelection(false);
-            }
-        });
-        //for(Player p : players) p.calcAllOwned();
-        if(!adding) getCurrentPlayer().setStage(-1);
-        else getCurrentPlayer().setStage(0);
-        Log.i("playerStage", ""+getCurrentPlayer().getStage()+", "+currentPlayer);
+
+    protected void givePlayerTurnResources() {}
+    protected int getTurnStartStage(){ return 0; }
+
+    public void startNextTurn(){
         turnNum++;
-        Log.i("Turn Num", "" + turnNum);
-        saveAllProvinces();
+        // Loop over defeated players until the next alive player is found
+        do {
+            if (currPlayerIdx < players.length - 1) currPlayerIdx++;
+            else currPlayerIdx = 0;
+        } while (players[currPlayerIdx].isDefeated());
+        Player currPlayer = players[currPlayerIdx];
+
         map.decayAll();
-        updateTitles();
-        getCurrentPlayer().printDiplo();
-        getCurrentPlayer().turn(true);
+        map.updateDevastation();
+
+        givePlayerTurnResources();
+        currPlayer.setStage(getTurnStartStage());
+        currPlayer.turn(true);
     }
-    public void jumpToPlayer(String tag){
-        for(int i=0; i<players.length; i++){
-            Player p = players[i];
-            if((p.getTotalTroops() > 0 || turnNum < players.length) && p.getTag().equals(tag))
-                currentPlayer = i;
-        }
-        updateAllOwners();
-        if(debug)setPlayerInfo(getCurrentPlayer().getName());
-        maxTroops = map.maxTroops();
-        getCurrentPlayer().setStage(-1);
-        turnNum++;
-        saveAllProvinces();
-        changeNationAt();
-        map.decayAll();
-        getCurrentPlayer().turn(false);
-    }
-    public static int mostOwned(){
-        int most = 0;
-        int mostId = -1;
-        for(Player p : players){
-            if(p.getAllOwned().length > most){
-                most = p.getAllOwned().length;
-                mostId = p.getId();
-            }
-        }
-        return mostId;
-    }
-    public void updateAllOwners(){ for(Province p : map.getList()) p.updateOwner(); }
-    public void updateAllOwners(Player focus){ for(Province p : map.getList()) p.updateOwner(focus); }
-    public void enablePulse(int[] ids){
-        stopPulse();
-        pulseProvs = ids;
-        pulsing = true;
-    }
-    public void stopPulse(){
-        if(pulsing) updateAllOverlays();
-        pulsing = false;
-    }
-    private void highlight(){
-        for(int i : pulseProvs){
-            for(Province p : map.getList()){
-                if(p.getId() == i) p.pulse(Color.argb(255, 189, 148, 242), pulseCount);
-            }
-        }
-    }
-    public void highlightPlayer(Player player, int color){
-        if(player == null) return;
-        for(Province p : map.getList())
-            if(p.getOwnerId() == player.getId())
-                p.setColor(color);
-    }
-    private void initialCores(){
-        for(Province p : map.getList()){
-            if(p.getCore().equals("#nn") && p.getOwnerId() != -1)
-                p.setCoreOwner(p.getOwner().getTag());
-        }
-    }
+
+
     //presses province with owner recorded in the loadTag
     public void loadProvinceOwners(){
         //Log.i("OwnerTag", "In");
@@ -362,12 +207,12 @@ public class Game {
         }
         Log.i("playerSave", save.substring(start));
         save += "!";
-        save += formatInt(currentPlayer, 3);
+        save += formatInt(currPlayerIdx, 3);
         //save += aisToString();
 
         if(imperium) save += ""+1;
         if(!imperium) save += ""+0;
-        getAllStats();
+        getAllPlayerStats();
         save += "|";
         if(year != 0) save += "["+timeline+","+year+"]";
         else save += "[,]";
@@ -405,16 +250,16 @@ public class Game {
             return;
         }
         if(debug){
-            changePlayer(false);
+            startNextTurn(false);
             return;
         }
         changeAllSelection(false);
-        Log.i("Changer", "press"+getCurrentPlayer().getStage()+", name: "+getCurrentPlayer().getName());
-        if (!imperium && getCurrentPlayer().getStage() == 0 && getCurrentPlayer().getTroops() == 0) {
-            getCurrentPlayer().setStage(1); Log.i("changeStage", "place-1");
+        Log.i("Changer", "press"+ getCurrPlayer().getStage()+", name: "+ getCurrPlayer().getName());
+        if (!imperium && getCurrPlayer().getStage() == 0 && getCurrPlayer().getTroops() == 0) {
+            getCurrPlayer().setStage(1); Log.i("changeStage", "place-1");
             change.setBackgroundResource(R.drawable.endattack);
-        } else if (imperium && getCurrentPlayer().getStage() == 0) {
-            getCurrentPlayer().setStage(1); Log.i("changeStage", "place0");
+        } else if (imperium && getCurrPlayer().getStage() == 0) {
+            getCurrPlayer().setStage(1); Log.i("changeStage", "place0");
             change.setBackgroundResource(R.drawable.endattackdown);
             change.postDelayed(new Runnable() {
                 @Override
@@ -422,11 +267,11 @@ public class Game {
                     change.setBackgroundResource(R.drawable.endattack);
                 }
             }, 300);
-        } else if (getCurrentPlayer().getStage() == 1) {
-            getCurrentPlayer().setStage(2); Log.i("changeStage", "place1");
+        } else if (getCurrPlayer().getStage() == 1) {
+            getCurrPlayer().setStage(2); Log.i("changeStage", "place1");
             change.setBackgroundResource(R.drawable.endtransport);
             changeAllUISelection(false);
-        } else if (getCurrentPlayer().getStage() == 2) {
+        } else if (getCurrPlayer().getStage() == 2) {
             change.setBackgroundResource(R.drawable.endplacement);
             toStageZero();
         }
@@ -439,17 +284,17 @@ public class Game {
             return;
         }
         if(debug){
-            changePlayer(false);
+            startNextTurn(false);
             return;
         }
         changeAllSelection(false);
-        Log.i("Changer", "press"+getCurrentPlayer().getStage()+"id:"+currentPlayer);
-        if (getCurrentPlayer().getStage() == 1) {
-            getCurrentPlayer().setStage(0); Log.i("changerevStage", "place1");
+        Log.i("Changer", "press"+ getCurrPlayer().getStage()+"id:"+ currPlayerIdx);
+        if (getCurrPlayer().getStage() == 1) {
+            getCurrPlayer().setStage(0); Log.i("changerevStage", "place1");
             changeAllUISelection(false);
-        } else if (getCurrentPlayer().getStage() == 2) {
+        } else if (getCurrPlayer().getStage() == 2) {
             changeAllUISelection(false);
-            getCurrentPlayer().setStage(1);
+            getCurrPlayer().setStage(1);
         }
     }
 
@@ -457,8 +302,8 @@ public class Game {
         Log.i("again", "presses");
         rollOut(new int[6]);
 
-        if (getCurrentPlayer().getStage() == 1 && !transporting) {
-            rollOut(getCurrentPlayer().attack());
+        if (getCurrPlayer().getStage() == 1 && !transporting) {
+            rollOut(getCurrPlayer().attack());
             again.setBackgroundResource(R.drawable.attackdown);
             again.postDelayed(new Runnable() {
                 @Override
@@ -466,41 +311,42 @@ public class Game {
                     again.setBackgroundResource(R.drawable.attack);
                 }
             }, 500);
-        } else if (getCurrentPlayer().getStage() == 1 && transporting /*&& ran*/) {
+        } else if (getCurrPlayer().getStage() == 1 && transporting /*&& ran*/) {
             Log.i("transporting", "againEnded");
             again.setBackgroundResource(R.drawable.transportdown);
-            try{getCurrentPlayer().transport(slideValue);}catch (NullPointerException e){e.printStackTrace();}
+            try{
+                getCurrPlayer().transport(slideValue);}catch (NullPointerException e){e.printStackTrace();}
             again.setBackgroundResource(R.drawable.transport);
         }
-        if (getCurrentPlayer().getStage() == 2 && !isHistorical()) {
+        if (getCurrPlayer().getStage() == 2 && !isHistorical()) {
             again.setBackgroundResource(R.drawable.transportdown);
             change.setBackgroundResource(R.drawable.endplacement);
-            getCurrentPlayer().transport(slideValue);
+            getCurrPlayer().transport(slideValue);
             toStageZero();
         }
-        else if(getCurrentPlayer().getStage() == 2) {
-            getCurrentPlayer().transport(slideValue);
+        else if(getCurrPlayer().getStage() == 2) {
+            getCurrPlayer().transport(slideValue);
             endTransport();
             changeAllUISelection(false);
         }
     }
     public void retreat() {
         try {
-            if(getCurrentPlayer().attackSelected[1] != null && getCurrentPlayer().attackSelected[0] != null)
-                if (getCurrentPlayer().attackSelected[1].getTroops() / (getCurrentPlayer().attackSelected[0].getTroops() + 1) > 3)
+            if(getCurrPlayer().attackSelected[1] != null && getCurrPlayer().attackSelected[0] != null)
+                if (getCurrPlayer().attackSelected[1].getTroops() / (getCurrPlayer().attackSelected[0].getTroops() + 1) > 3)
                     Achivements.getAchive("ctrlZ");
         }catch (NullPointerException e){e.printStackTrace();}
         changeAllUISelection(false);
         //getCurrentPlayer().select(2);
         retreat.setBackgroundResource(R.drawable.retreatdown);
-        if (getCurrentPlayer().getStage() == 1 && transporting) endTransport();
-        else if (getCurrentPlayer().getStage() == 1) endAttack();
+        if (getCurrPlayer().getStage() == 1 && transporting) endTransport();
+        else if (getCurrPlayer().getStage() == 1) endAttack();
     }
     public void annihilate() {
         annihilate.setBackgroundResource(R.drawable.annihilatedown);
         try {
-            while (getCurrentPlayer().getAttackSelected()[0].getTroops() > 1 && getCurrentPlayer().getAttackSelected()[1].getTroops() > 1)
-                rollOut(getCurrentPlayer().attack());
+            while (getCurrPlayer().getAttackSelected()[0].getTroops() > 1 && getCurrPlayer().getAttackSelected()[1].getTroops() > 1)
+                rollOut(getCurrPlayer().attack());
         }catch(NullPointerException e){e.printStackTrace();}
     }
     //private
@@ -554,8 +400,8 @@ public class Game {
     protected void toStageZero(){
         Log.i("switchinh", "tostagezero");
         slideValue = 0;
-        getGame().setLastPlayerId(getCurrentPlayer().getId());
-        changePlayer(true);
+        getGame().setLastPlayerId(getCurrPlayer().getId());
+        startNextTurn(true);
         //undo.setVisibility(View.VISIBLE);
         //again.setBackgroundColor(TRANSPARENT);
         again.setVisibility(View.INVISIBLE);
@@ -605,12 +451,7 @@ public class Game {
                     .y(screenWidth/2-getMapLayout().getMeasuredHeight()/2)
                     .setDuration((long) (2000 * Math.pow(getMapLayout().getScaleX(), 2) / Math.sqrt(vector)));
     }
-    private void saveAllProvinces(){
-        for (int i=0; i<map.getList().length; i++) {
-            getMap().getList()[i].saveTroops();
-            getMap().getList()[i].saveDevelopment();
-        }
-    }
+
     private String aisToString(){
         String list = "";
         for(int i = 0; i< playerTypes.length; i++){
@@ -627,7 +468,116 @@ public class Game {
     }
 
 
+    public enum GameMode {
+        CLASSIC(0), IMPERIUM(1), HISTORICAL(2);
 
+        private final int value;
+        GameMode(int value) { this.value = value; }
+        public int getValue() { return value; }
+    }
+
+    public enum MapMode {
+        TERRAIN, PLAYER, CONTINENT, DEVELOPMENT, ATTRITION, DEVASTATION, FORT_LEVEL, TROOPS, DIPLOMATIC, CORES
+    }
+
+//    public void enablePulse(int[] ids){
+//        stopPulse();
+//        pulseProvs = ids;
+//        pulsing = true;
+//    }
+//    public void stopPulse(){
+//        if(pulsing) updateAllOverlays();
+//        pulsing = false;
+//    }
+//    private void highlight(){
+//        for(int i : pulseProvs){
+//            for(Province p : map.getList()){
+//                if(p.getId() == i) p.pulse(Color.argb(255, 189, 148, 242), pulseCount);
+//            }
+//        }
+//    }
+//    public void highlightPlayer(Player player, int color){
+//        if(player == null) return;
+//        for(Province p : map.getList())
+//            if(p.getOwnerId() == player.getId())
+//                p.setColor(color);
+//    }
+//    public void jumpToPlayer(String tag){
+//        for(int i=0; i<players.length; i++){
+//            Player p = players[i];
+//            if((p.getTotalTroops() > 0 || turnNum < players.length) && p.getTag().equals(tag))
+//                currPlayerIdx = i;
+//        }
+//        updateAllOwners();
+//        if(debug)setPlayerInfo(getCurrPlayer().getName());
+//        maxTroops = map.maxTroops();
+//        getCurrPlayer().setStage(-1);
+//        turnNum++;
+//        saveAllProvinces();
+//        changeNationAt();
+//        map.decayAll();
+//        getCurrPlayer().turn(false);
+//    }
+//    public void changePlayer(boolean adding){
+//        clearAlerts();
+//        clearWarPortals();
+//        getCurrentPlayer().printDiplo();
+//        String prevTag = getCurrentPlayer().getTag();
+//        Log.i("inchangeplayer", "in, "+turnNum+", "+currentPlayer);
+//        if(getCurrentPlayer().isHuman() && getCurrentPlayer().getAllOwned().length > 0 && !debugingOn && year != 1)
+//            Achivements.scanCriteria();
+//        players[currentPlayer].calcAllOwned(false);
+//        if(players[currentPlayer].getAllOwned().length == 0 && turnNum > players.length){
+//            getCurrentPlayer().peaceOutAll();
+//            defeatPlayer(currentPlayer);
+//        }
+//        do{
+//            if (currentPlayer < players.length - 1) currentPlayer++;
+//            else currentPlayer = 0;
+//            players[currentPlayer].calcAllOwned(false);
+//        }while (players[currentPlayer].getAllOwned().length == 0 && turnNum > players.length);
+//        Log.i("inchangeplayer", "in2 "+players[currentPlayer].getAllOwned().length+", "+players[currentPlayer].getName());
+//        maxTroops = map.maxTroops();
+//        Log.i("inchangeplayer", "in3");
+//        if(adding && !imperium) {
+//            getCurrentPlayer().modTroops(3 + map.bonuses(getCurrentPlayer()) + (int) getCurrentPlayer().getInfamy() + map.hegemonyBonus(getCurrentPlayer().getAllOwned()));
+//        }else if(adding && imperium){
+//            getCurrentPlayer().modMonetae(getCurrentPlayer().totalIncome() + (int) getCurrentPlayer().getInfamy() + map.hegemonyBonus(getCurrentPlayer().getAllOwned()));
+//            //getCurrentPlayer().modTroops(getCurrentPlayer().totalIncome());
+//        }else if(adding && isHistorical()){
+//            getCurrentPlayer().modMonetae((int) (getCurrentPlayer().totalIncome()*getCurrentPlayer().getOpsEfficiency() + (int) getCurrentPlayer().getInfamy()));
+//            //getCurrentPlayer().modTroops(getCurrentPlayer().totalIncome());
+//        }
+//        Log.i("inchangeplayer", "in4");
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                updateAllOwners(); //friend or foe
+//                chickenDinner();
+//                if(debug)setPlayerInfo(getCurrentPlayer().getName());
+//                Log.i("playerStage", ""+getCurrentPlayer().getStage()+", "+currentPlayer);
+//                change.setBackgroundResource(R.drawable.endplacement);
+//                endTransport();
+//                /*if(getCurrentPlayer().getId() == 0) statusCover.setBackgroundResource(R.drawable.statusblue);
+//                if(getCurrentPlayer().getId() == 1) statusCover.setBackgroundResource(R.drawable.statusred);
+//                if(getCurrentPlayer().getId() == 2) statusCover.setBackgroundResource(R.drawable.statusgreen);
+//                if(getCurrentPlayer().getId() == 3) statusCover.setBackgroundResource(R.drawable.statuspurple);*/
+//                changeNationAt();
+//                changeAllUISelection(false);
+//            }
+//        });
+//        //for(Player p : players) p.calcAllOwned();
+//        if(!adding) getCurrentPlayer().setStage(-1);
+//        else getCurrentPlayer().setStage(0);
+//        Log.i("playerStage", ""+getCurrentPlayer().getStage()+", "+currentPlayer);
+//        turnNum++;
+//        Log.i("Turn Num", "" + turnNum);
+//        saveAllProvinces();
+//        map.decayAll();
+//        updateTitles();
+//        getCurrentPlayer().printDiplo();
+//        getCurrentPlayer().turn(true);
+//    }
 //    public void updateAllOverlays(){
 //        Log.i("UpdatedOverlays", "");
 //        runOnUiThread(new Runnable() {

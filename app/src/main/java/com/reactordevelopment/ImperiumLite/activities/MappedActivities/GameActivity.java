@@ -429,7 +429,7 @@ public class GameActivity extends MappedActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(context, StatsActivity.class);
                 //Bundle statsBundle = new Bundle();
-                statsBundle = game.getAllStats();
+                statsBundle = game.getAllPlayerStats();
                 //intent.putExtra("statsBundle", statsBundle);
                 handle.animate().x((float)(screenHeight*(.93))).setDuration(500).start();
                 navBar.animate().x(screenHeight).setDuration(500).start();
@@ -466,7 +466,7 @@ public class GameActivity extends MappedActivity {
                     openInfo = false;
                     Log.i("info", "open: " + openInfo);
                     if(infoProv.getOwner() != null &&
-                            infoProv.getOwner().getId() != game.getCurrentPlayer().getId() && game.isHistorical())
+                            infoProv.getOwner().getId() != game.getCurrPlayer().getId() && game.isHistorical())
                         openDiplo(infoProv.getOwner().getTag());
                 }
             });
@@ -492,7 +492,7 @@ public class GameActivity extends MappedActivity {
         });
     }
     public void developer(Province prov){
-        game.getCurrentPlayer().modMonetae(-10);
+        game.getCurrPlayer().modMonetae(-10);
         prov.modDevelopment(Math.exp(-prov.modDevelopment(0)/15));
         updateInfo();
     }
@@ -561,7 +561,7 @@ public class GameActivity extends MappedActivity {
             @Override public void onClick(View v) { diploLayout.animate().x(-2000).setDuration(500);}});
     }
     public void openDiplo(final String tag){
-        Player plater = game.getCurrentPlayer();
+        Player plater = game.getCurrPlayer();
         diploTag = tag;
 
         Log.i("RelationText", (String) textDiplo.getText());
@@ -585,7 +585,7 @@ public class GameActivity extends MappedActivity {
         boolean warEnabled = true;
         dipProgCover.setVisibility(View.INVISIBLE);
         Bitmap prime = null;
-        if(!game.getCurrentPlayer().isHostile(diploTag))prime = BitmapFactory.decodeResource(context.getResources(), R.drawable.declarewar);
+        if(!game.getCurrPlayer().isHostile(diploTag))prime = BitmapFactory.decodeResource(context.getResources(), R.drawable.declarewar);
         else prime = BitmapFactory.decodeResource(context.getResources(), R.drawable.peacedeal);warDiplo.setImageBitmap(prime);
         prime = BitmapFactory.decodeResource(context.getResources(), R.drawable.makeally); allyDiplo.setImageBitmap(prime);
         prime = BitmapFactory.decodeResource(context.getResources(), R.drawable.makesub); subDiplo.setImageBitmap(prime);
@@ -594,7 +594,7 @@ public class GameActivity extends MappedActivity {
         subDiplo.setBackgroundColor(Color.TRANSPARENT);
 
 
-        if(game.getCurrentPlayer().hasOverlord() || game.playerFromTag(diploTag).hasOverlord()){
+        if(game.getCurrPlayer().hasOverlord() || game.playerFromTag(diploTag).hasOverlord()){
             warDiplo.setColorFilter(grayScale());
             allyDiplo.setColorFilter(grayScale());
             subDiplo.setColorFilter(grayScale());
@@ -602,7 +602,7 @@ public class GameActivity extends MappedActivity {
             subEnabled = false;
             warEnabled = false;
         }
-        else if(!game.getCurrentPlayer().isAttackable(diploTag)){
+        else if(!game.getCurrPlayer().isAttackable(diploTag)){
             warDiplo.setColorFilter(grayScale());
             warEnabled = false;
         }
@@ -610,7 +610,7 @@ public class GameActivity extends MappedActivity {
             subDiplo.setColorFilter(grayScale());
             subEnabled = false;
         }*/
-        else if(game.getCurrentPlayer().hasSubject(diploTag)){
+        else if(game.getCurrPlayer().hasSubject(diploTag)){
             allyDiplo.setColorFilter(grayScale());
             allyEnabled = false;
         }
@@ -633,10 +633,10 @@ public class GameActivity extends MappedActivity {
         subDiplo.setOnClickListener(new View.OnClickListener() {@Override public void onClick(View v) { if(finalSubEnabled)subjectScreen();}});
         final boolean finalWarEnabled = warEnabled;
         warDiplo.setOnClickListener(new View.OnClickListener() {@Override public void onClick(View v) {
-            if(game.getCurrentPlayer().isAttackable(diploTag) && finalWarEnabled){
-                if(!game.getCurrentPlayer().isHostile(diploTag))
+            if(game.getCurrPlayer().isAttackable(diploTag) && finalWarEnabled){
+                if(!game.getCurrPlayer().isHostile(diploTag))
                     warScreen();
-                else showDipPop(4, game.getCurrentPlayer().getWar(diploTag), "#nn");
+                else showDipPop(4, game.getCurrPlayer().getWar(diploTag), "#nn");
             }
         }});
         diploLayout.animate().x(15).setDuration(500);
@@ -654,25 +654,25 @@ public class GameActivity extends MappedActivity {
         dipProgCover.setVisibility(View.VISIBLE);
         allyDiplo.setY(screenWidth*.7f);
         Player target = game.getPlayerList()[game.playerIdFromTag(diploTag)];
-        if(game.getCurrentPlayer().isAllied(diploTag)){
+        if(game.getCurrPlayer().isAllied(diploTag)){
             textDiplo.setText("Breaking our alliance may help us forge our future, but will create a one turn truce");
             allyDiplo.setBackgroundResource(R.drawable.breakally);
             allyDiplo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    game.getCurrentPlayer().removeAlly(diploTag);
-                    game.getPlayerList()[game.playerIdFromTag(diploTag)].removeAlly(game.getCurrentPlayer().getTag());
-                    game.getCurrentPlayer().addTruce(diploTag, 1);
-                    game.getPlayerList()[game.playerIdFromTag(diploTag)].addTruce(game.getCurrentPlayer().getTag(), 1);
+                    game.getCurrPlayer().removeAlly(diploTag);
+                    game.getPlayerList()[game.playerIdFromTag(diploTag)].removeAlly(game.getCurrPlayer().getTag());
+                    game.getCurrPlayer().addTruce(diploTag, 1);
+                    game.getPlayerList()[game.playerIdFromTag(diploTag)].addTruce(game.getCurrPlayer().getTag(), 1);
                     backDiplo.performClick();
                 }});
         }else {
             if (target.isHuman())
                 textDiplo.setText("It is unknown if "+target.getName()+" will form an alliance");
             else{
-                textDiplo.setText(target.getName()+" will most likely "+ ((!target.willAlly(game.getCurrentPlayer().getTag())) ? "not" : "")+
+                textDiplo.setText(target.getName()+" will most likely "+ ((!target.willAlly(game.getCurrPlayer().getTag())) ? "not" : "")+
                         " become our ally");
-                if(!target.willAlly(game.getCurrentPlayer().getTag()))
+                if(!target.willAlly(game.getCurrPlayer().getTag()))
                     dipProgCover.setVisibility(View.INVISIBLE);
             }
             allyDiplo.setBackgroundResource(R.drawable.makeally);
@@ -696,25 +696,25 @@ public class GameActivity extends MappedActivity {
         dipProgCover.setVisibility(View.VISIBLE);
         subDiplo.setY(screenWidth*.7f);
         Player target = game.getPlayerList()[game.playerIdFromTag(diploTag)];
-        if(game.getCurrentPlayer().hasSubject(diploTag)){
+        if(game.getCurrPlayer().hasSubject(diploTag)){
             textDiplo.setText("Releasing our subject, "+target.getName()+", may help us forge our future, but will create a one turn truce");
             subDiplo.setBackgroundResource(R.drawable.releasesub);
             subDiplo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    game.getCurrentPlayer().removeMinion(diploTag);
-                    game.getPlayerList()[game.playerIdFromTag(diploTag)].removeOverlord(game.getCurrentPlayer().getTag());
-                    game.getCurrentPlayer().addTruce(diploTag, 1);
-                    game.getPlayerList()[game.playerIdFromTag(diploTag)].addTruce(game.getCurrentPlayer().getTag(), 1);
+                    game.getCurrPlayer().removeMinion(diploTag);
+                    game.getPlayerList()[game.playerIdFromTag(diploTag)].removeOverlord(game.getCurrPlayer().getTag());
+                    game.getCurrPlayer().addTruce(diploTag, 1);
+                    game.getPlayerList()[game.playerIdFromTag(diploTag)].addTruce(game.getCurrPlayer().getTag(), 1);
                     backDiplo.performClick();
                 }});
         }else {
             if (target.isHuman())
                 textDiplo.setText("It is unknown if "+target.getName()+" desires our protection");
             else{
-                textDiplo.setText(target.getName()+" will most likely "+ ((!target.willSubmitTo(game.getCurrentPlayer().getTag())) ? "not" : "")+
+                textDiplo.setText(target.getName()+" will most likely "+ ((!target.willSubmitTo(game.getCurrPlayer().getTag())) ? "not" : "")+
                         " become our subject");
-                if(!target.willSubmitTo(game.getCurrentPlayer().getTag()))
+                if(!target.willSubmitTo(game.getCurrPlayer().getTag()))
                     dipProgCover.setVisibility(View.INVISIBLE);
             }
             subDiplo.setBackgroundResource(R.drawable.makesub);
@@ -737,7 +737,7 @@ public class GameActivity extends MappedActivity {
         dipProgCover.setVisibility(View.INVISIBLE);
         warDiplo.setY(screenWidth*.7f);
         final Player target = game.getPlayerList()[game.playerIdFromTag(diploTag)];
-        if(!game.getCurrentPlayer().isHostile(diploTag)) {
+        if(!game.getCurrPlayer().isHostile(diploTag)) {
             textDiplo.setText("Declare war on " + target.getName() + " to expand our domain");
             warDiplo.setBackgroundResource(R.drawable.declarewar);
             warDiplo.setOnClickListener(new View.OnClickListener() {
@@ -749,10 +749,10 @@ public class GameActivity extends MappedActivity {
         }
     }
     protected void makeAlly(String tag){
-        game.getPlayerList()[game.playerIdFromTag(tag)].addRequestFrom(1, "000000", game.getCurrentPlayer().getTag());
+        game.getPlayerList()[game.playerIdFromTag(tag)].addRequestFrom(1, "000000", game.getCurrPlayer().getTag());
     }
     protected void makeSubject(String tag){
-        game.getPlayerList()[game.playerIdFromTag(tag)].addRequestFrom(2, "000000", game.getCurrentPlayer().getTag());
+        game.getPlayerList()[game.playerIdFromTag(tag)].addRequestFrom(2, "000000", game.getCurrPlayer().getTag());
         ArrayList<String> strings = game.playerFromTag(tag).getDiplo()[1];
         for (int i = 0; i < strings.size(); i++) {
             String s = strings.get(i);
@@ -761,11 +761,11 @@ public class GameActivity extends MappedActivity {
         }
     }
     protected void declareWar(String tag){
-        String currentTag = game.getCurrentPlayer().getTag();
-        game.getCurrentPlayer().addToWar(currentTag+tag, currentTag);
+        String currentTag = game.getCurrPlayer().getTag();
+        game.getCurrPlayer().addToWar(currentTag+tag, currentTag);
         game.playerFromTag(tag).addToWar(currentTag+tag, tag);
         for(Province p : game.playerFromTag(tag).getAllOwned()) p.updateOwner();
-        addWar(game.getCurrentPlayer().getTag(), tag);
+        addWar(game.getCurrPlayer().getTag(), tag);
     }
     private void makeDipPopup(){
         dipPopLayout = findViewById(R.id.diploPopup);
@@ -784,12 +784,12 @@ public class GameActivity extends MappedActivity {
     }
     public void requestChoice(final int type, final String group, final String from){
         Log.i("RequestChoice", ""+type+", "+ group+", "+from);
-        String enemyTag = game.getCurrentPlayer().relationsFromWarTag(group)[1];
-        String friendTag = game.getCurrentPlayer().relationsFromWarTag(group)[0];
+        String enemyTag = game.getCurrPlayer().relationsFromWarTag(group)[1];
+        String friendTag = game.getCurrPlayer().relationsFromWarTag(group)[0];
 
         if(type == 10) {
-            Log.i("Ading Ally", from+", currnet: "+game.getCurrentPlayer().getName());
-            game.getCurrentPlayer().addAlly(from); game.playerFromTag(from).addAlly(game.getCurrentPlayer().getTag());
+            Log.i("Ading Ally", from+", currnet: "+game.getCurrPlayer().getName());
+            game.getCurrPlayer().addAlly(from); game.playerFromTag(from).addAlly(game.getCurrPlayer().getTag());
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -797,9 +797,9 @@ public class GameActivity extends MappedActivity {
                 }
             });
         }
-        if(type == 20) {game.getCurrentPlayer().addOverlord(from); game.playerFromTag(from).addMinion(game.getCurrentPlayer().getTag());}
+        if(type == 20) {game.getCurrPlayer().addOverlord(from); game.playerFromTag(from).addMinion(game.getCurrPlayer().getTag());}
         if(type == 30){
-            game.getCurrentPlayer().addToWar(group, from);
+            game.getCurrPlayer().addToWar(group, from);
             for(String s : game.playerFromTag(from).getDiplo()[3]){
                 Log.i("CallToArjms", s.substring(0, 6)+group);
                         /*if(s.substring(0, 6).equals(group)) {
@@ -808,12 +808,12 @@ public class GameActivity extends MappedActivity {
                             game.getCurrentPlayer().addRecentWar(group);
                         }*/
 
-                if(game.getCurrentPlayer().isAllied(s.substring(6))){
-                    game.playerFromTag(s.substring(6)).removeAlly(game.getCurrentPlayer().getTag());
-                    game.getCurrentPlayer().removeAlly(s.substring(6));
+                if(game.getCurrPlayer().isAllied(s.substring(6))){
+                    game.playerFromTag(s.substring(6)).removeAlly(game.getCurrPlayer().getTag());
+                    game.getCurrPlayer().removeAlly(s.substring(6));
                 }
             }
-            addWar(game.getCurrentPlayer().getDiplo()[3].get(0).substring(0, 3), game.getCurrentPlayer().getDiplo()[3].get(0).substring(3, 6));
+            addWar(game.getCurrPlayer().getDiplo()[3].get(0).substring(0, 3), game.getCurrPlayer().getDiplo()[3].get(0).substring(3, 6));
         }
         if((type == 40 || type == 41) && !from.equals("#nn")){
             game.playerFromTag(from).removeRequest(type, group, from);
@@ -822,24 +822,24 @@ public class GameActivity extends MappedActivity {
             if(type == 40) winnerTag = friendTag;
             else winnerTag = enemyTag;
             Player target = game.playerFromTag(enemyTag);
-            String currentTag = game.getCurrentPlayer().getTag();
-            game.getCurrentPlayer().removeFromWar(group, winnerTag);
+            String currentTag = game.getCurrPlayer().getTag();
+            game.getCurrPlayer().removeFromWar(group, winnerTag);
             if(currentTag.equals(friendTag)) {
-                for (String s : game.getCurrentPlayer().getDiplo()[1])
+                for (String s : game.getCurrPlayer().getDiplo()[1])
                     game.playerFromTag(s).removeFromWar(group, winnerTag);
 
                 game.playerFromTag(enemyTag).removeFromWar(group, winnerTag);
                 for (String s : target.getDiplo()[1])
                     game.playerFromTag(s).removeFromWar(group, winnerTag);
 
-                removeWar(game.getCurrentPlayer().getTag(), friendTag);
+                removeWar(game.getCurrPlayer().getTag(), friendTag);
             }
 
-        }else if(/*type == 40 && */!game.getCurrentPlayer().getRecentWars().contains(group)){
-            game.playerFromTag(enemyTag).addRequestFrom(type, group, game.getCurrentPlayer().getTag());
+        }else if(/*type == 40 && */!game.getCurrPlayer().getRecentWars().contains(group)){
+            game.playerFromTag(enemyTag).addRequestFrom(type, group, game.getCurrPlayer().getTag());
         }
         if(!from.equals("#nn")) {
-            game.getCurrentPlayer().removeRequest(type, group, from);
+            game.getCurrPlayer().removeRequest(type, group, from);
             removeAlert(type, group, from);
         }
     }
@@ -847,11 +847,11 @@ public class GameActivity extends MappedActivity {
         if((""+type).length() == 1) type *= 10;
         String enemyTag = group.substring(0, 3);
         String friendTag = group.substring(3);
-        if(game.getCurrentPlayer().isAllied(enemyTag)){
+        if(game.getCurrPlayer().isAllied(enemyTag)){
             enemyTag = group.substring(3);
             friendTag = group.substring(0, 3);
         }
-        if(enemyTag.equals(game.getCurrentPlayer().getTag())) enemyTag = group.substring(3, 6);
+        if(enemyTag.equals(game.getCurrPlayer().getTag())) enemyTag = group.substring(3, 6);
 
         Bitmap prime;
         Bitmap surPrime;
@@ -871,7 +871,7 @@ public class GameActivity extends MappedActivity {
             dipPopSurrender.setVisibility(View.VISIBLE);
         }
         dipPopConfirm.setImageBitmap(prime);
-        if(game.getCurrentPlayer().getRecentWars().contains(group)) {
+        if(game.getCurrPlayer().getRecentWars().contains(group)) {
             dipPopConfirm.setColorFilter(grayScale());
             dipPopSurrender.setColorFilter(grayScale());
         }
@@ -895,7 +895,7 @@ public class GameActivity extends MappedActivity {
 
         if(from.equals("#nn")){
             Log.i("DipType", ""+type+from);
-            double peacePer = (int)(game.playerFromTag(enemyTag).reasonsToAcceptPeace(game.getCurrentPlayer().getTag())*100);
+            double peacePer = (int)(game.playerFromTag(enemyTag).reasonsToAcceptPeace(game.getCurrPlayer().getTag())*100);
             popReasons.setText(game.playerFromTag(enemyTag).getName()+" is "+
                     peacePer+"% to accepting peace");
             peacePer /= 100.0;
@@ -947,7 +947,7 @@ public class GameActivity extends MappedActivity {
         dipPopCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                game.getCurrentPlayer().removeRequest(finalType1, group, from);
+                game.getCurrPlayer().removeRequest(finalType1, group, from);
                 removeAlert(finalType1, group, from);
                 dipPopLayout.animate().y(-1000).setDuration(500);
             }
@@ -993,7 +993,7 @@ public class GameActivity extends MappedActivity {
                 Log.i("warViews", ""+portalHolder.getChildCount());
                 portalHolder.setVisibility(View.VISIBLE);
                 portalHolder.removeAllViews();
-                game.getCurrentPlayer().refreshWars();
+                game.getCurrPlayer().refreshWars();
             }
         });
     }
@@ -1061,7 +1061,7 @@ public class GameActivity extends MappedActivity {
         change.setBackgroundResource(R.drawable.endplacement);
         change.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(game.getCurrentPlayer().isHuman()){Log.i("human press", "press");game.changer();}
+                if(game.getCurrPlayer().isHuman()){Log.i("human press", "press");game.changer();}
             }
         });
         //retreat.setBackgroundColor(TRANSPARENT);
@@ -1142,7 +1142,7 @@ public class GameActivity extends MappedActivity {
             @Override public void onClick(View v) { infoProv.setFortLevel(infoProv.getFortLevel()+1);updateInfo();}});
     }
 
-    public static void changeNationAt(){showNation.setBackgroundResource(game.getCurrentPlayer().getFlag());}
+    public static void changeNationAt(){showNation.setBackgroundResource(game.getCurrPlayer().getFlag());}
 
     private ColorMatrixColorFilter grayScale(){
         ColorMatrix matrix = new ColorMatrix();

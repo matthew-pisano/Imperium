@@ -27,7 +27,7 @@ public class WarPortal extends GameActivity {
     public WarPortal(Context context, String tag){
         this.context = context;
         this.ident = tag;
-        enemyTag = game.getCurrentPlayer().splitAttDef(ident)[1];
+        enemyTag = game.getCurrPlayer().splitAttDef(ident)[1];
         Log.i("warportalCreatedwithtag", tag);
         init();
     }

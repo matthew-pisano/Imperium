@@ -134,12 +134,12 @@ public class ScenarioSelectActivity extends MappedActivity {
         }catch (Exception e){e.printStackTrace();}
         loadString = new String(mapFile);
         yearInfo = loadString.substring(loadString.indexOf("\"")+1);
-        int mapMode = game.getMapMode();
+        int mapMode = game.getCurrentMapMode();
         Game.inSetup = true;
         loadBuilder();
         game.loadProvinceOwners();
         game.playerTitles();
-        game.updateMapMode(mapMode);
+        game.setMapMode(mapMode);
         Game.inSetup = false;
         Log.i("OutSetup", "out5");
         Log.i("Time Files", "Done");

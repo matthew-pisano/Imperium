@@ -40,7 +40,7 @@ public class Achivements extends Game {
     public static void scanCriteria(){
         //final String[] HORDES = {"Kha, nog, cri, gdn"};
         ArrayList<String> hordes = new ArrayList<>(Collections.singletonList("Kha, nog, cri, gdn"));
-        current = getCurrentPlayer();
+        current = getCurrPlayer();
         Log.i("DEbugAchive", game.getTimeline()+game.getYear());
         int year = game.getYear();
         String timeline = game.getTimeline();
@@ -167,7 +167,7 @@ public class Achivements extends Game {
                 }
                 if (year != 0) {
                     if (mostOwned() == current.getId())
-                        if (extractProvinceCount(game.getTimeline(), year, getCurrentPlayer().getTag()) <= 5)
+                        if (extractProvinceCount(game.getTimeline(), year, getCurrPlayer().getTag()) <= 5)
                             getAchive("zeroTo");
                     if (current.getPlayerList().length <= 5)
                         if (extractMostOwned(game.getTimeline(), year).equals(current.getTag()))
@@ -216,7 +216,7 @@ public class Achivements extends Game {
             }
         }
         if (getMap().getId() == 2 || getMap().getId() == 1) {
-            if (current.totalIncome() > getMap().totalDev() / 2) {
+            if (current.totalIncome() > getMap().getTotalDev() / 2) {
                 getAchive("woahh");
             }
             if (provs.length == getMap().getList().length) {
@@ -375,7 +375,7 @@ public class Achivements extends Game {
                 id = p.getId();
             }
         }
-        return id == getCurrentPlayer().getId();
+        return id == getCurrPlayer().getId();
     }
     private static boolean quarantine(){
         for(Province p : provs){
@@ -393,7 +393,7 @@ public class Achivements extends Game {
                 max = (int)p.modDevelopment(0);
             }
         }
-        if(potential != null) return  potential.getOwnerId() == getCurrentPlayer().getId() && potential.modDevastation(0) < .1;
+        if(potential != null) return  potential.getOwnerId() == getCurrPlayer().getId() && potential.modDevastation(0) < .1;
         return false;
     }
     public static void getAchive(String tag){

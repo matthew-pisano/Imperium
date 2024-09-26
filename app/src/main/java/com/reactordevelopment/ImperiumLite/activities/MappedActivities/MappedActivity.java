@@ -260,7 +260,7 @@ public class MappedActivity extends AppCompatActivity {
                                                 minDist = (int) Math.abs(event.getX() - choices.get(i).getX());
                                                 touched = choices.get(i);
                                             }
-                                    Log.i("DiploToiuch", ""+game.getMapMode());
+                                    Log.i("DiploToiuch", ""+game.getCurrentMapMode());
                                     if (System.currentTimeMillis() - downtime > 300 && touched != null)
                                         touched.doLongClick();
                                     else if (touched != null) {
@@ -287,7 +287,7 @@ public class MappedActivity extends AppCompatActivity {
     protected void touchProvince(Province touched) {
         game.setFocusPlayer(touched.getOwner());
         Log.i("Focsd", "" + (game.getFocusPlayer() == null));
-        if (game.getMapMode() == 8) game.updateAllOverlays();
+        if (game.getCurrentMapMode() == 8) game.updateAllOverlays();
     }
 
     private void modeDropdown(){
@@ -353,7 +353,7 @@ public class MappedActivity extends AppCompatActivity {
                     masterHolder.animate().y(0).setDuration(500).start();
                     modeDropper.setBackgroundResource(R.drawable.closemodes);
                     for(int i=0; i<modes.length; i++){
-                        if(game.getMapMode() != i) modes[i].animate().x(-3 * modes[game.getMapMode()].getWidth() / 4);
+                        if(game.getCurrentMapMode() != i) modes[i].animate().x(-3 * modes[game.getCurrentMapMode()].getWidth() / 4);
                     }
                 }
                 openMode = !openMode;
@@ -364,10 +364,10 @@ public class MappedActivity extends AppCompatActivity {
             modes[i].setLayoutParams(new LinearLayout.LayoutParams((int)(screenHeight*.45*.75), ViewGroup.LayoutParams.MATCH_PARENT, (float)(1.0/modesLength)));
 
             modes[i].setOnClickListener(new View.OnClickListener() {@Override public void onClick(View v) {
-                if(game.getMapMode() != index) {
+                if(game.getCurrentMapMode() != index) {
                     modes[index].animate().x(0).setDuration(200).start();
-                    modes[game.getMapMode()].animate().x(-3 * modes[game.getMapMode()].getWidth() / 4).setDuration(200).start();
-                    game.updateMapMode(index);
+                    modes[game.getCurrentMapMode()].animate().x(-3 * modes[game.getCurrentMapMode()].getWidth() / 4).setDuration(200).start();
+                    game.setMapMode(index);
                 }
                 Log.i("mode", "mapMode: "+index);
             }});
@@ -379,7 +379,7 @@ public class MappedActivity extends AppCompatActivity {
         Log.i("showInfo", "open: " + openInfo + "from " + prov.getName());
         infoProv = prov;
         if(prov.getOwner() != null) {
-            int[] relations = game.getCurrentPlayer().getRelations(prov.getOwner().getTag());
+            int[] relations = game.getCurrPlayer().getRelations(prov.getOwner().getTag());
             ownerFlag.setBackgroundResource(prov.getOwner().getFlag());
             if(!prov.getCore().equals(prov.getOwner().getTag()) && !prov.getCore().equals("#nn")) {
                 coreFlag.setBackgroundResource(game.playerFromTag(prov.getCore()).getFlag());
@@ -396,7 +396,7 @@ public class MappedActivity extends AppCompatActivity {
             info.animate().x(0).setDuration(500).start();
             info.setVisibility(View.VISIBLE);
         }
-        if(prov.getOwnerId() == game.getCurrentPlayer().getId())
+        if(prov.getOwnerId() == game.getCurrPlayer().getId())
             revealProvMods();
         else hideProvMods();
         openInfo = true;

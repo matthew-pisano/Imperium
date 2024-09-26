@@ -2,7 +2,6 @@ package com.reactordevelopment.ImperiumLite.core.player;
 
 import static com.reactordevelopment.ImperiumLite.activities.MainActivity.MONETAE_TO_TROOPS;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -35,8 +34,8 @@ public class Ai extends Player {
     private static boolean killSwitch;
     private SharedPreferences prefs;
 
-    public Ai(Context cont, int ident, int style, boolean imperium, String tag) {
-        super(cont, ident, imperium, tag);
+    public Ai(int ident, int style, boolean imperium, String tag) {
+        super(ident, imperium, tag);
         id = ident;
         human = false;
         puppet = false;
@@ -68,18 +67,18 @@ public class Ai extends Player {
                         }*/
                         Thread.sleep(500);
                         if (getPlayerList().length != 0 && getGame() != null && System.currentTimeMillis() > lastRun + prefs.getInt("turnSpeed", 500)) {
-                            if (getCurrentPlayer() != null) {
-                                if (getCurrentPlayer().getId() == id && !executing && !loneSurvivor() && getTurnNum() < MAX_TURNS) {
+                            if (getCurrPlayer() != null) {
+                                if (getCurrPlayer().getId() == id && !executing && !loneSurvivor() && getTurnNum() < MAX_TURNS) {
                                     Log.i("Timing", "" + (System.currentTimeMillis() - lastRun) + ", " + prefs.getInt("turnSpeed", 500));
                                     if (getAllOwned().length == 0|| id == getGame().getLastPlayerId()){
                                         if(isHistorical() || getTurnNum() > getPlayerList().length) {
                                             Log.i("Ai cont", "Skipped: " + getNation().getName() + ", " + getAllOwned().length + ", " + getGame().getLastPlayerId() + ", " + id+", tunrnum: "+getTurnNum());
-                                            if(stage >=0) changePlayer(true);
-                                            else changePlayer(false);
+                                            if(stage >=0) startNextTurn(true);
+                                            else startNextTurn(false);
                                             continue;
                                         }
                                     }
-                                    if (!getCurrentPlayer().isHuman()) {
+                                    if (!getCurrPlayer().isHuman()) {
                                         Log.i("Logic", "Running: " + id+", "+getNation().getName());
                                         lastRun = System.currentTimeMillis();
                                         try {runLogic(); /*getGame().setLastPlayerId(id);*/} catch (Exception e) { e.printStackTrace(); }
@@ -141,8 +140,8 @@ public class Ai extends Player {
         if (save) runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.i("ChangeId", getCurrentPlayer().getId() + ", Ai:" + id);
-                if (getCurrentPlayer().getId() == id) changer();
+                Log.i("ChangeId", getCurrPlayer().getId() + ", Ai:" + id);
+                if (getCurrPlayer().getId() == id) changer();
             }
         });
     }
@@ -371,7 +370,7 @@ public class Ai extends Player {
         Log.i("AiTurn", "aiturn: " + id + ", Stage: " + getStage() + "-----------------------------------------------------turn: " + getTurnNum());
         if (getStage() == 2){
             Log.i("Skipped2", "AtStage2");
-            changePlayer(true);
+            startNextTurn(true);
         }
         scanBordering();
         Log.i("AiTurn", "inLogic");
@@ -523,7 +522,7 @@ public class Ai extends Player {
                 if (bestP == null /*&& getAllOwned().length > 1*/) { //randomly places troop
                     Log.i("place", "randomPlace");
                     int rand = (int) ((getAllOwned().length - 1) * Math.random());
-                    bestP = getCurrentPlayer().getAllOwned()[rand];
+                    bestP = getCurrPlayer().getAllOwned()[rand];
                     //Log.i("place", "name: "+bestP.getName()+", id: "+getId()+", owner: " +bestP.getOwnerId()+", rnd: " + rand);
                 }
                 //pressProvince(bestP);
@@ -721,7 +720,7 @@ public class Ai extends Player {
         }
         //boolean defendedDed = false;
         Log.i("aiAttack", "ran");
-        if (getCurrentPlayer().getId() == id) {
+        if (getCurrPlayer().getId() == id) {
             changeAllSelection(false);
             attacker.setSelected(true);
             defender.setSelected(true);
@@ -818,7 +817,7 @@ public class Ai extends Player {
         Province to = null;
         Log.i("AiTransport", "Treanted entrances");
         for (Continent c : getMap().getContinents())
-            if (c.allOwned(getCurrentPlayer())) {
+            if (c.allOwned(getCurrPlayer())) {
                 Province[] threatened = threatenedEntrances(c);
                 for (Province entrance : threatened)
                     for (Province owned : entrance.getBordering())

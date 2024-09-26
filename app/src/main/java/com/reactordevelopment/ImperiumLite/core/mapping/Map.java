@@ -7,6 +7,7 @@ import com.reactordevelopment.ImperiumLite.core.player.Player;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Map extends Game implements Serializable {
     protected static Province[] provinceList;
@@ -39,12 +40,25 @@ public class Map extends Game implements Serializable {
             for(int i=0; i<continents.length; i++)
                 continents[i].makeList();
     }
-    public int totalDev(){
+    public int getTotalDev(){
         double dev = 0;
         for(Province p : provinceList)
             dev += p.calcOutput();
-        return (int)dev;
+        return (int) dev;
     }
+
+    public int getMaxDev(){
+        double maxDev = 0;
+        for(Province p : provinceList) {
+            double provDev = p.calcOutput();
+            if (provDev > maxDev) maxDev = provDev;
+        }
+        return (int) maxDev;
+    }
+    public void updateDevastation(){
+        for(Province p : map.getList()) p.modDevastation(-.003);
+    }
+
     public void resetAll(){for(Province p :provinceList) p.resetValues();}
     public boolean allTaken(){ //checks if all a maps provinces is owned by a player
         for(int i=0; i<provinceList.length; i++)

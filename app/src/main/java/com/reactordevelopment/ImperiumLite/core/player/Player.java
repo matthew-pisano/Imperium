@@ -61,7 +61,7 @@ public class Player extends Game {
     protected ArrayList<Integer> monetaeStat;
     public Player(){}
 
-    public Player(Context cont, int ident, boolean imperium, String tag){
+    public Player(int ident, boolean imperium, String tag){
         canSpend = true; //tells monetae and troops if they can be modded and not go into debt
         context = cont;
         id = ident;
@@ -769,91 +769,7 @@ public class Player extends Game {
     }
     public boolean willAlly(String tag) { return diploList[1].size() < 3; }
     public boolean willSubmitTo(String tag) { return playerFromTag(tag).totalIncome() > 10*totalIncome();}
-    public void pocketText(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for(TextView title : nameTitles) getMapLayout().removeView(title);
-                nameTitles = new ArrayList<>(0);
-                ArrayList<Province> arr = new ArrayList<Province>(0);
-                ArrayList<Province[]> pockets = new ArrayList<>(0);
-                for(Province p : allOwned){
-                    boolean cont = true;
-                    for(Province[] pock : pockets) {
-                        for (Province inPock : pock) {
-                            if (inPock.getId() == p.getId()) cont = false;
-                        }
-                    }
-                    if(!cont) continue;
-                    arr = new ArrayList<Province>(0);
-                    //Log.i("seedProv", p.getName());
-                    arr.add(p);
-                    pockets.add(borderRecur(arr).toArray(new Province[0]));
-                }
-                for(Province[] pocket : pockets){
-                    calcText(pocket);
-                    //Log.i("pocketProv", "Pocket:");
-                    //for(Province p : pocket) Log.i("pocketProv", p.getName());
-                }
-                //Log.i("pocketProv", "Done");
-                for(TextView title : nameTitles) getMapLayout().addView(title);
-            }
-        });
-    }
-    public ArrayList<Province> borderRecur(ArrayList<Province> seed){
-        for(Province p : seed.get(seed.size()-1).getBordering()){
-            if(p.getOwnerId() == id && !seed.contains(p)){
-                seed.add(p);
-                borderRecur(seed);
-            }
-        }
-        return seed;
-    }
-    public void calcText(final Province[] list) {
-        TextView nameTitle = new TextView(context);
-        nameTitle.setTextColor(Color.BLACK);
-        nameTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 5);
-        nameTitle.setText(nation.getName());
-        if(scaling > 2) nameTitle.setVisibility(View.INVISIBLE);
-        Point center = new Point(0, 0);
-        for (Province p : list) {
-            //Log.i("centor", "x: " + p.getCenter().x + ", y: " + p.getCenter().y);
-            center.x += p.getCenter().x;
-            center.y += p.getCenter().y;
-        }
-        center.x /= list.length;
-        center.y /= list.length;
 
-        Point furthest = center;
-        float xDiff = Math.abs(furthest.x - center.x);
-        float yDiff = Math.abs(furthest.y - center.y);
-        for (Province p : list) {
-            if (Math.abs(p.getCenter().x - center.x) > Math.abs(xDiff) && Math.abs(p.getCenter().y - center.y) > Math.abs(yDiff)) {
-                furthest = p.getCenter();
-                //Log.i("futhedr", p.getName() + ", " + furthest.x + ", " + furthest.y);
-                xDiff = furthest.x - center.x;
-                yDiff = furthest.y - center.y;
-            }
-        }
-        float diffVector = (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
-        //Log.i("diffs", "" + xDiff + ", " + yDiff);
-        float rot = (float) Math.toDegrees(Math.atan(yDiff / (xDiff + 1)));
-        //Log.i("Rotat", "" + rot);
-        nameTitle.animate().rotation(rot).setDuration(0);
-        float typeSize = diffVector / (float) Math.sqrt(getName().length());
-        if (typeSize < 5) typeSize = 5;
-        else if (typeSize > 50) typeSize = 50;
-        nameTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, typeSize);
-        center.x -= 1.4 * typeSize * Math.sqrt(getName().length()) / 2;
-        center.y -= 1.4 * typeSize / 2;
-        //Log.i("www", "" + nameTitle.getMeasuredHeight() + ", " + nameTitle.getHeight() + ", " + typeSize);
-        //Log.i("centorFin", "x: " + center.x + ", y: " + center.y);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.leftMargin = center.x;
-        params.topMargin = center.y;
-        nameTitle.setLayoutParams(params);
-        nameTitles.add(nameTitle);
-    }
     //public void modMovesLeft(int mod){movesLeft += mod;}
     public int modMonetae(int mod){
         if(mod != 0) Log.i("modMoney", ""+monetae+"moddedby"+mod);
@@ -1211,4 +1127,90 @@ public class Player extends Game {
         }
         return collective;
     }
+
+    //    public void pocketText(){
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                for(TextView title : nameTitles) getMapLayout().removeView(title);
+//                nameTitles = new ArrayList<>(0);
+//                ArrayList<Province> arr = new ArrayList<Province>(0);
+//                ArrayList<Province[]> pockets = new ArrayList<>(0);
+//                for(Province p : allOwned){
+//                    boolean cont = true;
+//                    for(Province[] pock : pockets) {
+//                        for (Province inPock : pock) {
+//                            if (inPock.getId() == p.getId()) cont = false;
+//                        }
+//                    }
+//                    if(!cont) continue;
+//                    arr = new ArrayList<Province>(0);
+//                    //Log.i("seedProv", p.getName());
+//                    arr.add(p);
+//                    pockets.add(borderRecur(arr).toArray(new Province[0]));
+//                }
+//                for(Province[] pocket : pockets){
+//                    calcText(pocket);
+//                    //Log.i("pocketProv", "Pocket:");
+//                    //for(Province p : pocket) Log.i("pocketProv", p.getName());
+//                }
+//                //Log.i("pocketProv", "Done");
+//                for(TextView title : nameTitles) getMapLayout().addView(title);
+//            }
+//        });
+//    }
+//    public ArrayList<Province> borderRecur(ArrayList<Province> seed){
+//        for(Province p : seed.get(seed.size()-1).getBordering()){
+//            if(p.getOwnerId() == id && !seed.contains(p)){
+//                seed.add(p);
+//                borderRecur(seed);
+//            }
+//        }
+//        return seed;
+////    }
+//    public void calcText(final Province[] list) {
+//        TextView nameTitle = new TextView(context);
+//        nameTitle.setTextColor(Color.BLACK);
+//        nameTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 5);
+//        nameTitle.setText(nation.getName());
+//        if(scaling > 2) nameTitle.setVisibility(View.INVISIBLE);
+//        Point center = new Point(0, 0);
+//        for (Province p : list) {
+//            //Log.i("centor", "x: " + p.getCenter().x + ", y: " + p.getCenter().y);
+//            center.x += p.getCenter().x;
+//            center.y += p.getCenter().y;
+//        }
+//        center.x /= list.length;
+//        center.y /= list.length;
+//
+//        Point furthest = center;
+//        float xDiff = Math.abs(furthest.x - center.x);
+//        float yDiff = Math.abs(furthest.y - center.y);
+//        for (Province p : list) {
+//            if (Math.abs(p.getCenter().x - center.x) > Math.abs(xDiff) && Math.abs(p.getCenter().y - center.y) > Math.abs(yDiff)) {
+//                furthest = p.getCenter();
+//                //Log.i("futhedr", p.getName() + ", " + furthest.x + ", " + furthest.y);
+//                xDiff = furthest.x - center.x;
+//                yDiff = furthest.y - center.y;
+//            }
+//        }
+//        float diffVector = (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+//        //Log.i("diffs", "" + xDiff + ", " + yDiff);
+//        float rot = (float) Math.toDegrees(Math.atan(yDiff / (xDiff + 1)));
+//        //Log.i("Rotat", "" + rot);
+//        nameTitle.animate().rotation(rot).setDuration(0);
+//        float typeSize = diffVector / (float) Math.sqrt(getName().length());
+//        if (typeSize < 5) typeSize = 5;
+//        else if (typeSize > 50) typeSize = 50;
+//        nameTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, typeSize);
+//        center.x -= 1.4 * typeSize * Math.sqrt(getName().length()) / 2;
+//        center.y -= 1.4 * typeSize / 2;
+//        //Log.i("www", "" + nameTitle.getMeasuredHeight() + ", " + nameTitle.getHeight() + ", " + typeSize);
+//        //Log.i("centorFin", "x: " + center.x + ", y: " + center.y);
+//        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+//        params.leftMargin = center.x;
+//        params.topMargin = center.y;
+//        nameTitle.setLayoutParams(params);
+//        nameTitles.add(nameTitle);
+//    }
 }
